@@ -1,6 +1,7 @@
 # ADR-0008: M0 C ABI streaming spike disposition
 
-Status: Evidence recorded; production implementation remains gated
+Status: Remediation evidence recorded; independent disposal re-review pending;
+production implementation remains gated
 
 Date: 2026-07-30
 
@@ -18,25 +19,36 @@ rows and 4 MiB encoded bytes.
 
 ## Evidence
 
-The disposable artifact is [`spikes/ffi-streaming`](../../spikes/ffi-streaming/README.md).
-On an arm64 Mac15,3 developer machine (macOS 26.5.2, 24 GiB), with Rust
-1.97.1 and Xcode 26.0.1/Swift 6.2:
+The durable command, result, failure and measurement record is
+[`docs/reports/DF-M0-001-ffi-streaming-evidence.md`](../reports/DF-M0-001-ffi-streaming-evidence.md).
+The disposable artifact remains at
+[`spikes/ffi-streaming`](../../spikes/ffi-streaming/README.md) only until
+independent re-review. On an arm64 Mac15,3 developer machine (macOS 26.5.2,
+24 GiB), with Rust 1.97.1, nightly 1.99.0 and Xcode 26.0.1/Swift 6.2:
 
-- Rust format, clippy with `-D warnings`, 8 unit tests and the one-million-row
-  fake stream passed.
-- Swift release integration passed 7 XCTest cases, including ABI/layout,
+- Rust format, clippy with `-D warnings`, 13 native tests, the complete 13-test
+  ASan/TSan matrices and seven targeted Miri tests passed. The expanded suite
+  includes independent reference-model property cases and same-handle
+  cancel/next/release races.
+- Swift release integration passed 8 XCTest cases, including ABI/layout,
   malformed input, row/byte caps, pull/ack, cancellation, panic/allocation
-  faults, typed row parsing and registry cleanup.
+  faults, secret-like destination canary, typed row parsing and registry
+  cleanup.
 - `xcodebuild` generated SwiftPM scheme build and arm64 test passed.
 - The one-million-row run produced 1,000 chunks and deterministic digest
   `16282154771318798373`.
-- The latest post-build `xcrun xctest` run measured 62,128,128 bytes maximum
-  RSS (observed runs were approximately 61.8–62.2 MB). This
-  is process-level developer evidence, not a claim about incremental app RSS
-  or the proposed M1/16 GiB release floor.
+- The latest post-build `xcrun xctest` run measured 61,915,136 bytes maximum
+  RSS. Separate benchmark processes measured 5,832,704 bytes idle and
+  10,780,672 bytes full maximum RSS (approximate delta 4,947,968 bytes).
+- One warm-up plus ten one-million-row samples measured 106.683 ms median and
+  154.003 ms p95/worst. The explicit two-copy model moved 76,800,000 bytes per
+  sample and retained no Rust chunk bytes after `next`.
 
-Exact commands and skips are recorded in the spike README. No database,
-driver, network, credential, production module or customer data was used.
+The fake canary was absent from every captured artifact. Swift ASan stalled in
+runtime shadow-memory initialization and Swift TSan exited with signal 11
+before XCTest; exact attempts and diagnostics remain in the durable report.
+No database, driver, network, credential, production module or customer data
+was used.
 
 ## Decision
 
@@ -62,8 +74,8 @@ For the next production design review, retain the following planning contract:
 
 This is a contract recommendation, not an accepted production API. A future
 implementation must add a Swift facade/`AsyncSequence`, supervised Rust
-runtime, driver cancellation mapping, thread sanitizer evidence and a new
-review before importing any spike code.
+runtime, driver cancellation mapping, working Swift integration sanitizer
+evidence and a new review before importing any spike code.
 
 ## Consequences and residual risk
 
@@ -71,18 +83,20 @@ Caller-owned buffers simplify lifetime safety but require the production facade
 to serialize `next`/ACK and preserve explicit sequence state. The spike uses a
 single registry mutex and a fake synchronous producer; it does not prove
 database-driver cancellation, callback executor behavior, MainActor isolation,
-server interruption truth, sanitizer coverage or release/distribution
-packaging. Those remain M0 unknowns and release blockers where listed in
-`docs/RISKS.md`.
+server interruption truth or release/distribution packaging. Rust ASan/TSan and
+targeted Miri now cover the spike, but Swift sanitizer integration still needs a
+working CI host/toolchain before production release. Those remaining concerns
+stay M0 unknowns and release blockers where listed in `docs/RISKS.md`.
 
 No database write, retry, transaction or credential path exists in this spike,
 so it cannot be used as evidence that database safety requirements are met.
 
 ## Disposal
 
-After review, delete `spikes/ffi-streaming` and retain this ADR plus the
-measured report facts. Recreate production code under the approved module
-boundaries rather than copying the spike wholesale. If a future implementation
-chooses Rust-owned leases, callbacks, a different cap or UniFFI, create a
-superseding ADR with equivalent ownership, cancellation, memory and security
-evidence.
+After independent re-review accepts the durable report, delete
+`spikes/ffi-streaming` and retain this ADR plus the report. The evidence commit
+recorded in the report keeps the exact disposable source auditable through Git
+history. Recreate production code under the approved module boundaries rather
+than copying the spike wholesale. If a future implementation chooses Rust-owned
+leases, callbacks, a different cap or UniFFI, create a superseding ADR with
+equivalent ownership, cancellation, memory and security evidence.
