@@ -456,7 +456,8 @@ logical accessibility table. A bounded custom native two-dimensional renderer
 is selected for subsequent planning, with production still gated on true
 presented frames, M1/16 GiB memory, row-and-column object caps, unified
 accessibility, manual VoiceOver and soak. The proxy values are not treated as
-FPS or a presentation-budget pass.
+FPS or a presentation-budget pass. The disposable source was removed in commit
+`c775b8e`; the exact evidence source remains auditable at `7acdec0`.
 
 ### Canonical M0 traceability
 

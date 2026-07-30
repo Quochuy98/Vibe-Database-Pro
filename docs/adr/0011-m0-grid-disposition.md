@@ -121,6 +121,7 @@ or memory performance.
   design, but the disposable spike is never copied into a product target.
 - R-10 and R-18 remain open; BF-03 has converted a renderer uncertainty into a
   known architecture constraint. R-11 remains release-blocking and unchanged.
-- The spike source is removed after the durable report, ADR and sanitized raw
-  evidence are committed; a follow-up documentation commit records the exact
-  disposal revision.
+- The spike source was removed after the durable report, ADR and sanitized raw
+  evidence were committed. Disposal commit
+  `c775b8e304c71719cf066e4b8cf37c9c36ae6173` retains no prototype source in the
+  current tree.

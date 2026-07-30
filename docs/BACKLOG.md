@@ -1,6 +1,6 @@
 # Technical Backlog
 
-Status: Production backlog remains planning-only; DF-M0-001 through DF-M0-003
+Status: Production backlog remains planning-only; DF-M0-001 through DF-M0-004
 have durable spike dispositions and their disposable artifacts have been
 removed; no production item is implemented
 
@@ -154,7 +154,8 @@ materializes the wide column/view graph and fails the one-logical-table
 accessibility contract. A bounded custom native two-dimensional renderer is
 the replacement planning candidate; production remains gated on its own
 presented-frame, M1/16 GiB, accessibility, memory and soak evidence. The spike
-source remains only until the durable record is committed, then is disposed.
+source was removed in disposal commit `c775b8e`; its evidence source remains
+auditable at `7acdec0`.
 
 ### DF-M0-005
 

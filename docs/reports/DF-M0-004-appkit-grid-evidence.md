@@ -402,7 +402,7 @@ data and pending edits can never be applied.
 | Light/Dark/contrast/non-color runtime UX | Token/trait tests met; snapshot/manual runtime evidence not established |
 | M1/16 GiB/macOS 14 floor | Not run |
 | Leak/repeated open-close/eight-hour soak | BF-02/BF-03 reduced framework-residual leak smoke recorded; repeated open/close and eight-hour soak not run |
-| Prototype disposal | Pending after durable evidence commit |
+| Prototype disposal | Met by commit `c775b8e304c71719cf066e4b8cf37c9c36ae6173` |
 
 The backlog criterion permits an accepted fallback decision. It does not permit
 lowering the memory, presentation or accessibility contract.
@@ -434,10 +434,11 @@ Before DF-M2-007 can enter implementation review, the replacement requires:
 7. Leak/repeated-open-close diagnostics and an eight-hour soak.
 
 Any wrong-row or lost-edit result blocks the component regardless of speed.
-The prototype is deleted after this report, ADR-0011 and sanitized raw evidence
-are committed. A follow-up documentation commit records the exact disposal
-revision. Future code must be rebuilt under reviewed `ResultGrid`/`SharedUI`
-boundaries; the spike is not promoted wholesale.
+The complete `spikes/nstableview-grid` directory was removed in disposal commit
+`c775b8e304c71719cf066e4b8cf37c9c36ae6173` after this report, ADR-0011 and
+sanitized raw evidence were committed. Future code must be rebuilt under
+reviewed `ResultGrid`/`SharedUI` boundaries; the spike is not promoted
+wholesale.
 
 ## 12. Durable raw evidence
 
