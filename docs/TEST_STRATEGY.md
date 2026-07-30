@@ -10,12 +10,17 @@ Owners: Quality Engineering with feature, Database Core, macOS and Security owne
 
 Tests must prove that DataForge is safe and correct under success, failure, cancellation, concurrency, partial progress and malicious input. A green narrow suite cannot support a broad capability claim. Production and shared staging databases are never automated-test targets.
 
-The repository has no production implementation. The separately scoped
-DF-M0-001 artifact was disposed after its commands/results were preserved in
-[`docs/reports/DF-M0-001-ffi-streaming-evidence.md`](reports/DF-M0-001-ffi-streaming-evidence.md)
-and its source commit. That evidence does not establish production capability.
-The commands and suites below remain future production gates unless an exact
-command is recorded as run.
+The repository has no production implementation. Separately scoped disposable
+artifacts preserve exact evidence in the
+[DF-M0-001 FFI report](reports/DF-M0-001-ffi-streaming-evidence.md),
+[DF-M0-002 PostgreSQL report](reports/DF-M0-002-postgres-driver-evidence.md)
+and [DF-M0-003 editor report](reports/DF-M0-003-textkit-editor-evidence.md).
+Their source commits remain auditable after disposal. None establishes a
+production capability: the PostgreSQL stack is deferred, and the TextKit 2
+candidate still lacks input-to-frame, M1/16 GiB, real keyboard/VoiceOver,
+durable-recovery and active-cancellation evidence. The commands and suites
+below remain future production gates unless an exact command is recorded as
+run.
 
 ## 2. Quality principles
 

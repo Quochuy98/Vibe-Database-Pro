@@ -2,7 +2,7 @@
 
 Status: Sequenced planning baseline; estimates require team sizing after M0
 
-Last updated: 2026-07-29
+Last updated: 2026-07-30
 
 ## 1. Delivery principles
 
@@ -440,6 +440,13 @@ frame and request-resource boundaries do not yet meet the product safety
 contract. The spike source is disposable and is removed after the durable
 report is committed.
 
+M0-S03 now has a durable editor evidence record and ADR-0010 disposition.
+TextKit 2 is conditionally retained as the planning candidate, while production
+implementation remains gated on true input-to-frame measurement at the
+M1/16 GiB floor, an editor RSS ceiling, real shortcut/VoiceOver behavior,
+durable recovery and signposted cancellation. The proxy and metadata smoke
+results are not treated as a full BF-01 or accessibility pass.
+
 ### Canonical M0 traceability
 
 The IDs below prevent the spike list, backlog and architecture section from
@@ -461,4 +468,8 @@ spikes.
 
 ## 12. Recommended first implementation task
 
-**Only one next task:** execute `M0-S01 — C ABI bounded streaming, cancellation and panic-containment spike` exactly as bounded above. It is prerequisite evidence for every database/result feature, touches no real database or credential, and must be deleted/replaced after its report. A separately authorized disposable artifact may implement this spike; that artifact is never a production feature and does not open the production implementation gate.
+**Only one next task:** execute `M0-S04 / DF-M0-004 — virtualized typed AppKit
+grid feasibility spike` exactly as bounded above. Use deterministic BF-02/BF-03
+data only, define the frame-time and wide/frozen-column gates before measuring,
+retain pending edits outside the bounded cache, and delete the prototype after
+its report/ADR. This does not open the production implementation gate.

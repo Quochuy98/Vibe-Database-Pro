@@ -356,6 +356,13 @@ M0 must run disposable spikes, not evolve them silently into production:
 | Distribution | Rust dylib/helpers/update path can sign and notarize | Empty shell artifact | Signature, Hardened Runtime, notarization, tamper rejection pass | Delete shell or regenerate from approved scaffold |
 | SQLite/Keychain | Non-secret metadata and credentials remain separate | Synthetic profile/workspace only | Transactional migration, locked/denied behavior and canary absence | Delete; retain schema/security decision |
 
+The SQL-editor row now has a partial disposition in
+[ADR-0010](adr/0010-m0-textkit-editor-disposition.md) and the
+[DF-M0-003 evidence report](reports/DF-M0-003-textkit-editor-evidence.md).
+TextKit 2 remains the preferred planning candidate; the implementation gate is
+still closed because a hidden forced-layout proxy and accessibility metadata do
+not establish input-to-frame paint or VoiceOver behavior.
+
 The original shell wireframes and accessibility annotations are the separate
 M0 design gate in [UX_WIREFRAMES.md](UX_WIREFRAMES.md), tracked by DF-M0-009;
 they are not runtime spike code. Architecture exits M0 only when ADRs are

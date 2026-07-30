@@ -1,9 +1,10 @@
 # Technical Backlog
 
-Status: Production backlog remains planning-only; DF-M0-001 evidence is accepted
-and its disposable artifact has been removed; no production item is implemented
+Status: Production backlog remains planning-only; DF-M0-001 through DF-M0-003
+have durable spike dispositions and their disposable artifacts are removed or
+queued for disposal; no production item is implemented
 
-Last updated: 2026-07-29
+Last updated: 2026-07-30
 
 Priorities: P0 safety/architecture blocker, P1 milestone-critical, P2 important, P3 later. Complexity: S/M/L/XL. Each item is independently reviewable; any scope discovered to be larger must be split before implementation.
 
@@ -104,6 +105,14 @@ request admission, logging policy and credential-memory decision are verified.
 **Out of scope:** Full completion/formatter/execution and production editor architecture.
 
 **Definition of done:** Prototype disposed; editor component decision and measured limits documented.
+
+**M0 disposition (2026-07-30):** TextKit 2 is conditionally retained as the
+planning candidate by [ADR-0010](adr/0010-m0-textkit-editor-disposition.md).
+See the [DF-M0-003 evidence](reports/DF-M0-003-textkit-editor-evidence.md).
+Bounded analysis/find, large-file degradation, native undo and fallback
+detection have positive developer-host evidence. Production remains gated on
+true input-to-frame paint on the M1/16 GiB floor, an editor RSS ceiling, real
+shortcut/VoiceOver behavior, durable recovery and signposted cancellation.
 
 ### DF-M0-004
 

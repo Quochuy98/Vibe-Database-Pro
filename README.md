@@ -33,7 +33,9 @@ The baseline assumptions above remain subject to the Architecture Decision Recor
 - [System architecture](docs/ARCHITECTURE.md)
 - [Database adapter model](docs/DATABASE_ADAPTERS.md)
 - [Architecture Decision Records](docs/adr/README.md)
+- [DF-M0-001 C ABI streaming evidence](docs/reports/DF-M0-001-ffi-streaming-evidence.md)
 - [DF-M0-002 PostgreSQL driver evidence](docs/reports/DF-M0-002-postgres-driver-evidence.md)
+- [DF-M0-003 TextKit editor evidence](docs/reports/DF-M0-003-textkit-editor-evidence.md)
 
 ### Assurance and release
 

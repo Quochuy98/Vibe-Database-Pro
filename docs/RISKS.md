@@ -74,6 +74,14 @@ No risk is silently accepted. An accepted exception records rationale, residual 
 
 Each spike has a bounded hypothesis, success criteria, disposable artifact and documented decision. A spike is not a production feature.
 
+DF-M0-003 narrows unknown 3 and R-18 only: explicit TextKit 2 construction,
+bounded analysis/find, large-file degradation and undo invariants have positive
+developer-host evidence. [ADR-0010](adr/0010-m0-textkit-editor-disposition.md)
+keeps production gated because true paint, M1/16 GiB RSS/performance, real
+keyboard/VoiceOver, durable recovery and active-worker cancellation remain
+unproven. R-24 is unchanged; the spike's permissive keyword scanner is not a
+production SQL parser or safety classifier.
+
 ## 5. Risk acceptance format
 
 ```text

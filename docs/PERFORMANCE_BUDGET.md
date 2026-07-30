@@ -220,6 +220,11 @@ Unbounded memoization, global mutable dictionaries and “cache forever until di
 
 ## 12. Open measurements
 
+- Define an editor-only incremental RSS ceiling before the next visible-host
+  BF-01 run; the DF-M0-003 whole-process 10/100 MiB RSS baselines cannot be
+  graded retroactively against an invented threshold.
+- Measure SQL editor input event to Core Animation presented frame on the
+  M1/16 GiB floor. Hidden-window forced local layout is only a proxy.
 - Validate whether `NSTableView` horizontal width and frozen-column synchronization meet BF-03; otherwise prototype a native custom renderer with equivalent accessibility.
 - Select actual FFI chunk encoding and measure copy/decoding cost.
 - Establish per-driver fetch/cursor/batch controls and cancellation latency.
