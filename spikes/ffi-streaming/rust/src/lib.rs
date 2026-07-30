@@ -1,10 +1,13 @@
 #![deny(unsafe_op_in_unsafe_fn)]
 
 use std::array;
-use std::mem::size_of;
+use std::mem::{align_of, offset_of, size_of};
 use std::panic::{AssertUnwindSafe, catch_unwind};
 use std::ptr;
 use std::sync::{Mutex, MutexGuard, OnceLock};
+
+#[cfg(test)]
+use std::sync::Condvar;
 
 const ABI_VERSION: u32 = 1;
 const ROW_ENCODING_VERSION: u32 = 1;
@@ -145,13 +148,128 @@ pub struct df_spike_registry_stats_v1 {
     pub reserved1: u32,
 }
 
-const _: [(); 32] = [(); size_of::<df_spike_abi_request_v1>()];
-const _: [(); 40] = [(); size_of::<df_spike_abi_info_v1>()];
-const _: [(); 40] = [(); size_of::<df_spike_stream_options_v1>()];
-const _: [(); 64] = [(); size_of::<df_spike_chunk_meta_v1>()];
-const _: [(); 48] = [(); size_of::<df_spike_stream_status_v1>()];
-const _: [(); 24] = [(); size_of::<df_spike_cancel_outcome_v1>()];
-const _: [(); 48] = [(); size_of::<df_spike_registry_stats_v1>()];
+macro_rules! assert_abi_layout {
+    (
+        $type:ty,
+        size: $size:expr,
+        align: $align:expr,
+        offsets: { $($field:ident: $offset:expr),+ $(,)? }
+    ) => {
+        const _: [(); $size] = [(); size_of::<$type>()];
+        const _: [(); $align] = [(); align_of::<$type>()];
+        $(const _: [(); $offset] = [(); offset_of!($type, $field)];)+
+    };
+}
+
+assert_abi_layout!(
+    df_spike_abi_request_v1,
+    size: 32,
+    align: 8,
+    offsets: {
+        struct_size: 0,
+        abi_version: 4,
+        required_features: 8,
+        optional_features: 16,
+        reserved0: 24,
+        reserved1: 28,
+    }
+);
+assert_abi_layout!(
+    df_spike_abi_info_v1,
+    size: 40,
+    align: 8,
+    offsets: {
+        struct_size: 0,
+        abi_version: 4,
+        supported_features: 8,
+        max_streams: 16,
+        max_chunk_rows: 20,
+        max_chunk_bytes: 24,
+        row_encoding_version: 28,
+        reserved0: 32,
+        reserved1: 36,
+    }
+);
+assert_abi_layout!(
+    df_spike_stream_options_v1,
+    size: 40,
+    align: 8,
+    offsets: {
+        struct_size: 0,
+        abi_version: 4,
+        total_rows: 8,
+        seed: 16,
+        requested_chunk_rows: 24,
+        requested_chunk_bytes: 28,
+        reserved0: 32,
+        reserved1: 36,
+    }
+);
+assert_abi_layout!(
+    df_spike_chunk_meta_v1,
+    size: 64,
+    align: 8,
+    offsets: {
+        struct_size: 0,
+        abi_version: 4,
+        sequence: 8,
+        first_row: 16,
+        row_count: 24,
+        byte_count: 28,
+        encoding_version: 32,
+        flags: 36,
+        checksum: 40,
+        required_capacity: 48,
+        reserved0: 52,
+        reserved1: 56,
+        reserved2: 60,
+    }
+);
+assert_abi_layout!(
+    df_spike_stream_status_v1,
+    size: 48,
+    align: 8,
+    offsets: {
+        struct_size: 0,
+        abi_version: 4,
+        state: 8,
+        terminal_error: 12,
+        next_row: 16,
+        total_rows: 24,
+        outstanding_sequence: 32,
+        last_error: 40,
+        reserved0: 44,
+    }
+);
+assert_abi_layout!(
+    df_spike_cancel_outcome_v1,
+    size: 24,
+    align: 4,
+    offsets: {
+        struct_size: 0,
+        abi_version: 4,
+        outcome: 8,
+        state: 12,
+        reserved0: 16,
+        reserved1: 20,
+    }
+);
+assert_abi_layout!(
+    df_spike_registry_stats_v1,
+    size: 48,
+    align: 8,
+    offsets: {
+        struct_size: 0,
+        abi_version: 4,
+        live_streams: 8,
+        max_streams: 12,
+        in_flight_bytes: 16,
+        created_streams: 24,
+        released_streams: 32,
+        reserved0: 40,
+        reserved1: 44,
+    }
+);
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum StreamState {
@@ -258,6 +376,80 @@ impl Registry {
 }
 
 static REGISTRY: OnceLock<Mutex<Registry>> = OnceLock::new();
+
+#[cfg(test)]
+#[derive(Clone, Copy)]
+enum TestRegistryOperation {
+    Cancel,
+    Release,
+}
+
+#[cfg(test)]
+#[derive(Default)]
+struct NextRegistryLockHookState {
+    target_handle: u64,
+    armed: bool,
+    next_holds_registry_lock: bool,
+    resume_next: bool,
+    cancel_attempted: bool,
+    release_attempted: bool,
+}
+
+#[cfg(test)]
+static NEXT_REGISTRY_LOCK_HOOK: OnceLock<(Mutex<NextRegistryLockHookState>, Condvar)> =
+    OnceLock::new();
+
+#[cfg(test)]
+fn next_registry_lock_hook() -> &'static (Mutex<NextRegistryLockHookState>, Condvar) {
+    NEXT_REGISTRY_LOCK_HOOK.get_or_init(|| {
+        (
+            Mutex::new(NextRegistryLockHookState::default()),
+            Condvar::new(),
+        )
+    })
+}
+
+#[cfg(test)]
+fn lock_next_registry_hook() -> MutexGuard<'static, NextRegistryLockHookState> {
+    match next_registry_lock_hook().0.lock() {
+        Ok(guard) => guard,
+        Err(poisoned) => poisoned.into_inner(),
+    }
+}
+
+#[cfg(test)]
+fn pause_next_while_holding_registry_lock(handle: u64) {
+    let (_, condition) = next_registry_lock_hook();
+    let mut state = lock_next_registry_hook();
+    if !state.armed || state.target_handle != handle {
+        return;
+    }
+    state.next_holds_registry_lock = true;
+    condition.notify_all();
+    while !state.resume_next {
+        state = match condition.wait(state) {
+            Ok(guard) => guard,
+            Err(poisoned) => poisoned.into_inner(),
+        };
+    }
+    state.next_holds_registry_lock = false;
+    state.armed = false;
+    condition.notify_all();
+}
+
+#[cfg(test)]
+fn observe_registry_lock_attempt(handle: u64, operation: TestRegistryOperation) {
+    let (_, condition) = next_registry_lock_hook();
+    let mut state = lock_next_registry_hook();
+    if !state.armed || state.target_handle != handle {
+        return;
+    }
+    match operation {
+        TestRegistryOperation::Cancel => state.cancel_attempted = true,
+        TestRegistryOperation::Release => state.release_attempted = true,
+    }
+    condition.notify_all();
+}
 
 fn registry() -> &'static Mutex<Registry> {
     REGISTRY.get_or_init(|| Mutex::new(Registry::new()))
@@ -611,6 +803,8 @@ pub extern "C" fn df_spike_stream_next_v1(
             return STATUS_INVALID_ARGUMENT;
         }
         let mut registry = lock_registry();
+        #[cfg(test)]
+        pause_next_while_holding_registry_lock(handle);
         let stream = match stream_mut(&mut registry, handle) {
             Ok(value) => value,
             Err(status) => return status,
@@ -753,6 +947,8 @@ pub extern "C" fn df_spike_stream_cancel_v1(
         if clear_out(outcome).is_err() {
             return STATUS_INVALID_ARGUMENT;
         }
+        #[cfg(test)]
+        observe_registry_lock_attempt(handle, TestRegistryOperation::Cancel);
         let mut registry = lock_registry();
         let stream = match stream_mut(&mut registry, handle) {
             Ok(value) => value,
@@ -825,6 +1021,8 @@ pub extern "C" fn df_spike_stream_release_v1(handle: u64) -> i32 {
             Ok(value) => value,
             Err(status) => return status,
         };
+        #[cfg(test)]
+        observe_registry_lock_attempt(handle, TestRegistryOperation::Release);
         let mut registry = lock_registry();
         if registry.released_streams == u64::MAX {
             let slot = &registry.slots[slot_index];
@@ -932,8 +1130,9 @@ pub extern "C" fn df_spike_panic_probe_v1() -> i32 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::sync::OnceLock;
+    use std::sync::{Arc, Barrier, OnceLock, mpsc};
     use std::thread;
+    use std::time::{Duration, Instant};
 
     static TEST_LOCK: OnceLock<Mutex<()>> = OnceLock::new();
 
@@ -946,6 +1145,7 @@ mod tests {
 
     fn reset() {
         lock_registry().reset();
+        *lock_next_registry_hook() = NextRegistryLockHookState::default();
     }
 
     fn options(total_rows: u64, chunk_rows: u32, chunk_bytes: u32) -> df_spike_stream_options_v1 {
@@ -966,6 +1166,978 @@ mod tests {
         assert_eq!(df_spike_stream_create_v1(options, &mut handle), STATUS_OK);
         assert_ne!(handle, 0);
         handle
+    }
+
+    fn assert_no_registry_leaks() {
+        let mut stats = df_spike_registry_stats_v1::default();
+        assert_eq!(df_spike_get_registry_stats_v1(&mut stats), STATUS_OK);
+        assert_eq!(stats.live_streams, 0);
+        assert_eq!(stats.in_flight_bytes, 0);
+        assert_eq!(stats.created_streams, stats.released_streams);
+    }
+
+    fn assert_buffer_unchanged(actual: &[u8], expected: &[u8]) {
+        assert!(
+            actual
+                .iter()
+                .zip(expected)
+                .all(|(actual_byte, expected_byte)| actual_byte == expected_byte),
+            "controlled fault modified the caller-owned destination"
+        );
+    }
+
+    struct DeterministicRng {
+        state: u64,
+    }
+
+    impl DeterministicRng {
+        fn new(seed: u64) -> Self {
+            assert_ne!(seed, 0);
+            Self { state: seed }
+        }
+
+        fn next_u64(&mut self) -> u64 {
+            let mut value = self.state;
+            value ^= value << 13;
+            value ^= value >> 7;
+            value ^= value << 17;
+            self.state = value;
+            value
+        }
+
+        fn below(&mut self, upper_bound: u64) -> u64 {
+            assert_ne!(upper_bound, 0);
+            self.next_u64() % upper_bound
+        }
+
+        fn inclusive_u32(&mut self, minimum: u32, maximum: u32) -> u32 {
+            assert!(minimum <= maximum);
+            let width = u64::from(maximum - minimum) + 1;
+            minimum + self.below(width) as u32
+        }
+    }
+
+    fn reference_row_length(index: u64) -> u32 {
+        if index.is_multiple_of(10) { 24 } else { 40 }
+    }
+
+    fn reference_chunk_plan(
+        first_row: u64,
+        total_rows: u64,
+        chunk_rows: u32,
+        chunk_bytes: u32,
+    ) -> (u32, u32) {
+        let remaining = total_rows - first_row;
+        let target_rows = u64::from(chunk_rows).min(remaining) as u32;
+        let mut row_count = 0_u32;
+        let mut byte_count = 0_u32;
+        while row_count < target_rows {
+            let row_bytes = reference_row_length(first_row + u64::from(row_count));
+            if byte_count + row_bytes > chunk_bytes {
+                break;
+            }
+            byte_count += row_bytes;
+            row_count += 1;
+        }
+        (row_count, byte_count)
+    }
+
+    fn reference_encoded_rows(first_row: u64, row_count: u32, seed: u64) -> Vec<u8> {
+        let mut bytes = Vec::new();
+        for offset in 0..row_count {
+            let index = first_row + u64::from(offset);
+            let is_null = index.is_multiple_of(10);
+            bytes.extend_from_slice(&index.to_le_bytes());
+            bytes.extend_from_slice(&((index ^ seed) as i64).to_le_bytes());
+            bytes.extend_from_slice(&(if is_null { 0_u32 } else { 16_u32 }).to_le_bytes());
+            bytes.push(u8::from(index & 1 == 1));
+            bytes.push(u8::from(is_null));
+            bytes.extend_from_slice(&[0, 0]);
+            if !is_null {
+                let text = format!("{index:016x}");
+                bytes.extend_from_slice(text.as_bytes());
+            }
+        }
+        bytes
+    }
+
+    fn reference_checksum(bytes: &[u8]) -> u64 {
+        bytes.iter().fold(0xcbf29ce484222325_u64, |hash, byte| {
+            (hash ^ u64::from(*byte)).wrapping_mul(0x100000001b3)
+        })
+    }
+
+    fn secret_like_canary(length: usize) -> Vec<u8> {
+        const ALPHABET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+        let mut rng = DeterministicRng::new(0x8d26_4f31_b9a7_c5e3);
+        (0..length)
+            .map(|_| ALPHABET[rng.below(ALPHABET.len() as u64) as usize])
+            .collect()
+    }
+
+    #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+    enum ReferenceState {
+        Ready,
+        Outstanding,
+        Completed,
+        Cancelled,
+        Released,
+    }
+
+    struct ReferenceModel {
+        total_rows: u64,
+        seed: u64,
+        chunk_rows: u32,
+        chunk_bytes: u32,
+        next_row: u64,
+        next_sequence: u64,
+        outstanding: Option<(u64, u64, u32)>,
+        cancel_requested: bool,
+        state: ReferenceState,
+    }
+
+    impl ReferenceModel {
+        fn new(options: &df_spike_stream_options_v1) -> Self {
+            Self {
+                total_rows: options.total_rows,
+                seed: options.seed,
+                chunk_rows: options.requested_chunk_rows,
+                chunk_bytes: options.requested_chunk_bytes,
+                next_row: 0,
+                next_sequence: 1,
+                outstanding: None,
+                cancel_requested: false,
+                state: ReferenceState::Ready,
+            }
+        }
+
+        fn c_state(&self) -> u32 {
+            match (self.state, self.cancel_requested) {
+                (ReferenceState::Ready, _) => STATE_READY,
+                (ReferenceState::Outstanding, true) => STATE_CANCEL_PENDING_ACK,
+                (ReferenceState::Outstanding, false) => STATE_OUTSTANDING,
+                (ReferenceState::Completed, _) => STATE_COMPLETED,
+                (ReferenceState::Cancelled, _) => STATE_CANCELLED,
+                (ReferenceState::Released, _) => 0,
+            }
+        }
+
+        fn required_bytes(&self) -> Option<u32> {
+            if self.state != ReferenceState::Ready || self.next_row >= self.total_rows {
+                return None;
+            }
+            Some(
+                reference_chunk_plan(
+                    self.next_row,
+                    self.total_rows,
+                    self.chunk_rows,
+                    self.chunk_bytes,
+                )
+                .1,
+            )
+        }
+
+        fn apply_next(&mut self, destination_capacity: u64) -> (i32, df_spike_chunk_meta_v1) {
+            let mut metadata = df_spike_chunk_meta_v1::default();
+            if self.state == ReferenceState::Released {
+                return (STATUS_STALE_HANDLE, metadata);
+            }
+            if self.state == ReferenceState::Completed {
+                return (STATUS_TERMINAL, metadata);
+            }
+            if self.state == ReferenceState::Cancelled || self.cancel_requested {
+                return (STATUS_CANCELLED, metadata);
+            }
+            if self.outstanding.is_some() {
+                return (STATUS_NEEDS_ACK, metadata);
+            }
+            if self.next_row >= self.total_rows {
+                self.state = ReferenceState::Completed;
+                return (STATUS_TERMINAL, metadata);
+            }
+
+            let (row_count, byte_count) = reference_chunk_plan(
+                self.next_row,
+                self.total_rows,
+                self.chunk_rows,
+                self.chunk_bytes,
+            );
+            metadata = df_spike_chunk_meta_v1 {
+                struct_size: size_of::<df_spike_chunk_meta_v1>() as u32,
+                abi_version: ABI_VERSION,
+                sequence: 0,
+                first_row: self.next_row,
+                row_count,
+                byte_count: 0,
+                encoding_version: ROW_ENCODING_VERSION,
+                flags: 0,
+                checksum: 0,
+                required_capacity: byte_count,
+                reserved0: 0,
+                reserved1: 0,
+                reserved2: 0,
+            };
+            if destination_capacity < u64::from(byte_count) {
+                return (STATUS_BUFFER_TOO_SMALL, metadata);
+            }
+
+            let sequence = self.next_sequence;
+            self.next_sequence += 1;
+            self.outstanding = Some((sequence, self.next_row, row_count));
+            self.state = ReferenceState::Outstanding;
+            metadata.sequence = sequence;
+            metadata.byte_count = byte_count;
+            metadata.checksum =
+                reference_checksum(&reference_encoded_rows(self.next_row, row_count, self.seed));
+            if self.next_row + u64::from(row_count) == self.total_rows {
+                metadata.flags = CHUNK_FLAG_LAST;
+            }
+            (STATUS_OK, metadata)
+        }
+
+        fn apply_ack(&mut self, sequence: u64) -> i32 {
+            if self.state == ReferenceState::Released {
+                return STATUS_STALE_HANDLE;
+            }
+            let Some((expected_sequence, first_row, row_count)) = self.outstanding else {
+                return STATUS_ACK_MISMATCH;
+            };
+            if sequence != expected_sequence {
+                return STATUS_ACK_MISMATCH;
+            }
+            self.next_row = first_row + u64::from(row_count);
+            self.outstanding = None;
+            if self.cancel_requested {
+                self.state = ReferenceState::Cancelled;
+            } else if self.next_row == self.total_rows {
+                self.state = ReferenceState::Completed;
+            } else {
+                self.state = ReferenceState::Ready;
+            }
+            STATUS_OK
+        }
+
+        fn apply_cancel(&mut self) -> (i32, df_spike_cancel_outcome_v1) {
+            if self.state == ReferenceState::Released {
+                return (STATUS_STALE_HANDLE, df_spike_cancel_outcome_v1::default());
+            }
+            let mut outcome = df_spike_cancel_outcome_v1 {
+                struct_size: size_of::<df_spike_cancel_outcome_v1>() as u32,
+                abi_version: ABI_VERSION,
+                outcome: 0,
+                state: 0,
+                reserved0: 0,
+                reserved1: 0,
+            };
+            if self.cancel_requested {
+                outcome.outcome = CANCEL_ALREADY_REQUESTED;
+            } else if self.state == ReferenceState::Ready {
+                self.cancel_requested = true;
+                self.state = ReferenceState::Cancelled;
+                outcome.outcome = CANCEL_ACCEPTED;
+            } else if self.state == ReferenceState::Outstanding {
+                self.cancel_requested = true;
+                outcome.outcome = CANCEL_PENDING_ACK;
+            } else {
+                outcome.outcome = CANCEL_TOO_LATE;
+            }
+            outcome.state = self.c_state();
+            (STATUS_OK, outcome)
+        }
+
+        fn apply_release(&mut self) -> i32 {
+            if self.state == ReferenceState::Released {
+                return STATUS_OK;
+            }
+            if self.outstanding.is_some() {
+                return STATUS_NEEDS_ACK;
+            }
+            self.state = ReferenceState::Released;
+            STATUS_OK
+        }
+
+        fn snapshot(&self) -> (i32, df_spike_stream_status_v1) {
+            if self.state == ReferenceState::Released {
+                return (STATUS_STALE_HANDLE, df_spike_stream_status_v1::default());
+            }
+            (
+                STATUS_OK,
+                df_spike_stream_status_v1 {
+                    struct_size: size_of::<df_spike_stream_status_v1>() as u32,
+                    abi_version: ABI_VERSION,
+                    state: self.c_state(),
+                    terminal_error: 0,
+                    next_row: self.next_row,
+                    total_rows: self.total_rows,
+                    outstanding_sequence: self.outstanding.map_or(0, |(sequence, _, _)| sequence),
+                    last_error: 0,
+                    reserved0: 0,
+                },
+            )
+        }
+    }
+
+    fn assert_status_matches_model(handle: u64, model: &ReferenceModel) {
+        let (expected_status, expected_snapshot) = model.snapshot();
+        let mut actual_snapshot = df_spike_stream_status_v1 {
+            state: u32::MAX,
+            ..df_spike_stream_status_v1::default()
+        };
+        assert_eq!(
+            df_spike_stream_get_status_v1(handle, &mut actual_snapshot),
+            expected_status
+        );
+        assert_eq!(actual_snapshot, expected_snapshot);
+    }
+
+    fn arm_next_registry_lock_pause(handle: u64) {
+        let mut state = lock_next_registry_hook();
+        *state = NextRegistryLockHookState {
+            target_handle: handle,
+            armed: true,
+            ..NextRegistryLockHookState::default()
+        };
+    }
+
+    fn wait_for_registry_hook(predicate: impl Fn(&NextRegistryLockHookState) -> bool) {
+        let (_, condition) = next_registry_lock_hook();
+        let deadline = Instant::now() + Duration::from_secs(5);
+        let mut state = lock_next_registry_hook();
+        while !predicate(&state) {
+            let Some(remaining) = deadline.checked_duration_since(Instant::now()) else {
+                panic!("timed out waiting for the deterministic registry-lock test hook");
+            };
+            let (next_state, timeout) = match condition.wait_timeout(state, remaining) {
+                Ok(result) => result,
+                Err(poisoned) => poisoned.into_inner(),
+            };
+            state = next_state;
+            if timeout.timed_out() && !predicate(&state) {
+                panic!("timed out waiting for the deterministic registry-lock test hook");
+            }
+        }
+    }
+
+    fn resume_paused_next() {
+        let (_, condition) = next_registry_lock_hook();
+        let mut state = lock_next_registry_hook();
+        state.resume_next = true;
+        condition.notify_all();
+    }
+
+    #[test]
+    fn deterministic_random_chunk_boundaries_preserve_encoding_and_guards() {
+        let _guard = test_lock();
+        let mut rng = DeterministicRng::new(0x1f2e_3d4c_5b6a_7988);
+        for case in 0..96_u32 {
+            reset();
+            let total_rows = if case % 11 == 0 {
+                0
+            } else {
+                rng.inclusive_u32(1, 2_500) as u64
+            };
+            let chunk_rows = rng.inclusive_u32(1, 1_000);
+            let chunk_bytes = rng.inclusive_u32(40, 4_096);
+            let mut stream_options = options(total_rows, chunk_rows, chunk_bytes);
+            stream_options.seed = rng.next_u64();
+            let handle = create(&stream_options);
+            let mut first_row = 0_u64;
+            let mut expected_sequence = 1_u64;
+
+            loop {
+                if first_row >= total_rows {
+                    let mut terminal_meta = df_spike_chunk_meta_v1 {
+                        sequence: u64::MAX,
+                        ..df_spike_chunk_meta_v1::default()
+                    };
+                    let mut terminal_buffer = [0_u8; 64];
+                    assert_eq!(
+                        df_spike_stream_next_v1(
+                            handle,
+                            terminal_buffer.as_mut_ptr(),
+                            terminal_buffer.len() as u64,
+                            &mut terminal_meta,
+                        ),
+                        STATUS_TERMINAL
+                    );
+                    assert_eq!(terminal_meta, df_spike_chunk_meta_v1::default());
+                    break;
+                }
+
+                let (expected_rows, expected_bytes) =
+                    reference_chunk_plan(first_row, total_rows, chunk_rows, chunk_bytes);
+                assert!(expected_rows > 0);
+
+                if rng.below(3) == 0 {
+                    let mut undersized = secret_like_canary(expected_bytes as usize + 32);
+                    let before = undersized.clone();
+                    let mut metadata = df_spike_chunk_meta_v1::default();
+                    assert_eq!(
+                        df_spike_stream_next_v1(
+                            handle,
+                            undersized.as_mut_ptr(),
+                            u64::from(expected_bytes - 1),
+                            &mut metadata,
+                        ),
+                        STATUS_BUFFER_TOO_SMALL
+                    );
+                    assert_buffer_unchanged(&undersized, &before);
+                    assert_eq!(metadata.row_count, expected_rows);
+                    assert_eq!(metadata.byte_count, 0);
+                    assert_eq!(metadata.required_capacity, expected_bytes);
+                    assert_status_matches_model(
+                        handle,
+                        &ReferenceModel {
+                            total_rows,
+                            seed: stream_options.seed,
+                            chunk_rows,
+                            chunk_bytes,
+                            next_row: first_row,
+                            next_sequence: expected_sequence,
+                            outstanding: None,
+                            cancel_requested: false,
+                            state: ReferenceState::Ready,
+                        },
+                    );
+                }
+
+                let prefix = rng.inclusive_u32(1, 31) as usize;
+                let suffix = rng.inclusive_u32(1, 31) as usize;
+                let extra_capacity = rng.inclusive_u32(0, 63) as usize;
+                let capacity = expected_bytes as usize + extra_capacity;
+                let mut destination = secret_like_canary(prefix + capacity + suffix);
+                let before = destination.clone();
+                let mut metadata = df_spike_chunk_meta_v1::default();
+                assert_eq!(
+                    df_spike_stream_next_v1(
+                        handle,
+                        destination[prefix..].as_mut_ptr(),
+                        capacity as u64,
+                        &mut metadata,
+                    ),
+                    STATUS_OK
+                );
+                let expected_bytes_data =
+                    reference_encoded_rows(first_row, expected_rows, stream_options.seed);
+                assert_eq!(metadata.sequence, expected_sequence);
+                assert_eq!(metadata.first_row, first_row);
+                assert_eq!(metadata.row_count, expected_rows);
+                assert_eq!(metadata.byte_count, expected_bytes);
+                assert_eq!(metadata.required_capacity, expected_bytes);
+                assert_eq!(metadata.checksum, reference_checksum(&expected_bytes_data));
+                assert_eq!(
+                    metadata.flags,
+                    if first_row + u64::from(expected_rows) == total_rows {
+                        CHUNK_FLAG_LAST
+                    } else {
+                        0
+                    }
+                );
+                assert!(
+                    destination[prefix..prefix + expected_bytes as usize]
+                        .iter()
+                        .zip(&expected_bytes_data)
+                        .all(|(actual_byte, expected_byte)| actual_byte == expected_byte),
+                    "deterministic row encoding changed"
+                );
+                assert_buffer_unchanged(&destination[..prefix], &before[..prefix]);
+                assert_buffer_unchanged(
+                    &destination[prefix + expected_bytes as usize..],
+                    &before[prefix + expected_bytes as usize..],
+                );
+
+                if rng.below(2) == 0 {
+                    let mut duplicate_destination = secret_like_canary(128);
+                    let duplicate_before = duplicate_destination.clone();
+                    let mut duplicate_meta = df_spike_chunk_meta_v1 {
+                        sequence: u64::MAX,
+                        ..df_spike_chunk_meta_v1::default()
+                    };
+                    assert_eq!(
+                        df_spike_stream_next_v1(
+                            handle,
+                            duplicate_destination.as_mut_ptr(),
+                            duplicate_destination.len() as u64,
+                            &mut duplicate_meta,
+                        ),
+                        STATUS_NEEDS_ACK
+                    );
+                    assert_eq!(duplicate_meta, df_spike_chunk_meta_v1::default());
+                    assert_buffer_unchanged(&duplicate_destination, &duplicate_before);
+                }
+                if rng.below(2) == 0 {
+                    assert_eq!(
+                        df_spike_stream_ack_v1(handle, expected_sequence + 1),
+                        STATUS_ACK_MISMATCH
+                    );
+                }
+                assert_eq!(df_spike_stream_ack_v1(handle, expected_sequence), STATUS_OK);
+                first_row += u64::from(expected_rows);
+                expected_sequence += 1;
+            }
+            assert_eq!(df_spike_stream_release_v1(handle), STATUS_OK);
+            assert_no_registry_leaks();
+        }
+    }
+
+    #[test]
+    fn deterministic_random_state_transitions_match_reference_model() {
+        let _guard = test_lock();
+        let mut rng = DeterministicRng::new(0x9a8b_7c6d_5e4f_3021);
+        let mut coverage = 0_u32;
+        const SAW_OK_NEXT: u32 = 1 << 0;
+        const SAW_BUFFER_TOO_SMALL: u32 = 1 << 1;
+        const SAW_NEEDS_ACK: u32 = 1 << 2;
+        const SAW_ACK_MISMATCH: u32 = 1 << 3;
+        const SAW_CANCEL_ACCEPTED: u32 = 1 << 4;
+        const SAW_CANCEL_PENDING: u32 = 1 << 5;
+        const SAW_CANCEL_ALREADY: u32 = 1 << 6;
+        const SAW_CANCELLED: u32 = 1 << 7;
+        const SAW_TERMINAL: u32 = 1 << 8;
+        const SAW_RELEASE_NEEDS_ACK: u32 = 1 << 9;
+        const SAW_STALE: u32 = 1 << 10;
+
+        for case in 0..256_u32 {
+            reset();
+            let total_rows = if case % 13 == 0 {
+                0
+            } else {
+                rng.inclusive_u32(1, 180) as u64
+            };
+            let chunk_rows = rng.inclusive_u32(1, 24);
+            let chunk_bytes = rng.inclusive_u32(40, 512);
+            let mut stream_options = options(total_rows, chunk_rows, chunk_bytes);
+            stream_options.seed = rng.next_u64();
+            let handle = create(&stream_options);
+            let mut model = ReferenceModel::new(&stream_options);
+            let mut destination = vec![0_u8; 1_024];
+
+            for step in 0..96_u32 {
+                if model.state == ReferenceState::Released {
+                    let mut metadata = df_spike_chunk_meta_v1::default();
+                    let expected_next = model.apply_next(destination.len() as u64);
+                    let actual_next = df_spike_stream_next_v1(
+                        handle,
+                        destination.as_mut_ptr(),
+                        destination.len() as u64,
+                        &mut metadata,
+                    );
+                    assert_eq!(actual_next, expected_next.0);
+                    assert_eq!(metadata, expected_next.1);
+                    coverage |= SAW_STALE;
+                    let expected_cancel = model.apply_cancel();
+                    let mut outcome = df_spike_cancel_outcome_v1::default();
+                    let actual_cancel = df_spike_stream_cancel_v1(handle, &mut outcome);
+                    assert_eq!(actual_cancel, expected_cancel.0);
+                    assert_eq!(outcome, expected_cancel.1);
+                    assert_eq!(df_spike_stream_release_v1(handle), STATUS_OK);
+                    break;
+                }
+
+                let action = match model.state {
+                    ReferenceState::Ready => {
+                        let roll = rng.below(100);
+                        if roll < 54 || (case % 4 == 0 && step < 70) {
+                            0_u8
+                        } else if roll < 68 {
+                            1
+                        } else if roll < 78 {
+                            2
+                        } else if roll < 88 {
+                            3
+                        } else {
+                            4
+                        }
+                    }
+                    ReferenceState::Outstanding => match rng.below(100) {
+                        0..=18 => 0,
+                        19..=34 => 1,
+                        35..=48 => 2,
+                        49..=64 => 3,
+                        65..=78 => 4,
+                        _ => 5,
+                    },
+                    ReferenceState::Completed | ReferenceState::Cancelled => match rng.below(100) {
+                        0..=20 => 0,
+                        21..=40 => 1,
+                        41..=62 => 2,
+                        _ => 4,
+                    },
+                    ReferenceState::Released => unreachable!(),
+                };
+
+                match action {
+                    0 => {
+                        let capacity = if let Some(required) = model.required_bytes() {
+                            if rng.below(4) == 0 {
+                                u64::from(required.saturating_sub(1))
+                            } else {
+                                destination.len() as u64
+                            }
+                        } else {
+                            destination.len() as u64
+                        };
+                        let mut metadata = df_spike_chunk_meta_v1 {
+                            sequence: u64::MAX,
+                            ..df_spike_chunk_meta_v1::default()
+                        };
+                        let expected = model.apply_next(capacity);
+                        let actual = df_spike_stream_next_v1(
+                            handle,
+                            destination.as_mut_ptr(),
+                            capacity,
+                            &mut metadata,
+                        );
+                        assert_eq!(actual, expected.0);
+                        assert_eq!(metadata, expected.1);
+                        match actual {
+                            STATUS_OK => coverage |= SAW_OK_NEXT,
+                            STATUS_BUFFER_TOO_SMALL => coverage |= SAW_BUFFER_TOO_SMALL,
+                            STATUS_NEEDS_ACK => coverage |= SAW_NEEDS_ACK,
+                            STATUS_CANCELLED => coverage |= SAW_CANCELLED,
+                            STATUS_TERMINAL => coverage |= SAW_TERMINAL,
+                            STATUS_STALE_HANDLE => coverage |= SAW_STALE,
+                            _ => {}
+                        }
+                    }
+                    1 => {
+                        let sequence = model
+                            .outstanding
+                            .map_or(rng.next_u64(), |(sequence, _, _)| sequence);
+                        let expected = model.apply_ack(sequence);
+                        let actual = df_spike_stream_ack_v1(handle, sequence);
+                        assert_eq!(actual, expected);
+                        if actual == STATUS_ACK_MISMATCH {
+                            coverage |= SAW_ACK_MISMATCH;
+                        }
+                    }
+                    2 => {
+                        let sequence = model
+                            .outstanding
+                            .map_or(1, |(sequence, _, _)| sequence.saturating_add(1));
+                        let expected = model.apply_ack(sequence);
+                        let actual = df_spike_stream_ack_v1(handle, sequence);
+                        assert_eq!(actual, expected);
+                        if actual == STATUS_ACK_MISMATCH {
+                            coverage |= SAW_ACK_MISMATCH;
+                        }
+                    }
+                    3 => {
+                        let expected = model.apply_cancel();
+                        let mut outcome = df_spike_cancel_outcome_v1 {
+                            outcome: u32::MAX,
+                            ..df_spike_cancel_outcome_v1::default()
+                        };
+                        let actual = df_spike_stream_cancel_v1(handle, &mut outcome);
+                        assert_eq!(actual, expected.0);
+                        assert_eq!(outcome, expected.1);
+                        match outcome.outcome {
+                            CANCEL_ACCEPTED => coverage |= SAW_CANCEL_ACCEPTED,
+                            CANCEL_PENDING_ACK => coverage |= SAW_CANCEL_PENDING,
+                            CANCEL_ALREADY_REQUESTED => coverage |= SAW_CANCEL_ALREADY,
+                            _ => {}
+                        }
+                    }
+                    4 => {
+                        let expected = model.apply_release();
+                        let actual = df_spike_stream_release_v1(handle);
+                        assert_eq!(actual, expected);
+                        if actual == STATUS_NEEDS_ACK {
+                            coverage |= SAW_RELEASE_NEEDS_ACK;
+                        }
+                    }
+                    5 => {
+                        let sequence = model.outstanding.map_or(1, |(sequence, _, _)| sequence);
+                        let expected = model.apply_ack(sequence);
+                        let actual = df_spike_stream_ack_v1(handle, sequence);
+                        assert_eq!(actual, expected);
+                        if actual == STATUS_ACK_MISMATCH {
+                            coverage |= SAW_ACK_MISMATCH;
+                        }
+                    }
+                    _ => unreachable!(),
+                }
+                assert_status_matches_model(handle, &model);
+            }
+
+            if model.state != ReferenceState::Released {
+                if let Some((sequence, _, _)) = model.outstanding {
+                    assert_eq!(
+                        df_spike_stream_ack_v1(handle, sequence),
+                        model.apply_ack(sequence)
+                    );
+                }
+                assert_eq!(df_spike_stream_release_v1(handle), model.apply_release());
+            }
+            assert_no_registry_leaks();
+        }
+
+        let required_coverage = SAW_OK_NEXT
+            | SAW_BUFFER_TOO_SMALL
+            | SAW_NEEDS_ACK
+            | SAW_ACK_MISMATCH
+            | SAW_CANCEL_ACCEPTED
+            | SAW_CANCEL_PENDING
+            | SAW_CANCEL_ALREADY
+            | SAW_CANCELLED
+            | SAW_TERMINAL
+            | SAW_RELEASE_NEEDS_ACK
+            | SAW_STALE;
+        assert_eq!(coverage & required_coverage, required_coverage);
+    }
+
+    #[test]
+    fn secret_like_destination_canary_survives_controlled_faults_without_logging() {
+        let _guard = test_lock();
+        reset();
+
+        let handle = create(&options(2, 1, 40));
+        let mut allocation_destination = secret_like_canary(128);
+        let allocation_before = allocation_destination.clone();
+        let mut metadata = df_spike_chunk_meta_v1 {
+            sequence: u64::MAX,
+            ..df_spike_chunk_meta_v1::default()
+        };
+        assert_eq!(df_spike_stream_arm_allocation_failure_v1(handle), STATUS_OK);
+        assert_eq!(
+            df_spike_stream_next_v1(
+                handle,
+                allocation_destination.as_mut_ptr(),
+                allocation_destination.len() as u64,
+                &mut metadata,
+            ),
+            STATUS_ALLOCATION_FAILED
+        );
+        assert_eq!(metadata, df_spike_chunk_meta_v1::default());
+        assert_buffer_unchanged(&allocation_destination, &allocation_before);
+
+        assert_eq!(
+            df_spike_stream_next_v1(
+                handle,
+                allocation_destination.as_mut_ptr(),
+                allocation_destination.len() as u64,
+                &mut metadata,
+            ),
+            STATUS_OK
+        );
+        assert_eq!(df_spike_stream_ack_v1(handle, metadata.sequence), STATUS_OK);
+        assert_eq!(df_spike_stream_arm_panic_v1(handle), STATUS_OK);
+
+        let mut panic_destination = secret_like_canary(128);
+        let panic_before = panic_destination.clone();
+        metadata = df_spike_chunk_meta_v1 {
+            sequence: u64::MAX,
+            ..df_spike_chunk_meta_v1::default()
+        };
+        assert_eq!(
+            df_spike_stream_next_v1(
+                handle,
+                panic_destination.as_mut_ptr(),
+                panic_destination.len() as u64,
+                &mut metadata,
+            ),
+            STATUS_PANIC
+        );
+        assert_eq!(metadata, df_spike_chunk_meta_v1::default());
+        assert_buffer_unchanged(&panic_destination, &panic_before);
+        let mut failed_status = df_spike_stream_status_v1::default();
+        assert_eq!(
+            df_spike_stream_get_status_v1(handle, &mut failed_status),
+            STATUS_OK
+        );
+        assert_eq!(failed_status.state, STATE_FAILED);
+        assert_eq!(failed_status.terminal_error, STATUS_PANIC as u32);
+        assert_eq!(df_spike_stream_release_v1(handle), STATUS_OK);
+
+        let undersized_handle = create(&options(1, 1, 40));
+        let mut undersized_destination = secret_like_canary(128);
+        let undersized_before = undersized_destination.clone();
+        metadata = df_spike_chunk_meta_v1::default();
+        assert_eq!(
+            df_spike_stream_next_v1(
+                undersized_handle,
+                undersized_destination.as_mut_ptr(),
+                1,
+                &mut metadata,
+            ),
+            STATUS_BUFFER_TOO_SMALL
+        );
+        assert_buffer_unchanged(&undersized_destination, &undersized_before);
+        assert_eq!(
+            df_spike_stream_ack_v1(undersized_handle, 1),
+            STATUS_ACK_MISMATCH
+        );
+        assert_eq!(df_spike_stream_release_v1(undersized_handle), STATUS_OK);
+        assert_no_registry_leaks();
+    }
+
+    #[test]
+    fn same_handle_next_cancel_release_races_are_linearizable() {
+        let _guard = test_lock();
+        for _iteration in 0..64 {
+            reset();
+            let handle = create(&options(4, 2, 80));
+            let start = Arc::new(Barrier::new(4));
+            let (next_sender, next_receiver) = mpsc::channel();
+            let (cancel_sender, cancel_receiver) = mpsc::channel();
+            let (release_sender, release_receiver) = mpsc::channel();
+
+            let next_start = Arc::clone(&start);
+            let next_thread = thread::spawn(move || {
+                let mut destination = [0_u8; 128];
+                let mut metadata = df_spike_chunk_meta_v1::default();
+                next_start.wait();
+                let status = df_spike_stream_next_v1(
+                    handle,
+                    destination.as_mut_ptr(),
+                    destination.len() as u64,
+                    &mut metadata,
+                );
+                let _ = next_sender.send((status, metadata));
+            });
+
+            let cancel_start = Arc::clone(&start);
+            let cancel_thread = thread::spawn(move || {
+                let mut outcome = df_spike_cancel_outcome_v1::default();
+                cancel_start.wait();
+                let status = df_spike_stream_cancel_v1(handle, &mut outcome);
+                let _ = cancel_sender.send((status, outcome));
+            });
+
+            let release_start = Arc::clone(&start);
+            let release_thread = thread::spawn(move || {
+                release_start.wait();
+                let status = df_spike_stream_release_v1(handle);
+                let _ = release_sender.send(status);
+            });
+
+            start.wait();
+            let next_result = match next_receiver.recv_timeout(Duration::from_secs(5)) {
+                Ok(result) => result,
+                Err(error) => panic!("next race worker did not finish: {error}"),
+            };
+            let cancel_result = match cancel_receiver.recv_timeout(Duration::from_secs(5)) {
+                Ok(result) => result,
+                Err(error) => panic!("cancel race worker did not finish: {error}"),
+            };
+            let release_result = match release_receiver.recv_timeout(Duration::from_secs(5)) {
+                Ok(result) => result,
+                Err(error) => panic!("release race worker did not finish: {error}"),
+            };
+            assert!(next_thread.join().is_ok());
+            assert!(cancel_thread.join().is_ok());
+            assert!(release_thread.join().is_ok());
+
+            match next_result.0 {
+                STATUS_OK => {
+                    assert_eq!(cancel_result.0, STATUS_OK);
+                    assert_eq!(cancel_result.1.outcome, CANCEL_PENDING_ACK);
+                    assert_eq!(cancel_result.1.state, STATE_CANCEL_PENDING_ACK);
+                    assert_eq!(release_result, STATUS_NEEDS_ACK);
+                    assert_eq!(
+                        df_spike_stream_ack_v1(handle, next_result.1.sequence),
+                        STATUS_OK
+                    );
+                    assert_eq!(df_spike_stream_release_v1(handle), STATUS_OK);
+                }
+                STATUS_CANCELLED => {
+                    assert_eq!(cancel_result.0, STATUS_OK);
+                    assert_eq!(cancel_result.1.outcome, CANCEL_ACCEPTED);
+                    assert_eq!(cancel_result.1.state, STATE_CANCELLED);
+                    assert_eq!(release_result, STATUS_OK);
+                }
+                STATUS_STALE_HANDLE => {
+                    assert_eq!(release_result, STATUS_OK);
+                    assert!(cancel_result.0 == STATUS_OK || cancel_result.0 == STATUS_STALE_HANDLE);
+                    if cancel_result.0 == STATUS_OK {
+                        assert_eq!(cancel_result.1.outcome, CANCEL_ACCEPTED);
+                    } else {
+                        assert_eq!(cancel_result.1, df_spike_cancel_outcome_v1::default());
+                    }
+                }
+                status => panic!("unexpected next race status: {status}"),
+            }
+            assert_no_registry_leaks();
+        }
+    }
+
+    #[test]
+    fn cancel_and_release_attempts_wait_while_next_holds_registry_lock() {
+        let _guard = test_lock();
+        reset();
+        let handle = create(&options(4, 2, 80));
+        arm_next_registry_lock_pause(handle);
+
+        let (next_sender, next_receiver) = mpsc::channel();
+        let next_thread = thread::spawn(move || {
+            let mut destination = [0_u8; 128];
+            let mut metadata = df_spike_chunk_meta_v1::default();
+            let status = df_spike_stream_next_v1(
+                handle,
+                destination.as_mut_ptr(),
+                destination.len() as u64,
+                &mut metadata,
+            );
+            let _ = next_sender.send((status, metadata));
+        });
+        wait_for_registry_hook(|state| state.next_holds_registry_lock);
+
+        let (cancel_sender, cancel_receiver) = mpsc::channel();
+        let cancel_thread = thread::spawn(move || {
+            let mut outcome = df_spike_cancel_outcome_v1::default();
+            let status = df_spike_stream_cancel_v1(handle, &mut outcome);
+            let _ = cancel_sender.send((status, outcome));
+        });
+        let (release_sender, release_receiver) = mpsc::channel();
+        let release_thread = thread::spawn(move || {
+            let status = df_spike_stream_release_v1(handle);
+            let _ = release_sender.send(status);
+        });
+        wait_for_registry_hook(|state| {
+            state.next_holds_registry_lock && state.cancel_attempted && state.release_attempted
+        });
+
+        assert!(matches!(
+            next_receiver.try_recv(),
+            Err(mpsc::TryRecvError::Empty)
+        ));
+        assert!(matches!(
+            cancel_receiver.try_recv(),
+            Err(mpsc::TryRecvError::Empty)
+        ));
+        assert!(matches!(
+            release_receiver.try_recv(),
+            Err(mpsc::TryRecvError::Empty)
+        ));
+
+        resume_paused_next();
+        let next_result = match next_receiver.recv_timeout(Duration::from_secs(5)) {
+            Ok(result) => result,
+            Err(error) => panic!("paused next worker did not finish: {error}"),
+        };
+        let cancel_result = match cancel_receiver.recv_timeout(Duration::from_secs(5)) {
+            Ok(result) => result,
+            Err(error) => panic!("paused cancel worker did not finish: {error}"),
+        };
+        let release_result = match release_receiver.recv_timeout(Duration::from_secs(5)) {
+            Ok(result) => result,
+            Err(error) => panic!("paused release worker did not finish: {error}"),
+        };
+        assert!(next_thread.join().is_ok());
+        assert!(cancel_thread.join().is_ok());
+        assert!(release_thread.join().is_ok());
+
+        assert_eq!(next_result.0, STATUS_OK);
+        assert_eq!(cancel_result.0, STATUS_OK);
+        assert_eq!(cancel_result.1.outcome, CANCEL_PENDING_ACK);
+        assert_eq!(cancel_result.1.state, STATE_CANCEL_PENDING_ACK);
+        assert_eq!(release_result, STATUS_NEEDS_ACK);
+        assert_eq!(
+            df_spike_stream_ack_v1(handle, next_result.1.sequence),
+            STATUS_OK
+        );
+        assert_eq!(df_spike_stream_release_v1(handle), STATUS_OK);
+        assert_no_registry_leaks();
     }
 
     #[test]
@@ -1001,6 +2173,7 @@ mod tests {
             df_spike_abi_negotiate_v1(&unsupported, &mut response),
             STATUS_UNSUPPORTED_FEATURE
         );
+        assert_no_registry_leaks();
     }
 
     #[test]
@@ -1043,6 +2216,7 @@ mod tests {
         );
         assert_eq!(df_spike_stream_release_v1(handle), STATUS_OK);
         assert_eq!(df_spike_stream_release_v1(handle), STATUS_OK);
+        assert_no_registry_leaks();
     }
 
     #[test]
@@ -1078,6 +2252,7 @@ mod tests {
         );
         assert_eq!(df_spike_stream_ack_v1(handle, sequence), STATUS_OK);
         assert_eq!(df_spike_stream_release_v1(handle), STATUS_OK);
+        assert_no_registry_leaks();
     }
 
     #[test]
@@ -1106,6 +2281,7 @@ mod tests {
         );
         assert_eq!(df_spike_stream_release_v1(first), STATUS_STALE_HANDLE);
         assert_eq!(df_spike_stream_release_v1(second), STATUS_OK);
+        assert_no_registry_leaks();
     }
 
     #[test]
@@ -1178,6 +2354,7 @@ mod tests {
         );
         assert_eq!(df_spike_stream_ack_v1(handle, sequence), STATUS_OK);
         assert_eq!(df_spike_stream_release_v1(handle), STATUS_OK);
+        assert_no_registry_leaks();
     }
 
     #[test]
@@ -1219,6 +2396,7 @@ mod tests {
             STATUS_PANIC
         );
         assert_eq!(df_spike_stream_release_v1(handle), STATUS_OK);
+        assert_no_registry_leaks();
     }
 
     #[test]
@@ -1244,6 +2422,8 @@ mod tests {
         let mut stats = df_spike_registry_stats_v1::default();
         assert_eq!(df_spike_get_registry_stats_v1(&mut stats), STATUS_OK);
         assert_eq!(stats.live_streams, 0);
+        assert_eq!(stats.created_streams, stats.released_streams);
+        assert_no_registry_leaks();
     }
 
     #[test]
@@ -1273,5 +2453,6 @@ mod tests {
         assert_eq!(rows, 1_000_000);
         assert_ne!(digest, 0);
         assert_eq!(df_spike_stream_release_v1(handle), STATUS_OK);
+        assert_no_registry_leaks();
     }
 }

@@ -1,7 +1,8 @@
 # DF-M0-001 — bounded C ABI streaming spike
 
-Status: disposable feasibility spike; Rust/Swift evidence run complete on the
-developer machine; not production code
+Status: disposable feasibility spike; remediation evidence complete on the
+developer machine; independent re-review required before disposal; not
+production code
 
 ## Hypothesis
 
@@ -28,8 +29,11 @@ Included:
   rejection;
 - panic containment at every exported entry point and simulated allocation
   failure;
-- Rust unit tests plus SwiftPM integration tests, including a one-million-row
-  checksum run.
+- deterministic reference-model/property tests, same-handle race tests, Miri,
+  Rust ASan/TSan and SwiftPM integration tests, including a one-million-row
+  checksum run;
+- a release benchmark with one warm-up, ten measured samples, explicit copy
+  accounting and separate idle/full process RSS measurements.
 
 Excluded:
 
@@ -43,8 +47,9 @@ Excluded:
 
 The canonical header is [`include/dataforge_ffi_spike.h`](include/dataforge_ffi_spike.h).
 SwiftPM and the C compiler compile that header; the Rust crate mirrors the
-fixed-width `repr(C)` records and asserts their sizes at compile time (the
-spike deliberately avoids a binding-generator dependency). All v1 records
+fixed-width `repr(C)` records and asserts size, alignment and every field offset
+at compile time (the spike deliberately avoids a binding-generator dependency).
+All v1 records
 begin with `struct_size` and `abi_version`. Known fields are fixed-width
 integers; larger future tails are ignored, while a short record or non-zero
 reserved field is rejected.
@@ -103,8 +108,10 @@ checks the one-million-row aggregate digest.
 
 - No database operation or write path exists; database safety impact is limited
   to proving bounded streaming and cancellation semantics.
-- No secret is accepted, generated, logged or persisted. Fault tests use no
-  secret-like payload.
+- No credential is accepted, generated, logged or persisted. Fault tests place
+  a fake secret-like canary in caller-owned destination memory, assert that
+  controlled failures do not read or mutate it, and fail if captured artifacts
+  contain it.
 - Checked arithmetic and `try_reserve_exact` reject malformed/oversized input
   before allocation. The destination capacity is validated before copying.
 - The caller-owned buffer removes the Rust-owned pointer/use-after-release
@@ -117,29 +124,22 @@ checks the one-million-row aggregate digest.
 
 ## Reproducible commands
 
-From this directory, with Rust 1.97.1 installed by the official `rustup`
-toolchain and an arm64 macOS host:
+From this directory, with Rust 1.97.1 plus the 2026-07-30 nightly Miri/rust-src
+components installed by the official `rustup` toolchain and an arm64 macOS
+host, run the evidence runner:
 
 ```sh
-export MACOSX_DEPLOYMENT_TARGET=14.0
-cargo fmt --manifest-path rust/Cargo.toml -- --check
-clang -std=c11 -Wall -Wextra -Werror -I include -fsyntax-only include/shim.c
-cargo clippy --manifest-path rust/Cargo.toml --all-targets -- -D warnings
-cargo test --manifest-path rust/Cargo.toml --all-targets -- --test-threads=1
-cargo build --manifest-path rust/Cargo.toml --release
-DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer \
-    xcrun swift test -c release --scratch-path .build-xcode
+rustup toolchain install nightly --profile minimal --component miri
+./scripts/test.sh
 ```
 
-The convenience runner is `scripts/test.sh`; it builds Rust before Swift and
-captures `/usr/bin/time -l` output under ignored `artifacts/`. The test target
-uses XCTest, so the runner selects the installed full Xcode toolchain. A bare
-Command Line Tools `swift test` on this host cannot import XCTest; that exact
-failure is recorded as an environment limitation rather than hidden. If the
-toolchain is compared, use a separate scratch path and never mix its SwiftPM
-cache with another Swift version. Xcode can generate a temporary SwiftPM
-scheme, and that package build/test was run; this is not an Xcode production
-app target or UI-runtime validation.
+The runner records every exact command in its source and captures output under
+ignored `artifacts/`. It covers C/C++ header compilation, Rust fmt/clippy/native
+tests, targeted Miri, full Rust ASan/TSan, Swift release integration,
+`xcodebuild` package build/test, runtime RSS, benchmark latency/copy accounting
+and a canary scan. The test target uses XCTest, so the runner selects full
+Xcode. The permanent evidence report preserves commands, results and failures
+outside this disposable directory.
 
 ## Evidence record
 
@@ -151,14 +151,17 @@ production capability.
 | Rust toolchain / target | Rust 1.97.1 (`aarch64-apple-darwin`), `MACOSX_DEPLOYMENT_TARGET=14.0` |
 | Swift toolchain / target | Passing run: Xcode 26.0.1 / Swift 6.2, arm64e macOS 14 deployment; CLT Swift 6.3.3 could compile the library but its `swift test` lacked XCTest |
 | Host | `arm64`, macOS 26.5.2, 24 GiB developer machine; not the proposed M1/16 GiB release floor |
-| Format / clippy / Rust tests | Pass: `cargo fmt --check`; `cargo clippy --all-targets -- -D warnings`; 8 Rust tests passed |
-| Swift release integration | Pass: 7 XCTest cases, 0 failures, via `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun swift test -c release` |
+| Format / clippy / Rust tests | Pass: `cargo fmt --check`; `cargo clippy --all-targets -- -D warnings`; 13 Rust tests passed |
+| Rust dynamic checks | Pass: 13/13 under nightly ASan, 13/13 under nightly TSan, and 7 targeted ownership/race tests under Miri |
+| Swift release integration | Pass: 8 XCTest cases, 0 failures, via `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun swift test -c release` |
 | One-million-row checksum | `rows=1,000,000`, `chunks=1,000`, digest `16282154771318798373` |
-| RSS | Latest runtime bundle measurement: 62,128,128 bytes maximum RSS (~59.3 MiB) under `/usr/bin/time -l xcrun xctest`; observed runs were ~61.8–62.2 MB. This is process-level developer evidence, not incremental app RSS |
+| RSS | XCTest maximum RSS `61,915,136` bytes; benchmark idle/full maximum RSS `5,832,704`/`10,780,672` bytes, an approximate `4,947,968`-byte process delta. These are developer-process measurements, not app incremental RSS |
+| Release latency | One warm-up + 10 samples: one-million-row median `106.683 ms`, p95/worst `154.003 ms`; chunk median `0.102417 ms`, p95 `0.146459 ms`, worst `7.343792 ms` |
+| Copy model | Per sample: 38,400,000 payload bytes; 1,000 Rust-to-caller copies plus 1,000 Swift wrapper copies; two full-payload copy passes / 76,800,000 copied bytes; no retained Rust chunk bytes |
 | Static ABI link | Swift release test linked the Rust `staticlib` and exercised all exported symbols successfully |
 | Xcode package validation | Pass: `xcodebuild ... build -quiet` and `xcodebuild ... test -quiet` with arm64 destination (generated SwiftPM scheme; no production app target) |
 | Panic output | Expected Rust panic-hook lines appear for fault probes; returned status is controlled and no secret-like data is emitted |
-| Sanitizers / Miri / lint tools | ASan/TSan/Miri not run: this pinned stable toolchain lacks a configured sanitizer/Miri harness. `cargo-audit`, `cargo-deny`, `swiftformat` and `swiftlint` are unavailable on this host. Residual risk: wild-pointer/low-level race behavior and supply-chain lint need dedicated CI jobs |
+| Swift sanitizers / lint tools | SwiftPM ASan stalled before XCTest in the Xcode ASan runtime; SwiftPM TSan exited with signal 11 before XCTest. Rust ASan/TSan and Miri passed. `cargo-audit`, `cargo-deny`, external `swiftformat` and `swiftlint` remain unavailable; exact failures/skips are in the permanent report |
 
 ## Disposal and decision
 

@@ -1,10 +1,19 @@
 import CDataForgeFFI
+import Foundation
 import XCTest
 @testable import DataForgeFFISpike
 
 final class DataForgeFFISpikeTests: XCTestCase {
     private let fnvPrime: UInt64 = 0x100000001b3
     private let fnvOffset: UInt64 = 0xcbf29ce484222325
+
+    override func tearDownWithError() throws {
+        let stats = try DataForgeFFISpike.registryStats()
+        XCTAssertEqual(stats.liveStreams, 0)
+        XCTAssertEqual(stats.inFlightBytes, 0)
+        XCTAssertEqual(stats.createdStreams, stats.releasedStreams)
+        try super.tearDownWithError()
+    }
 
     func testABIHandshakeAndLayout() throws {
         let negotiated = try DataForgeFFISpike.negotiate()
@@ -20,6 +29,22 @@ final class DataForgeFFISpikeTests: XCTestCase {
         XCTAssertEqual(MemoryLayout<df_spike_stream_status_v1>.size, 48)
         XCTAssertEqual(MemoryLayout<df_spike_cancel_outcome_v1>.size, 24)
         XCTAssertEqual(MemoryLayout<df_spike_registry_stats_v1>.size, 48)
+        XCTAssertEqual(MemoryLayout<df_spike_abi_request_v1>.alignment, 8)
+        XCTAssertEqual(MemoryLayout<df_spike_abi_info_v1>.alignment, 8)
+        XCTAssertEqual(MemoryLayout<df_spike_stream_options_v1>.alignment, 8)
+        XCTAssertEqual(MemoryLayout<df_spike_chunk_meta_v1>.alignment, 8)
+        XCTAssertEqual(MemoryLayout<df_spike_stream_status_v1>.alignment, 8)
+        XCTAssertEqual(MemoryLayout<df_spike_cancel_outcome_v1>.alignment, 4)
+        XCTAssertEqual(MemoryLayout<df_spike_registry_stats_v1>.alignment, 8)
+
+        XCTAssertEqual(MemoryLayout<df_spike_abi_request_v1>.offset(of: \.required_features), 8)
+        XCTAssertEqual(MemoryLayout<df_spike_abi_info_v1>.offset(of: \.max_chunk_bytes), 24)
+        XCTAssertEqual(MemoryLayout<df_spike_stream_options_v1>.offset(of: \.seed), 16)
+        XCTAssertEqual(MemoryLayout<df_spike_chunk_meta_v1>.offset(of: \.checksum), 40)
+        XCTAssertEqual(MemoryLayout<df_spike_chunk_meta_v1>.offset(of: \.required_capacity), 48)
+        XCTAssertEqual(MemoryLayout<df_spike_stream_status_v1>.offset(of: \.outstanding_sequence), 32)
+        XCTAssertEqual(MemoryLayout<df_spike_cancel_outcome_v1>.offset(of: \.state), 12)
+        XCTAssertEqual(MemoryLayout<df_spike_registry_stats_v1>.offset(of: \.released_streams), 32)
     }
 
     func testABIRejectsMismatchAndUnknownRequiredFeature() {
@@ -142,6 +167,54 @@ final class DataForgeFFISpikeTests: XCTestCase {
             XCTAssertEqual(error as? SpikeError, .status(.panic))
         }
         XCTAssertEqual(try stream.status().state, 5)
+        XCTAssertEqual(try stream.cancel(), .tooLate)
+    }
+
+    func testSecretLikeCanaryIsNotReadOrMutatedByFaultPaths() throws {
+        let fallbackCanary = ["DF_SECRET_CANARY", "M0_001", "DO_NOT_LOG", "7F3A9C"].joined(separator: "_")
+        let canary = ProcessInfo.processInfo.environment["DATAFORGE_SECRET_CANARY"] ?? fallbackCanary
+        var destination = Array(canary.utf8)
+        destination.append(contentsOf: repeatElement(0xA5, count: max(0, 128 - destination.count)))
+        let original = destination
+        var options = df_spike_stream_options_v1(
+            struct_size: UInt32(MemoryLayout<df_spike_stream_options_v1>.size),
+            abi_version: DataForgeFFISpike.abiVersion,
+            total_rows: 2,
+            seed: 7,
+            requested_chunk_rows: 1,
+            requested_chunk_bytes: 40,
+            reserved0: 0,
+            reserved1: 0
+        )
+        var handle: UInt64 = 0
+        XCTAssertEqual(df_spike_stream_create_v1(&options, &handle), SpikeStatus.ok.rawValue)
+        XCTAssertNotEqual(handle, 0)
+
+        var metadata = df_spike_chunk_meta_v1()
+        XCTAssertEqual(df_spike_stream_arm_allocation_failure_v1(handle), SpikeStatus.ok.rawValue)
+        let allocationStatus = destination.withUnsafeMutableBytes { bytes in
+            df_spike_stream_next_v1(
+                handle,
+                bytes.baseAddress?.assumingMemoryBound(to: UInt8.self),
+                UInt64(bytes.count),
+                &metadata
+            )
+        }
+        XCTAssertEqual(allocationStatus, SpikeStatus.allocationFailed.rawValue)
+        XCTAssertTrue(destination == original)
+
+        XCTAssertEqual(df_spike_stream_arm_panic_v1(handle), SpikeStatus.ok.rawValue)
+        let panicStatus = destination.withUnsafeMutableBytes { bytes in
+            df_spike_stream_next_v1(
+                handle,
+                bytes.baseAddress?.assumingMemoryBound(to: UInt8.self),
+                UInt64(bytes.count),
+                &metadata
+            )
+        }
+        XCTAssertEqual(panicStatus, SpikeStatus.panic.rawValue)
+        XCTAssertTrue(destination == original)
+        XCTAssertEqual(df_spike_stream_release_v1(handle), SpikeStatus.ok.rawValue)
     }
 
     func testLimitsAndRegistryBound() throws {
