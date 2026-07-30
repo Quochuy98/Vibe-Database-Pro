@@ -1,0 +1,18 @@
+[package]
+name = "dataforge-russh-probe"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[dependencies]
+data-encoding = "=2.11.0"
+hmac = "=0.13.0"
+libc = "=0.2.189"
+log = { version = "=0.4.33", features = ["release_max_level_info"] }
+russh = { version = "=0.62.4", default-features = false, features = ["aws-lc-rs"] }
+serde.workspace = true
+serde_json.workspace = true
+sha1 = "=0.11.0"
+tokio = { version = "=1.53.1", features = ["fs", "io-util", "macros", "net", "process", "rt-multi-thread", "sync", "time"] }
+zeroize = "=1.9.0"
