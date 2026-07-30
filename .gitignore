@@ -1,0 +1,22 @@
+# macOS metadata
+.DS_Store
+**/.DS_Store
+
+# Local-only environment and credentials
+.env
+.env.*
+!.env.example
+
+# Swift/Xcode build output and user state
+.build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+
+# Rust build output
+target/
+
+# Local diagnostics and test artifacts
+artifacts/
+diagnostics/
+*.log
