@@ -449,6 +449,15 @@ results are not treated as a full BF-01 or accessibility pass.
 The disposable M0-S03 source was removed in commit `262250a`; its evidence
 source remains auditable at `130bd3a`.
 
+M0-S04 now has a durable grid evidence record and ADR-0011 disposition. The
+full-grid `NSTableView` plus frozen-table candidate is rejected: BF-03 expands
+the physical column/view graph and the split projection does not expose one
+logical accessibility table. A bounded custom native two-dimensional renderer
+is selected for subsequent planning, with production still gated on true
+presented frames, M1/16 GiB memory, row-and-column object caps, unified
+accessibility, manual VoiceOver and soak. The proxy values are not treated as
+FPS or a presentation-budget pass.
+
 ### Canonical M0 traceability
 
 The IDs below prevent the spike list, backlog and architecture section from
@@ -470,8 +479,10 @@ spikes.
 
 ## 12. Recommended first implementation task
 
-**Only one next task:** execute `M0-S04 / DF-M0-004 — virtualized typed AppKit
-grid feasibility spike` exactly as bounded above. Use deterministic BF-02/BF-03
-data only, define the frame-time and wide/frozen-column gates before measuring,
-retain pending edits outside the bounded cache, and delete the prototype after
-its report/ADR. This does not open the production implementation gate.
+**Only one next task:** execute `M0-S05 / DF-M0-005 — SSH tunnel and host-trust
+candidate spike` exactly as bounded above. Use only ephemeral local
+SSH/jump-host fixtures and fake credentials; compare the patched `russh`,
+system OpenSSH and libssh2-class options under unknown/changed-host,
+agent/key/password, jump, cancellation, cleanup, advisory and no-direct-fallback
+gates. Dispose the prototype after its report/ADR. This does not open the
+production implementation gate.

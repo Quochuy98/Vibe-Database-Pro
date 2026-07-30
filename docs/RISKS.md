@@ -2,7 +2,7 @@
 
 Status: Initial planning register
 
-Last updated: 2026-07-29
+Last updated: 2026-07-30
 
 Scoring: Probability (L/M/H), impact (L/M/H/Critical). Any Critical impact with non-low probability is release-blocking until mitigated or explicitly rejected.
 
@@ -19,7 +19,7 @@ Scoring: Probability (L/M/H), impact (L/M/H/Critical). Any Critical impact with 
 | R-07 | SSH implementation mishandles host keys, agents or jump hosts | M | Critical | Adversarial SSH fixture; changed-key/MITM/cancel/tunnel tests; advisory scan | In-process candidate only after audit; strict known-host policy; no shell interpolation | Reject candidate; use vetted alternative or disable SSH | Security + connection owner |
 | R-08 | TLS trust or custom CA handling permits MITM | M | Critical | Invalid/expired/wrong-host/custom-CA tests; dependency advisories | Platform-root/cert validation, per-connection CA, fail closed; no global bypass | Block connection and provide remediation; no insecure mode | Security + adapter owner |
 | R-09 | Query cancellation is racy or leaves a session unsafe | H | High | Slow-query/interruption/connection-reuse tests per driver | Model requested vs confirmed; poison/close session when required | Tell user outcome unknown; require reconnect/reconcile | Query execution owner |
-| R-10 | Large results exhaust memory or freeze UI | M | Critical | 1M/10M row, slow consumer, hostile length, RSS/frame metrics | Pull streaming, byte+row caps, bounded queues/pages, virtualization; driver must cap decrypted backend frames before buffering | Stop fetch/export stream; defer/reject driver when frame cap is unavailable | Performance + core owner |
+| R-10 | Large results exhaust memory or freeze UI | M | Critical | 1M/10M row, 500-column, slow consumer, hostile length, RSS/frame/object-inventory metrics | Pull streaming, byte+row caps, bounded queues/pages, row-and-column viewport virtualization and retained-object caps; driver must cap decrypted backend frames before buffering | Stop fetch/export stream; defer renderer/driver when either physical-view or frame cap is unavailable | Performance + core owner |
 | R-11 | Editable grid updates the wrong row | M | Critical | Wrong-key/concurrency/zero-multiple affected regression suite | Primary/unique key plan, optimistic predicate, affected-row assertion, read-only fallback | Roll back/disable editing for source; incident workflow | Data editor owner |
 | R-12 | Schema diff mistakes rename/drop or dependency order | M | Critical | Synthetic rename/cycle/drift/rollback fixtures; plan review | Confidence-scored rename proposal; preview/dry-run; deterministic dependency graph | Block apply; require explicit manual mapping/SQL | Schema diff owner |
 | R-13 | Cross-engine type mapping silently loses data | H | High | Boundary/overflow/timezone/collation/JSON/BLOB fixture comparisons | Explicit mapping table, lossiness warnings, verification and error rows | Stop transfer or require per-column mapping; no silent coercion | Transfer owner |
@@ -27,7 +27,7 @@ Scoring: Probability (L/M/H), impact (L/M/H/Critical). Any Critical impact with 
 | R-15 | App Sandbox blocks SSH/files/subprocess/backup/automation | H | High | Separate MAS entitlement/helper/file/tool prototype | Direct distribution first; separate channel matrix; feature capability gating | Do not ship affected capability in MAS; no entitlement overreach | macOS/release owner |
 | R-16 | Background jobs cannot run across logout/sleep or Keychain lock | H | High | SMAppService lifecycle, logout/sleep/locked-keychain tests | In-app MVP; explicit LaunchAgent consent/status; no guarantee claims | Require app-open execution; report skipped job | Automation owner |
 | R-17 | Rust/Swift FFI ownership/cancellation bugs | M | Critical | Sanitizers, ABI mismatch, leak/double-release/panic/concurrency tests | Versioned C ABI, opaque handles, pull/ack chunks, integration gate | Freeze FFI changes; revert to last compatible ABI; disable feature | Core/FFI owner |
-| R-18 | UI performance/regressions from SwiftUI/AppKit split | M | High | Instruments, frame/RSS/editor/grid/accessibility budgets | Narrow AppKit bridges, MainActor state, incremental work, spikes | Replace failing component with measured native renderer; defer feature | macOS UI owner |
+| R-18 | UI performance/regressions from SwiftUI/AppKit split | M | High | Instruments, frame/RSS/editor/grid/accessibility and retained-object budgets | Narrow AppKit bridges, MainActor state, incremental work; ADR-0011 bounded custom grid renderer with row-and-column virtualization | Replace/defer a failing component; never lower frame or accessibility gates | macOS UI owner |
 | R-19 | ER graph layout is slow or unreadable at scale | H | Medium | 500/5,000-table layout/pan/zoom benchmarks and usability tests | Level of detail, incremental/worker layout, manual pinning, hide/filter | Limit visible scope; defer auto-layout/large export | Modeling owner |
 | R-20 | Destructive-operation safety is bypassed by parser gap or stale UI | M | Critical | Fuzz classifier, stale digest/target-switch/shortcut/production tests | Core revalidation, typed confirmation, unknown=block, audit | Emergency disable writes/feature flag; incident/reconciliation | Security + query owner |
 | R-21 | Supply-chain dependency/update compromise | M | Critical | `cargo audit/deny`, SBOM/provenance, signature/tamper/reproducible checks | Pin/lock, review advisories/licenses, offline release keys, signed updates | Revoke release/key, halt feed, ship verified rollback | Security + release |
@@ -64,7 +64,9 @@ No risk is silently accepted. An accepted exception records rationale, residual 
 1. Exact PostgreSQL/MySQL/MariaDB/SQLite driver versions, licenses, cancellation and TLS behavior.
 2. SSH candidate after the 2026 `russh` advisories and fallback comparison.
 3. TextKit 2 large-file and dialect parser strategy.
-4. `NSTableView` wide/frozen-column virtualization and VoiceOver contract.
+4. Bounded custom native grid renderer performance, input behavior and unified
+   accessibility contract after DF-M0-004 rejected the full-grid `NSTableView`
+   composition.
 5. C ABI chunk encoding/copy overhead and safe cancellation.
 6. Direct updater/helper signing and optional App Sandbox feasibility.
 7. Official backup tools, licenses, native binaries and cancellation per engine.
@@ -81,6 +83,14 @@ keeps production gated because true paint, M1/16 GiB RSS/performance, real
 keyboard/VoiceOver, durable recovery and active-worker cancellation remain
 unproven. R-24 is unchanged; the spike's permissive keyword scanner is not a
 production SQL parser or safety classifier.
+
+DF-M0-004 resolves the `NSTableView` choice inside unknown 4 but does not close
+R-10 or R-18. [ADR-0011](adr/0011-m0-grid-disposition.md) rejects the
+full-grid composition after BF-03 exposed schema-proportional wide view expansion
+and a split accessibility tree. Bounded cache, stable identity and deferred
+value evidence narrows the service design; true presented frames, M1/16 GiB,
+manual VoiceOver, a unified replacement accessibility tree and soak remain
+open.
 
 ## 5. Risk acceptance format
 

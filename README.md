@@ -36,6 +36,7 @@ The baseline assumptions above remain subject to the Architecture Decision Recor
 - [DF-M0-001 C ABI streaming evidence](docs/reports/DF-M0-001-ffi-streaming-evidence.md)
 - [DF-M0-002 PostgreSQL driver evidence](docs/reports/DF-M0-002-postgres-driver-evidence.md)
 - [DF-M0-003 TextKit editor evidence](docs/reports/DF-M0-003-textkit-editor-evidence.md)
+- [DF-M0-004 AppKit grid evidence](docs/reports/DF-M0-004-appkit-grid-evidence.md)
 
 ### Assurance and release
 

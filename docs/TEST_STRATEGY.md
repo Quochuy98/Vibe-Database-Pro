@@ -2,7 +2,7 @@
 
 Status: Proposed quality contract
 
-Last updated: 2026-07-29
+Last updated: 2026-07-30
 
 Owners: Quality Engineering with feature, Database Core, macOS and Security owners
 
@@ -14,13 +14,17 @@ The repository has no production implementation. Separately scoped disposable
 artifacts preserve exact evidence in the
 [DF-M0-001 FFI report](reports/DF-M0-001-ffi-streaming-evidence.md),
 [DF-M0-002 PostgreSQL report](reports/DF-M0-002-postgres-driver-evidence.md)
-and [DF-M0-003 editor report](reports/DF-M0-003-textkit-editor-evidence.md).
+and [DF-M0-003 editor report](reports/DF-M0-003-textkit-editor-evidence.md),
+plus the
+[DF-M0-004 grid report](reports/DF-M0-004-appkit-grid-evidence.md).
 Their source commits remain auditable after disposal. None establishes a
 production capability: the PostgreSQL stack is deferred, and the TextKit 2
 candidate still lacks input-to-frame, M1/16 GiB, real keyboard/VoiceOver,
-durable-recovery and active-cancellation evidence. The commands and suites
-below remain future production gates unless an exact command is recorded as
-run.
+durable-recovery and active-cancellation evidence. The full-grid `NSTableView`
+candidate is rejected; its bounded-state tests do not establish presented
+frames, M1/16 GiB, one logical accessibility table, manual VoiceOver or soak
+for the ADR-0011 replacement. The commands and suites below remain future
+production gates unless an exact command is recorded as run.
 
 ## 2. Quality principles
 
@@ -221,6 +225,8 @@ Use the named datasets and budgets in [PERFORMANCE_BUDGET.md](PERFORMANCE_BUDGET
 - high-latency connect and metadata lazy load;
 - 10 MB/100 MB SQL files and incremental edit/completion latency;
 - 1M/10M streamed rows, 500-column wide table, large JSON and deferred 100 MB BLOB;
+- bounded grid row-and-column viewport objects, frozen-region synchronization
+  and one unified logical accessibility tree;
 - large schema/object tree and 5,000-table ER model;
 - import/export/transfer throughput with slow disk/network/consumer;
 - schema/data diff memory and runtime;

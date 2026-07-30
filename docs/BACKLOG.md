@@ -145,6 +145,17 @@ shortcut/VoiceOver behavior, durable recovery and signposted cancellation.
 
 **Definition of done:** Prototype deleted; grid decision/limits and follow-up tasks documented.
 
+**M0 disposition (2026-07-30):** The full-grid `NSTableView` plus frozen-table
+composition is rejected by
+[ADR-0011](adr/0011-m0-grid-disposition.md). See the
+[DF-M0-004 evidence](reports/DF-M0-004-appkit-grid-evidence.md). The bounded
+model/cache/identity contracts have positive synthetic evidence, but BF-03
+materializes the wide column/view graph and fails the one-logical-table
+accessibility contract. A bounded custom native two-dimensional renderer is
+the replacement planning candidate; production remains gated on its own
+presented-frame, M1/16 GiB, accessibility, memory and soak evidence. The spike
+source remains only until the durable record is committed, then is disposed.
+
 ### DF-M0-005
 
 **ID:** DF-M0-005
@@ -731,13 +742,13 @@ shortcut/VoiceOver behavior, durable recovery and signposted cancellation.
 
 **Complexity:** XL
 
-**Dependencies:** DF-M2-005, DF-M0-004, normalized type/theme contract
+**Dependencies:** DF-M2-005, DF-M0-004, ADR-0011, normalized type/theme contract
 
 **User story:** As a user, I need smooth typed browsing at million-row scale.
 
-**Description:** Implement AppKit table, page/cache/prefetch, type renderers, NULL/empty/not-loaded, sort/filter intents, deferred BLOB and baseline scoped appearance.
+**Description:** Implement a reviewed bounded custom native two-dimensional renderer, page/cache/prefetch, type renderers, NULL/empty/not-loaded, sort/filter intents, deferred BLOB and baseline scoped appearance.
 
-**Technical notes:** Pending edits separate; visible-style invalidation; byte+item cache limits and memory pressure.
+**Technical notes:** Virtualize rows and columns with bounded overscan/object inventory; expose one logical accessibility table; keep pending edits separate; visible-style invalidation; byte+item cache limits and memory pressure.
 
 **Security considerations:** Untrusted cell metadata/text, clipboard lifecycle, no row logging.
 

@@ -2,7 +2,7 @@
 
 Status: Proposed planning baseline
 
-Last reviewed: 2026-07-29
+Last reviewed: 2026-07-30
 
 Decision authority: accepted ADRs in [`docs/adr`](adr/README.md)
 
@@ -122,9 +122,14 @@ SwiftUI owns the application shell, settings, inspectors, navigation composition
 
 - SQL editor: `NSTextView` using TextKit 2 (`NSTextLayoutManager`), incremental decorations, visible-range work, standard input/key bindings, undo, find, accessibility, and crash-recovered document state.
 - Object tree: `NSOutlineView` with lazy child loading, stable IDs, cancellation, and per-node refresh.
-- Result grid: view-based `NSTableView` with cell reuse, a bounded page cache, server paging/streaming, and a synchronized frozen-column table when required.
+- Result grid: a bounded custom native two-dimensional renderer behind a focused AppKit adapter, with row-and-column viewport virtualization, a bounded page cache, server paging/streaming and one logical accessibility table across frozen and scrollable regions.
 
-M0 spikes must prove editor behavior with a large SQL fixture and grid behavior with million-row streaming plus a wide-table fixture. A custom renderer is a fallback only if `NSTableView` cannot meet the measured budget and accessibility contract.
+M0 spikes must prove editor behavior with a large SQL fixture and grid behavior
+with million-row streaming plus a wide-table fixture. DF-M0-004 established
+that the full-grid `NSTableView` composition cannot meet the BF-03 physical
+column/view and unified-accessibility contract; ADR-0011 selects the bounded
+custom native renderer as the replacement planning candidate. Production code
+remains gated on fresh renderer evidence rather than inheriting the spike.
 
 ### 4.2 State ownership
 
@@ -295,14 +300,14 @@ Recommended baseline:
 
 ## 15. Decision register
 
-This compact register complements the seven ADRs. “Revisit” is a gate, not permission to drift silently.
+This compact register complements the accepted ADR set. “Revisit” is a gate, not permission to drift silently.
 
 | # | Decision | Options considered | Recommendation and reasons | Trade-offs / risks | Revisit condition |
 | --- | --- | --- | --- | --- | --- |
 | 1 | Core language | Swift-only; Swift+Rust | Swift+Rust: native UI plus memory-safe cross-platform core and async ecosystem | FFI/build complexity | C ABI spike fails safety/performance budget |
 | 2 | UI stack | SwiftUI/AppKit; Electron; Tauri | SwiftUI shell + AppKit specialist controls for native behavior/accessibility | Two UI paradigms | AppKit spikes cannot meet budget |
 | 3 | SQL editor | TextKit 2; third-party editor; web editor | `NSTextView`/TextKit 2 plus incremental permissive parser candidate | Advanced editor work remains substantial | Large-file/editor spike fails |
-| 4 | Data grid | `NSTableView`; custom renderer; web grid | `NSTableView`, bounded pages, cell reuse; custom renderer only by evidence | Wide-column/frozen-column complexity | Wide-table benchmark fails |
+| 4 | Data grid | `NSTableView`; custom native renderer; web grid | Bounded custom native two-dimensional renderer after DF-M0-004 rejected the full-grid `NSTableView` composition | More renderer, accessibility and input work; production gate remains closed | Replacement fails BF-02/BF-03, unified accessibility or native UX gates |
 | 5 | Drivers | One abstraction driver; driver-per-adapter; native client libraries | Driver-per-adapter for fidelity/cancel/capabilities | More adapter code/testing | Maintenance or licensing gate fails |
 | 6 | Metadata | Common-only model; raw-only; dual model | Normalized semantic model plus lossless engine descriptor | Mapping/version complexity | New engine proves model unworkable |
 | 7 | Bridge | C ABI; UniFFI; CXX | Versioned C ABI with opaque handles and Swift facade | Boilerplate, ownership tests | UniFFI proves equal control with less risk |
@@ -352,7 +357,7 @@ M0 must run disposable spikes, not evolve them silently into production:
 | PostgreSQL driver | Driver supports TLS, typed stream, transaction and server cancel | Disposable PostgreSQL only | Success/failure/cancel/drop/rollback evidence | Keep findings; delete prototype |
 | SSH/TLS | Candidate can enforce host key and certificate policy through jump host | Local ephemeral SSH/TLS fixtures | Changed host key/MITM/bad CA fail closed; cancellation cleans tunnel | Reject candidate or write production design separately |
 | SQL editor | TextKit 2 remains responsive on large SQL and incremental edits | Prototype editor only | Meets editor latency/memory/accessibility budgets | Delete UI prototype; retain measurements |
-| Grid | AppKit grid supports paging, pending edits, style updates, accessibility | Generated typed fixture, no real writes | Scroll/theme/edit identity budgets and VoiceOver checks pass | Delete prototype; implement reviewed component later |
+| Grid | Native grid supports paging, pending edits, style updates and accessibility | Generated typed fixture, no real writes | Scroll/theme/edit identity budgets and VoiceOver checks pass or a bounded fallback is selected | Delete prototype; benchmark the reviewed replacement separately |
 | Distribution | Rust dylib/helpers/update path can sign and notarize | Empty shell artifact | Signature, Hardened Runtime, notarization, tamper rejection pass | Delete shell or regenerate from approved scaffold |
 | SQLite/Keychain | Non-secret metadata and credentials remain separate | Synthetic profile/workspace only | Transactional migration, locked/denied behavior and canary absence | Delete; retain schema/security decision |
 
@@ -362,6 +367,15 @@ The SQL-editor row now has a partial disposition in
 TextKit 2 remains the preferred planning candidate; the implementation gate is
 still closed because a hidden forced-layout proxy and accessibility metadata do
 not establish input-to-frame paint or VoiceOver behavior.
+
+The grid row now has a fallback disposition in
+[ADR-0011](adr/0011-m0-grid-disposition.md) and the
+[DF-M0-004 evidence report](reports/DF-M0-004-appkit-grid-evidence.md). The
+full-grid `NSTableView` composition is rejected because BF-03 expands the
+physical column/view graph and its frozen projection cannot expose one logical
+accessibility table. Renderer-neutral bounded-state findings remain planning
+input only; the custom native replacement must earn new performance and
+accessibility evidence.
 
 The original shell wireframes and accessibility annotations are the separate
 M0 design gate in [UX_WIREFRAMES.md](UX_WIREFRAMES.md), tracked by DF-M0-009;

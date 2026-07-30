@@ -2,7 +2,7 @@
 
 Status: Provisional targets; M0 measurements required
 
-Last updated: 2026-07-29
+Last updated: 2026-07-30
 
 Owners: Performance, macOS, Database Core, feature owners
 
@@ -120,6 +120,14 @@ favorable interpretation after seeing a result.
   (`sorted[ceil(0.95 * n) - 1]`) and worst. With 10 samples, p95 is the maximum.
   A coefficient of variation over 10% triggers environment diagnosis and a
   rerun rather than averaging the instability away.
+
+DF-M0-004 records its disposition in
+[ADR-0011](adr/0011-m0-grid-disposition.md) and the
+[grid evidence report](reports/DF-M0-004-appkit-grid-evidence.md). The
+`NSTableView` spike's forced-layout/display and scroll-step values are
+diagnostic proxies, not presented frames. Its BF-03 renderer and unified
+accessibility contract failed, so none of the presentation gates above is
+waived or reinterpreted for the replacement renderer.
 
 Automated accessibility inspection must verify table/row/cell/header roles,
 stable row and column counts, selection, loading, SQL `NULL`, deferred and
@@ -296,7 +304,7 @@ Unbounded memoization, global mutable dictionaries and “cache forever until di
   graded retroactively against an invented threshold.
 - Measure SQL editor input event to Core Animation presented frame on the
   M1/16 GiB floor. Hidden-window forced local layout is only a proxy.
-- Validate whether `NSTableView` horizontal width and frozen-column synchronization meet BF-03; otherwise prototype a native custom renderer with equivalent accessibility.
+- Benchmark the ADR-0011 bounded custom native renderer against BF-02/BF-03 with row-and-column object caps, one logical accessibility table and true presented-frame evidence; the rejected `NSTableView` composition is not a baseline to promote.
 - Select actual FFI chunk encoding and measure copy/decoding cost.
 - Establish per-driver fetch/cursor/batch controls and cancellation latency.
 - Measure Keychain prompt/retrieval and metadata migration at large history sizes.
