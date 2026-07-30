@@ -23,8 +23,8 @@ if [[ $output_dir != /* ]]; then
 fi
 
 if [[ ${DATAFORGE_REQUIRE_CLEAN:-0} == 1 ]] &&
-  [[ -n $(git -C "$repository_root" status --short) ]]; then
-  print -u2 "exact evidence requires a clean worktree"
+  [[ -n $(git -C "$repository_root" status --short -- spikes/distribution) ]]; then
+  print -u2 "exact evidence requires a clean spike source scope"
   exit 65
 fi
 
@@ -49,7 +49,7 @@ readonly secret_root="${run_dir}/secrets"
 readonly sparkle_root="${run_dir}/sparkle"
 readonly source_commit=$(git -C "$repository_root" rev-parse HEAD)
 readonly source_tree=$(git -C "$repository_root" rev-parse HEAD:spikes/distribution)
-readonly source_archive_sha256=$(git -C "$repository_root" archive HEAD:spikes/distribution | shasum -a 256 | awk '{print $1}')
+readonly source_archive_sha256=$(git -C "$repository_root" archive "$source_commit" spikes/distribution | shasum -a 256 | awk '{print $1}')
 mkdir -p "$build_root" "$secret_root" "$sparkle_root"
 chmod 0700 "$run_dir" "$secret_root"
 
