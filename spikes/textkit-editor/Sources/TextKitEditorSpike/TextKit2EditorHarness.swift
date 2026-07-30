@@ -5,6 +5,7 @@ import Foundation
 public final class TextKit2EditorHarness {
   public static let maximumDocumentBytes = 110 * 1_024 * 1_024
   public static let maximumReplacementBytes = 4 * 1_024
+  public static let maximumUndoLevels = 100
   public static let largeFileThresholdBytes = 20 * 1_024 * 1_024
   public static let accessibilityLabel = "Synthetic SQL editor feasibility fixture"
   public static let standardModeAccessibilityStatus =
@@ -18,6 +19,7 @@ public final class TextKit2EditorHarness {
   public let textStorage: NSTextStorage
 
   public private(set) var revision: UInt64 = 0
+  public private(set) var documentUTF8Bytes = 0
   public private(set) var featurePolicy = EditorFeaturePolicy(
     mode: .standard,
     foldingEnabled: true,
@@ -32,6 +34,11 @@ public final class TextKit2EditorHarness {
   private let undoDelegate: EditorUndoDelegate
   private let fallbackObserver: TextKitFallbackObserver
   private var decoratedEnvelope: TextSpan?
+  private var isReplacingDocument = false
+  private var pendingUndoGroupByteDelta = 0
+  private var pendingUndoGroupChangeCount = 0
+  private var undoByteDeltas: [Int] = []
+  private var redoByteDeltas: [Int] = []
 
   public init(viewportSize: NSSize = NSSize(width: 900, height: 640)) throws {
     _ = NSApplication.shared
@@ -76,6 +83,7 @@ public final class TextKit2EditorHarness {
     self.scrollView = scrollView
     self.hostWindow = hostWindow
     self.fallbackObserver = fallbackObserver
+    undoDelegate.owner = self
 
     textView.delegate = undoDelegate
     textView.allowsUndo = true
@@ -157,8 +165,10 @@ public final class TextKit2EditorHarness {
       )
     }
 
+    isReplacingDocument = true
+    defer { isReplacingDocument = false }
     clearDecorations()
-    undoDelegate.manager.removeAllActions()
+    undoDelegate.reset()
     let attributes: [NSAttributedString.Key: Any] = [
       .font: NSFont.monospacedSystemFont(ofSize: 13, weight: .regular),
       .foregroundColor: NSColor.textColor,
@@ -169,11 +179,13 @@ public final class TextKit2EditorHarness {
       )
     }
     textView.setSelectedRange(NSRange(location: 0, length: 0))
+    documentUTF8Bytes = fixture.byteCount
+    pendingUndoGroupByteDelta = 0
+    pendingUndoGroupChangeCount = 0
+    undoByteDeltas = []
+    redoByteDeltas = []
     revision &+= 1
-    featurePolicy = policy(forDocumentBytes: fixture.byteCount)
-    textView.setAccessibilityHelp(
-      "\(featurePolicy.accessibilityStatus) This disposable synthetic SQL editor does not execute queries."
-    )
+    refreshFeaturePolicy()
     ensureLayout(around: TextSpan(location: 0, length: min(512, textStorage.length)))
   }
 
@@ -186,13 +198,23 @@ public final class TextKit2EditorHarness {
         maximumBytes: Self.maximumReplacementBytes
       )
     }
+    guard documentUTF8Bytes <= Self.maximumDocumentBytes - replacementBytes else {
+      throw EditorSpikeError.documentLimitExceeded(
+        actualBytes: documentUTF8Bytes + replacementBytes,
+        maximumBytes: Self.maximumDocumentBytes
+      )
+    }
 
+    let revisionBeforeEdit = revision
     let offset = insertionOffset(for: position)
     let insertionRange = NSRange(location: offset, length: 0)
     textView.setSelectedRange(insertionRange)
     textView.insertText(replacement, replacementRange: insertionRange)
-    revision &+= 1
-    clearDecorations()
+    undoDelegate.finalizePendingChangeIfNeeded()
+    textView.breakUndoCoalescing()
+    guard revision != revisionBeforeEdit else {
+      throw EditorSpikeError.textChangeRejected
+    }
 
     let insertedLength = (replacement as NSString).length
     let insertedSpan = TextSpan(location: offset, length: insertedLength)
@@ -204,8 +226,6 @@ public final class TextKit2EditorHarness {
       return
     }
     undoDelegate.manager.undo()
-    revision &+= 1
-    clearDecorations()
   }
 
   public func redo() {
@@ -213,8 +233,6 @@ public final class TextKit2EditorHarness {
       return
     }
     undoDelegate.manager.redo()
-    revision &+= 1
-    clearDecorations()
   }
 
   public func text(in span: TextSpan) throws -> String {
@@ -255,6 +273,35 @@ public final class TextKit2EditorHarness {
       )
     }
     try validate(result.analyzedSpan)
+    guard result.analyzedSpan.length <= AnalysisLimits.maximumAllowedUTF16Units,
+      result.inputUTF16Units <= AnalysisLimits.maximumAllowedUTF16Units
+    else {
+      throw EditorSpikeError.analysisLimitExceeded(
+        actualUTF16Units: result.inputUTF16Units,
+        maximumUTF16Units: AnalysisLimits.maximumAllowedUTF16Units
+      )
+    }
+    guard result.inputUTF16Units == result.analyzedSpan.length else {
+      throw EditorSpikeError.analysisLengthMismatch(
+        reportedUTF16Units: result.inputUTF16Units,
+        actualUTF16Units: result.analyzedSpan.length
+      )
+    }
+    guard result.keywordSpans.count <= AnalysisLimits.maximumAllowedMatches else {
+      throw EditorSpikeError.analysisOutputLimitExceeded(
+        actualMatches: result.keywordSpans.count,
+        maximumMatches: AnalysisLimits.maximumAllowedMatches
+      )
+    }
+    for span in result.keywordSpans {
+      guard span.location >= result.analyzedSpan.location,
+        span.length > 0,
+        span.location <= result.analyzedSpan.upperBound,
+        span.length <= result.analyzedSpan.upperBound - span.location
+      else {
+        throw EditorSpikeError.analysisSpanOutsideAnalyzedRange(span)
+      }
+    }
 
     clearDecorations()
     for span in result.keywordSpans {
@@ -340,6 +387,15 @@ public final class TextKit2EditorHarness {
     textView.displayIfNeeded()
   }
 
+  #if DEBUG
+    public func intentionallyTriggerTextKit1FallbackForObserverTest() -> Bool {
+      // This is the sole intentional compatibility access in the spike. Production-style
+      // paths must never read this property because doing so switches the text network.
+      _ = textView.layoutManager
+      return fallbackObserver.fallbackCount > 0
+    }
+  #endif
+
   private func insertionOffset(for position: EditPosition) -> Int {
     switch position {
     case .start:
@@ -368,6 +424,129 @@ public final class TextKit2EditorHarness {
       maximumAnalysisUTF16Units: AnalysisLimits.viewportDefault.maximumUTF16Units,
       accessibilityStatus: Self.standardModeAccessibilityStatus
     )
+  }
+
+  private func refreshFeaturePolicy() {
+    featurePolicy = policy(forDocumentBytes: documentUTF8Bytes)
+    textView.setAccessibilityHelp(
+      "\(featurePolicy.accessibilityStatus) This disposable synthetic SQL editor does not execute queries."
+    )
+  }
+
+  fileprivate func approveTextChange(
+    range: NSRange,
+    replacement: String
+  ) -> Int? {
+    guard !isReplacingDocument,
+      range.location >= 0,
+      range.length >= 0,
+      range.location <= textStorage.length,
+      range.length <= textStorage.length - range.location,
+      range.length <= Self.maximumReplacementBytes
+    else {
+      return nil
+    }
+
+    let replacementBytes = replacement.utf8.count
+    guard replacementBytes <= Self.maximumReplacementBytes else {
+      return nil
+    }
+    let removedBytes = textStorage.attributedSubstring(from: range).string.utf8.count
+    guard removedBytes <= documentUTF8Bytes else {
+      return nil
+    }
+    let newByteCount = documentUTF8Bytes - removedBytes + replacementBytes
+    guard newByteCount >= 0, newByteCount <= Self.maximumDocumentBytes else {
+      return nil
+    }
+    return replacementBytes - removedBytes
+  }
+
+  fileprivate func didApplyTextChange(byteDelta: Int) {
+    guard !isReplacingDocument else {
+      return
+    }
+    documentUTF8Bytes += byteDelta
+    pendingUndoGroupByteDelta += byteDelta
+    pendingUndoGroupChangeCount += 1
+    redoByteDeltas = []
+    revision &+= 1
+    clearDecorations()
+    refreshFeaturePolicy()
+  }
+
+  fileprivate func didObserveUntrackedTextChange() {
+    guard !isReplacingDocument else {
+      return
+    }
+    reconcileUntrackedTextChange()
+  }
+
+  fileprivate func didCloseUndoGroup() {
+    guard !isReplacingDocument else {
+      return
+    }
+    finalizePendingUndoGroup()
+  }
+
+  fileprivate func didUndoHistoryChange() {
+    guard !isReplacingDocument else {
+      return
+    }
+    finalizePendingUndoGroup()
+    if let delta = undoByteDeltas.popLast() {
+      appendBounded(delta, to: &redoByteDeltas)
+      applyTrackedHistoryDelta(-delta)
+    } else {
+      reconcileUntrackedTextChange()
+    }
+  }
+
+  fileprivate func didRedoHistoryChange() {
+    guard !isReplacingDocument else {
+      return
+    }
+    if let delta = redoByteDeltas.popLast() {
+      appendBounded(delta, to: &undoByteDeltas)
+      applyTrackedHistoryDelta(delta)
+    } else {
+      reconcileUntrackedTextChange()
+    }
+  }
+
+  private func applyTrackedHistoryDelta(_ delta: Int) {
+    documentUTF8Bytes += delta
+    revision &+= 1
+    clearDecorations()
+    refreshFeaturePolicy()
+  }
+
+  private func finalizePendingUndoGroup() {
+    guard pendingUndoGroupChangeCount > 0 else {
+      return
+    }
+    appendBounded(pendingUndoGroupByteDelta, to: &undoByteDeltas)
+    pendingUndoGroupByteDelta = 0
+    pendingUndoGroupChangeCount = 0
+  }
+
+  private func appendBounded(_ delta: Int, to history: inout [Int]) {
+    history.append(delta)
+    let overflow = history.count - Self.maximumUndoLevels
+    if overflow > 0 {
+      history.removeFirst(overflow)
+    }
+  }
+
+  private func reconcileUntrackedTextChange() {
+    documentUTF8Bytes = textStorage.string.utf8.count
+    pendingUndoGroupByteDelta = 0
+    pendingUndoGroupChangeCount = 0
+    undoByteDeltas = []
+    redoByteDeltas = []
+    revision &+= 1
+    clearDecorations()
+    refreshFeaturePolicy()
   }
 
   private func validate(_ span: TextSpan) throws {
@@ -444,8 +623,93 @@ private final class TextKitFallbackObserver: NSObject {
 @MainActor
 private final class EditorUndoDelegate: NSObject, NSTextViewDelegate {
   let manager = UndoManager()
+  weak var owner: TextKit2EditorHarness?
+  private var pendingByteDelta: Int?
+
+  override init() {
+    super.init()
+    manager.levelsOfUndo = TextKit2EditorHarness.maximumUndoLevels
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(didUndoChange(_:)),
+      name: Notification.Name.NSUndoManagerDidUndoChange,
+      object: manager
+    )
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(didRedoChange(_:)),
+      name: Notification.Name.NSUndoManagerDidRedoChange,
+      object: manager
+    )
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(didCloseUndoGroup(_:)),
+      name: Notification.Name.NSUndoManagerDidCloseUndoGroup,
+      object: manager
+    )
+  }
 
   func undoManager(for view: NSTextView) -> UndoManager? {
     manager
+  }
+
+  func textView(
+    _ textView: NSTextView,
+    shouldChangeTextIn affectedCharRange: NSRange,
+    replacementString: String?
+  ) -> Bool {
+    guard pendingByteDelta == nil,
+      let delta = owner?.approveTextChange(
+        range: affectedCharRange,
+        replacement: replacementString ?? ""
+      )
+    else {
+      return false
+    }
+    pendingByteDelta = delta
+    return true
+  }
+
+  func textDidChange(_ notification: Notification) {
+    guard !manager.isUndoing, !manager.isRedoing else {
+      pendingByteDelta = nil
+      return
+    }
+    if pendingByteDelta != nil {
+      finalizePendingChangeIfNeeded()
+    } else {
+      owner?.didObserveUntrackedTextChange()
+    }
+  }
+
+  func finalizePendingChangeIfNeeded() {
+    guard let delta = pendingByteDelta else {
+      return
+    }
+    pendingByteDelta = nil
+    owner?.didApplyTextChange(byteDelta: delta)
+  }
+
+  func reset() {
+    pendingByteDelta = nil
+    manager.removeAllActions()
+  }
+
+  @objc
+  private func didUndoChange(_ notification: Notification) {
+    owner?.didUndoHistoryChange()
+  }
+
+  @objc
+  private func didRedoChange(_ notification: Notification) {
+    owner?.didRedoHistoryChange()
+  }
+
+  @objc
+  private func didCloseUndoGroup(_ notification: Notification) {
+    guard manager.groupingLevel == 0, !manager.isUndoing, !manager.isRedoing else {
+      return
+    }
+    owner?.didCloseUndoGroup()
   }
 }

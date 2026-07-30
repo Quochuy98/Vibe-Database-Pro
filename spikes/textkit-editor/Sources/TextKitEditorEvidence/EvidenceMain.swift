@@ -35,7 +35,7 @@ private struct LatencySummary: Codable, Sendable {
 
 private struct PositionEvidence: Codable, Sendable {
   let position: String
-  let viewportPreparationMilliseconds: Double
+  let viewportPreparation: LatencySummary
   let editAndForcedLocalLayout: LatencySummary
 }
 
@@ -47,14 +47,19 @@ private struct FindScenarioEvidence: Codable, Sendable {
 }
 
 private struct BudgetEvidence: Codable, Sendable {
-  let editP95TargetMilliseconds: Double
-  let editP95Passed: Bool
-  let findFirstTargetMilliseconds: Double
-  let findFirstPassed: Bool
+  let editProxyP95TargetMilliseconds: Double
+  let editProxyP95WithinTarget: Bool
+  let inputToPaintEstablished: Bool
+  let findResultP95TargetMilliseconds: Double
+  let findResultP95WithinTarget: Bool
   let analysisCancellationTargetMilliseconds: Double
-  let analysisCancellationPassed: Bool
+  let analysisCancellationObservedWithinTarget: Bool
+  let analysisWorkerStartEstablished: Bool
+  let findCancellationTargetMilliseconds: Double
+  let findCancellationObservedWithinTarget: Bool
+  let findWorkerStartEstablished: Bool
   let viewportPreparationTargetMilliseconds: Double
-  let viewportPreparationPassed: Bool
+  let viewportPreparationWithinTarget: Bool
   let largeFileModeRequired: Bool
   let largeFileModeActivated: Bool
   let largeFileModePolicyPassed: Bool
@@ -75,22 +80,26 @@ private struct EvidenceReport: Codable, Sendable {
   let physicalMemoryBytes: UInt64
   let sampleCount: Int
   let generationMilliseconds: Double
-  let textKit2LoadMilliseconds: Double
+  let textKit2Load: LatencySummary
   let edits: [PositionEvidence]
-  let visibleAnalysisMilliseconds: Double
-  let visibleHighlightAndLayoutMilliseconds: Double
+  let visibleAnalysis: LatencySummary
+  let visibleHighlightAndLayout: LatencySummary
   let highlightedKeywordCount: Int
   let highlightOutputLimitReached: Bool
   let analysisCancellation: LatencySummary
   let analysisCancellationObserved: Bool
-  let findFirstMilliseconds: Double
-  let findFirstLocation: Int?
+  let findCancellation: LatencySummary
+  let findCancellationObserved: Bool
+  let findResultWorstP95Milliseconds: Double
   let findScenarios: [FindScenarioEvidence]
-  let undoMilliseconds: Double
-  let redoMilliseconds: Double
-  let keyboardSelectorsPassed: Bool
-  let accessibilityPassed: Bool
-  let recoverySelectionPassed: Bool
+  let undo: LatencySummary
+  let redo: LatencySummary
+  let keyboardSelectorSmokePassed: Bool
+  let keyEquivalentRoutingEstablished: Bool
+  let accessibilityMetadataSmokePassed: Bool
+  let manualVoiceOverEstablished: Bool
+  let inMemorySelectionRestorePassed: Bool
+  let durableCrashRecoveryEstablished: Bool
   let usesTextKit2: Bool
   let textKit1FallbackCount: Int
   let mode: String
@@ -180,18 +189,35 @@ private enum TextKitEditorEvidenceMain {
     let analyzer = BoundedSQLAnalyzer()
     let finder = IncrementalFindService()
 
-    let (_, loadMilliseconds) = try measure {
-      try harness.load(fixture)
+    try harness.load(fixture)
+    var loadValues = [Double]()
+    loadValues.reserveCapacity(samples)
+    for _ in 0..<samples {
+      let (_, elapsed) = try measure {
+        try harness.load(fixture)
+      }
+      loadValues.append(elapsed)
     }
+    let loadLatency = LatencySummary(loadValues)
     guard harness.usesTextKit2 else {
       throw EvidenceError.invariantFailed("NSTextView did not retain a TextKit 2 network")
     }
 
     let baselineLength = harness.documentUTF16Length
+    let baselineBytes = harness.documentUTF8Bytes
     var positionEvidence = [PositionEvidence]()
     for position in EditPosition.allCases {
-      let (_, viewportPreparationMilliseconds) = try measure {
-        try harness.prepareViewport(for: position)
+      let resetPosition: EditPosition = position == .start ? .end : .start
+      try harness.prepareViewport(for: resetPosition)
+      try harness.prepareViewport(for: position)
+      var viewportValues = [Double]()
+      viewportValues.reserveCapacity(samples)
+      for _ in 0..<samples {
+        try harness.prepareViewport(for: resetPosition)
+        let (_, elapsed) = try measure {
+          try harness.prepareViewport(for: position)
+        }
+        viewportValues.append(elapsed)
       }
       let warmupMarker = "/* BF01_\(position.rawValue)_WARMUP */"
       let warmupSpan = try harness.insert(warmupMarker, at: position)
@@ -200,7 +226,9 @@ private enum TextKitEditorEvidenceMain {
         throw EvidenceError.invariantFailed("warm-up edit text mismatch")
       }
       harness.undo()
-      guard harness.documentUTF16Length == baselineLength else {
+      guard harness.documentUTF16Length == baselineLength,
+        harness.documentUTF8Bytes == baselineBytes
+      else {
         throw EvidenceError.invariantFailed("warm-up undo did not restore document")
       }
 
@@ -218,14 +246,16 @@ private enum TextKitEditorEvidenceMain {
         }
         values.append(milliseconds)
         harness.undo()
-        guard harness.documentUTF16Length == baselineLength else {
+        guard harness.documentUTF16Length == baselineLength,
+          harness.documentUTF8Bytes == baselineBytes
+        else {
           throw EvidenceError.invariantFailed("undo did not restore \(position.rawValue) edit")
         }
       }
       positionEvidence.append(
         PositionEvidence(
           position: position.rawValue,
-          viewportPreparationMilliseconds: viewportPreparationMilliseconds,
+          viewportPreparation: LatencySummary(viewportValues),
           editAndForcedLocalLayout: LatencySummary(values)
         )
       )
@@ -237,44 +267,94 @@ private enum TextKitEditorEvidenceMain {
     )
     try harness.prepareViewport(around: visibleSpan)
     let snapshot = try harness.analysisSnapshot(for: visibleSpan)
-    let (analysisResult, analysisMilliseconds) = try await measureAsync {
-      try await analyzer.analyze(snapshot)
+    var analysisResult = try await analyzer.analyze(snapshot)
+    var analysisValues = [Double]()
+    analysisValues.reserveCapacity(samples)
+    for _ in 0..<samples {
+      let (result, elapsed) = try await measureAsync {
+        try await analyzer.analyze(snapshot)
+      }
+      analysisResult = result
+      analysisValues.append(elapsed)
     }
-    let (_, highlightingMilliseconds) = try measure {
-      try harness.applyHighlights(analysisResult)
-      try harness.forceViewportDisplay(around: visibleSpan)
+    try harness.applyHighlights(analysisResult)
+    try harness.forceViewportDisplay(around: visibleSpan)
+    var highlightValues = [Double]()
+    highlightValues.reserveCapacity(samples)
+    for _ in 0..<samples {
+      let (_, elapsed) = try measure {
+        try harness.applyHighlights(analysisResult)
+        try harness.forceViewportDisplay(around: visibleSpan)
+      }
+      highlightValues.append(elapsed)
     }
+    let analysisLatency = LatencySummary(analysisValues)
+    let highlightLatency = LatencySummary(highlightValues)
     guard !analysisResult.keywordSpans.isEmpty else {
       throw EvidenceError.invariantFailed("visible SQL analysis returned no keyword spans")
     }
 
-    let (cancellationObserved, cancellationLatency) =
+    let (analysisCancellationObserved, analysisCancellationLatency) =
       try await measureAnalysisCancellation(samples: samples)
+
+    let (findCancellationObserved, findCancellationLatency) =
+      try await measureFindCancellation(fixture: fixture, samples: samples)
 
     let findScenarios = try await benchmarkFindScenarios(
       finder: finder,
       fixture: fixture,
       samples: samples
     )
-    guard let firstFind = findScenarios.first else {
-      throw EvidenceError.invariantFailed("find scenarios were empty")
+    let matchingFindScenarios = findScenarios.filter { $0.expectedLocation != nil }
+    guard !matchingFindScenarios.isEmpty else {
+      throw EvidenceError.invariantFailed("matching find scenarios were empty")
+    }
+    let worstFindResultP95 =
+      matchingFindScenarios
+      .map(\.latency.p95Milliseconds)
+      .max() ?? .infinity
+
+    let warmupUndoMarker = "/* BF01_UNDO_REDO_WARMUP */"
+    _ = try harness.insert(warmupUndoMarker, at: .middle)
+    harness.undo()
+    harness.redo()
+    harness.undo()
+    guard harness.documentUTF16Length == baselineLength,
+      harness.documentUTF8Bytes == baselineBytes
+    else {
+      throw EvidenceError.invariantFailed("warm-up undo/redo did not restore document")
     }
 
-    let undoMarker = "/* BF01_UNDO_REDO */"
-    _ = try harness.insert(undoMarker, at: .middle)
-    let (_, undoMilliseconds) = measure {
+    var undoValues = [Double]()
+    var redoValues = [Double]()
+    undoValues.reserveCapacity(samples)
+    redoValues.reserveCapacity(samples)
+    for sample in 0..<samples {
+      let marker = "/* BF01_UNDO_REDO_\(sample) */"
+      _ = try harness.insert(marker, at: .middle)
+      let (_, undoElapsed) = measure {
+        harness.undo()
+      }
+      guard harness.documentUTF16Length == baselineLength,
+        harness.documentUTF8Bytes == baselineBytes
+      else {
+        throw EvidenceError.invariantFailed("undo did not restore document")
+      }
+      let (_, redoElapsed) = measure {
+        harness.redo()
+      }
+      guard
+        harness.documentUTF16Length == baselineLength + (marker as NSString).length,
+        harness.documentUTF8Bytes == baselineBytes + marker.utf8.count
+      else {
+        throw EvidenceError.invariantFailed("redo did not restore edit")
+      }
+      undoValues.append(undoElapsed)
+      redoValues.append(redoElapsed)
       harness.undo()
     }
-    guard harness.documentUTF16Length == baselineLength else {
-      throw EvidenceError.invariantFailed("undo length mismatch")
-    }
-    let (_, redoMilliseconds) = measure {
-      harness.redo()
-    }
-    guard harness.documentUTF16Length == baselineLength + (undoMarker as NSString).length else {
-      throw EvidenceError.invariantFailed("redo length mismatch")
-    }
-    harness.undo()
+    let undoLatency = LatencySummary(undoValues)
+    let redoLatency = LatencySummary(redoValues)
 
     let movedToEnd =
       harness.performKeyboardSelector(.moveToEndOfDocument)
@@ -287,7 +367,7 @@ private enum TextKitEditorEvidenceMain {
     let recoveredSelection = harness.selectedSpan == recoveryState.selectedSpan
 
     let accessibility = harness.accessibilitySnapshot()
-    let accessibilityPassed =
+    let accessibilityMetadataPassed =
       accessibility.label == TextKit2EditorHarness.accessibilityLabel
       && accessibility.role == "AXTextArea"
       && accessibility.help.contains(harness.featurePolicy.accessibilityStatus)
@@ -303,14 +383,14 @@ private enum TextKitEditorEvidenceMain {
     let viewportPreparationTarget = 100.0
     let worstViewportPreparation =
       positionEvidence
-      .map(\.viewportPreparationMilliseconds)
+      .map(\.viewportPreparation.p95Milliseconds)
       .max() ?? 0
     guard harness.usesTextKit2, harness.textKit1FallbackCount == 0 else {
       throw EvidenceError.invariantFailed("editor switched from TextKit 2 to TextKit 1")
     }
 
     return EvidenceReport(
-      schemaVersion: 1,
+      schemaVersion: 2,
       fixture: "BF-01-\(size.rawValue)MiB",
       fixtureBytes: fixture.byteCount,
       fixtureUTF16Units: fixture.utf16UnitCount,
@@ -323,42 +403,52 @@ private enum TextKitEditorEvidenceMain {
       physicalMemoryBytes: ProcessInfo.processInfo.physicalMemory,
       sampleCount: samples,
       generationMilliseconds: generationMilliseconds,
-      textKit2LoadMilliseconds: loadMilliseconds,
+      textKit2Load: loadLatency,
       edits: positionEvidence,
-      visibleAnalysisMilliseconds: analysisMilliseconds,
-      visibleHighlightAndLayoutMilliseconds: highlightingMilliseconds,
+      visibleAnalysis: analysisLatency,
+      visibleHighlightAndLayout: highlightLatency,
       highlightedKeywordCount: analysisResult.keywordSpans.count,
       highlightOutputLimitReached: analysisResult.hitOutputLimit,
-      analysisCancellation: cancellationLatency,
-      analysisCancellationObserved: cancellationObserved,
-      findFirstMilliseconds: firstFind.latency.p95Milliseconds,
-      findFirstLocation: firstFind.observedLocation,
+      analysisCancellation: analysisCancellationLatency,
+      analysisCancellationObserved: analysisCancellationObserved,
+      findCancellation: findCancellationLatency,
+      findCancellationObserved: findCancellationObserved,
+      findResultWorstP95Milliseconds: worstFindResultP95,
       findScenarios: findScenarios,
-      undoMilliseconds: undoMilliseconds,
-      redoMilliseconds: redoMilliseconds,
-      keyboardSelectorsPassed: movedToEnd && movedToStart,
-      accessibilityPassed: accessibilityPassed,
-      recoverySelectionPassed: recoveredSelection,
+      undo: undoLatency,
+      redo: redoLatency,
+      keyboardSelectorSmokePassed: movedToEnd && movedToStart,
+      keyEquivalentRoutingEstablished: false,
+      accessibilityMetadataSmokePassed: accessibilityMetadataPassed,
+      manualVoiceOverEstablished: false,
+      inMemorySelectionRestorePassed: recoveredSelection,
+      durableCrashRecoveryEstablished: false,
       usesTextKit2: harness.usesTextKit2,
       textKit1FallbackCount: harness.textKit1FallbackCount,
       mode: harness.featurePolicy.mode.rawValue,
       modeAccessibilityStatus: harness.featurePolicy.accessibilityStatus,
       budget: BudgetEvidence(
-        editP95TargetMilliseconds: editTarget,
-        editP95Passed: worstEditP95 <= editTarget,
-        findFirstTargetMilliseconds: findTarget,
-        findFirstPassed: firstFind.latency.p95Milliseconds <= findTarget,
+        editProxyP95TargetMilliseconds: editTarget,
+        editProxyP95WithinTarget: worstEditP95 <= editTarget,
+        inputToPaintEstablished: false,
+        findResultP95TargetMilliseconds: findTarget,
+        findResultP95WithinTarget: worstFindResultP95 <= findTarget,
         analysisCancellationTargetMilliseconds: 250,
-        analysisCancellationPassed: cancellationObserved
-          && cancellationLatency.p95Milliseconds <= 250,
+        analysisCancellationObservedWithinTarget: analysisCancellationObserved
+          && analysisCancellationLatency.p95Milliseconds <= 250,
+        analysisWorkerStartEstablished: false,
+        findCancellationTargetMilliseconds: 250,
+        findCancellationObservedWithinTarget: findCancellationObserved
+          && findCancellationLatency.p95Milliseconds <= 250,
+        findWorkerStartEstablished: false,
         viewportPreparationTargetMilliseconds: viewportPreparationTarget,
-        viewportPreparationPassed: worstViewportPreparation <= viewportPreparationTarget,
+        viewportPreparationWithinTarget: worstViewportPreparation <= viewportPreparationTarget,
         largeFileModeRequired: size == .oneHundredMiB,
         largeFileModeActivated: harness.featurePolicy.mode == .largeFile,
         largeFileModePolicyPassed: size != .oneHundredMiB
           || harness.featurePolicy.mode == .largeFile,
         note:
-          "Edit timing includes synchronous API work and forced local TextKit 2 layout in a hidden host. Cancellation is requested after a 1 ms active-work window and measures worker termination. Instruments input-to-paint and cancellation signposts remain required."
+          "Edit timing includes synchronous API work and forced local TextKit 2 layout in a hidden host; it does not establish input-to-paint. Analysis and absent-find cancellation are requested 1 ms after task creation without a worker-start barrier, then measure child termination. Key-equivalent routing, manual VoiceOver, durable recovery, and Instruments cancellation signposts remain required."
       )
     )
   }
@@ -412,11 +502,7 @@ private enum TextKitEditorEvidenceMain {
   private static func measureAnalysisCancellation(
     samples: Int
   ) async throws -> (Bool, LatencySummary) {
-    let limits = AnalysisLimits(
-      maximumUTF16Units: 65_536,
-      maximumMatches: 1_024,
-      cancellationCheckStride: 1
-    )
+    let limits = AnalysisLimits.viewportDefault
     let analyzer = BoundedSQLAnalyzer(limits: limits)
     let text = String(
       String(repeating: "SELECT value FROM source WHERE value = 1; ", count: 1_500)
@@ -438,6 +524,58 @@ private enum TextKitEditorEvidenceMain {
       values.append(result.1)
     }
     return (observedAll, LatencySummary(values))
+  }
+
+  @MainActor
+  private static func measureFindCancellation(
+    fixture: BF01Fixture,
+    samples: Int
+  ) async throws -> (Bool, LatencySummary) {
+    let finder = IncrementalFindService()
+    let absentNeedle = "BF01_ABSENT_CANCELLATION_RESULT"
+    _ = try await cancelFind(
+      finder: finder,
+      document: fixture.text,
+      needle: absentNeedle
+    )
+
+    var observedAll = true
+    var values = [Double]()
+    values.reserveCapacity(samples)
+    for _ in 0..<samples {
+      let result = try await cancelFind(
+        finder: finder,
+        document: fixture.text,
+        needle: absentNeedle
+      )
+      observedAll = observedAll && result.0
+      values.append(result.1)
+    }
+    return (observedAll, LatencySummary(values))
+  }
+
+  @MainActor
+  private static func cancelFind(
+    finder: IncrementalFindService,
+    document: String,
+    needle: String
+  ) async throws -> (Bool, Double) {
+    let clock = ContinuousClock()
+    return try await withThrowingTaskGroup(of: Bool.self) { group in
+      group.addTask {
+        do {
+          _ = try await finder.firstRange(in: document, needle: needle)
+          return false
+        } catch is CancellationError {
+          return true
+        }
+      }
+      try await Task.sleep(for: .milliseconds(1))
+      let cancellationStart = clock.now
+      group.cancelAll()
+      let observed = try await group.next() ?? false
+      return (observed, milliseconds(cancellationStart.duration(to: clock.now)))
+    }
   }
 
   @MainActor

@@ -23,8 +23,9 @@ The provisional budgets being tested are:
 
 The executable's forced-layout timing is a repeatable proxy, not a complete
 input-to-screen measurement. Its cancellation number requests cancellation
-after a 1 ms active-work window and measures structured-child termination; the
-analyzer checks cancellation before work and every bounded stride. Instruments
+1 ms after task creation, without a worker-start barrier, and measures
+structured-child termination; the analyzer checks cancellation before work and
+every bounded stride. Instruments
 signposts are still required to prove the exact running checkpoint. Instruments
 Hangs, Time Profiler, Allocations, Leaks, Accessibility Inspector, VoiceOver,
 and a visible app-host run are still required before accepting the editor
@@ -97,8 +98,10 @@ recovery, accessibility/VoiceOver, bounded visible highlighting, cancellation,
 RSS, hangs, and leaks have exact evidence. A headless XCTest pass alone is not
 enough to claim accessibility or paint performance.
 
-The harness only verifies selector dispatch, a window first-responder, AppKit
-accessibility properties, and in-memory selection reconstruction. It does not
+The JSON names these checks as smoke/proxy evidence and records the corresponding
+unestablished runtime claims as `false`. The harness only verifies selector
+dispatch, a window first-responder, AppKit accessibility properties, and
+in-memory selection reconstruction. It does not
 prove key-equivalent event routing, manual VoiceOver behavior, actual
 input-to-frame paint, durable crash recovery, Instruments hangs/leaks, or
 Light/Dark appearance. There is currently no approved editor-specific RSS

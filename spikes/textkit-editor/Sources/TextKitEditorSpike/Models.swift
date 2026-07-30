@@ -1,7 +1,10 @@
 import Foundation
 
 public enum EditorSpikeError: Error, Equatable, Sendable {
+  case analysisLengthMismatch(reportedUTF16Units: Int, actualUTF16Units: Int)
   case analysisLimitExceeded(actualUTF16Units: Int, maximumUTF16Units: Int)
+  case analysisOutputLimitExceeded(actualMatches: Int, maximumMatches: Int)
+  case analysisSpanOutsideAnalyzedRange(TextSpan)
   case documentLimitExceeded(actualBytes: Int, maximumBytes: Int)
   case emptyFindNeedle
   case findDocumentLimitExceeded(actualUTF16Units: Int, maximumUTF16Units: Int)
@@ -11,13 +14,20 @@ public enum EditorSpikeError: Error, Equatable, Sendable {
   case missingTextKit2Component(String)
   case replacementLimitExceeded(actualBytes: Int, maximumBytes: Int)
   case staleAnalysis(expectedRevision: UInt64, actualRevision: UInt64)
+  case textChangeRejected
 }
 
 extension EditorSpikeError: CustomStringConvertible {
   public var description: String {
     switch self {
+    case .analysisLengthMismatch(let reported, let actual):
+      "Analysis reported \(reported) UTF-16 units for a \(actual)-unit span."
     case .analysisLimitExceeded(let actual, let maximum):
       "Analysis input has \(actual) UTF-16 units; maximum is \(maximum)."
+    case .analysisOutputLimitExceeded(let actual, let maximum):
+      "Analysis output has \(actual) matches; maximum is \(maximum)."
+    case .analysisSpanOutsideAnalyzedRange(let range):
+      "Analysis output span {\(range.location), \(range.length)} is outside its analyzed range."
     case .documentLimitExceeded(let actual, let maximum):
       "Document has \(actual) bytes; maximum is \(maximum)."
     case .emptyFindNeedle:
@@ -36,6 +46,8 @@ extension EditorSpikeError: CustomStringConvertible {
       "Replacement has \(actual) bytes; maximum is \(maximum)."
     case .staleAnalysis(let expected, let actual):
       "Analysis revision \(expected) is stale; editor revision is \(actual)."
+    case .textChangeRejected:
+      "The text system rejected the bounded edit."
     }
   }
 }
