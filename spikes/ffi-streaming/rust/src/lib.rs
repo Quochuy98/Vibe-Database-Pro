@@ -834,6 +834,9 @@ pub extern "C" fn df_spike_stream_release_v1(handle: u64) -> i32 {
             if slot.retired || slot.generation != generation {
                 return STATUS_STALE_HANDLE;
             }
+            if slot.stream.is_none() {
+                return STATUS_STALE_HANDLE;
+            }
             return STATUS_INTERNAL;
         }
         {
@@ -842,6 +845,9 @@ pub extern "C" fn df_spike_stream_release_v1(handle: u64) -> i32 {
                 return STATUS_OK;
             }
             if slot.retired || slot.generation != generation {
+                return STATUS_STALE_HANDLE;
+            }
+            if slot.stream.is_none() {
                 return STATUS_STALE_HANDLE;
             }
             let has_outstanding = slot
@@ -1078,9 +1084,19 @@ mod tests {
     fn stale_handles_cannot_cross_slot_reuse() {
         let _guard = test_lock();
         reset();
+        let never_issued = (1_u64 << 32) | 1;
+        assert_eq!(
+            df_spike_stream_release_v1(never_issued),
+            STATUS_STALE_HANDLE
+        );
         let first = create(&options(1, 1, 40));
         assert_eq!(df_spike_stream_release_v1(first), STATUS_OK);
         assert_eq!(df_spike_stream_release_v1(first), STATUS_OK);
+        let next_generation_before_create = first + (1_u64 << 32);
+        assert_eq!(
+            df_spike_stream_release_v1(next_generation_before_create),
+            STATUS_STALE_HANDLE
+        );
         let second = create(&options(1, 1, 40));
         assert_ne!(first, second);
         let mut status = df_spike_stream_status_v1::default();

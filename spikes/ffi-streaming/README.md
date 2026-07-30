@@ -154,7 +154,7 @@ production capability.
 | Format / clippy / Rust tests | Pass: `cargo fmt --check`; `cargo clippy --all-targets -- -D warnings`; 8 Rust tests passed |
 | Swift release integration | Pass: 7 XCTest cases, 0 failures, via `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun swift test -c release` |
 | One-million-row checksum | `rows=1,000,000`, `chunks=1,000`, digest `16282154771318798373` |
-| RSS | Final runtime bundle measurement: 61,915,136 bytes maximum RSS (~59 MiB) under `/usr/bin/time -l xcrun xctest` (observed ~61.8–62.0 MB across runs); process-level developer evidence, not incremental app RSS |
+| RSS | Latest runtime bundle measurement: 62,128,128 bytes maximum RSS (~59.3 MiB) under `/usr/bin/time -l xcrun xctest`; observed runs were ~61.8–62.2 MB. This is process-level developer evidence, not incremental app RSS |
 | Static ABI link | Swift release test linked the Rust `staticlib` and exercised all exported symbols successfully |
 | Xcode package validation | Pass: `xcodebuild ... build -quiet` and `xcodebuild ... test -quiet` with arm64 destination (generated SwiftPM scheme; no production app target) |
 | Panic output | Expected Rust panic-hook lines appear for fault probes; returned status is controlled and no secret-like data is emitted |

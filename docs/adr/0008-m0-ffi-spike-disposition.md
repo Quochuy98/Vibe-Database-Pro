@@ -30,8 +30,8 @@ On an arm64 Mac15,3 developer machine (macOS 26.5.2, 24 GiB), with Rust
 - `xcodebuild` generated SwiftPM scheme build and arm64 test passed.
 - The one-million-row run produced 1,000 chunks and deterministic digest
   `16282154771318798373`.
-- A post-build `xcrun xctest` run measured 61,915,136 bytes maximum RSS (runs
-  were approximately 61.8–62.0 MB). This
+- The latest post-build `xcrun xctest` run measured 62,128,128 bytes maximum
+  RSS (observed runs were approximately 61.8–62.2 MB). This
   is process-level developer evidence, not a claim about incremental app RSS
   or the proposed M1/16 GiB release floor.
 
