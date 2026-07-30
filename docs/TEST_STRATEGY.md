@@ -10,7 +10,10 @@ Owners: Quality Engineering with feature, Database Core, macOS and Security owne
 
 Tests must prove that DataForge is safe and correct under success, failure, cancellation, concurrency, partial progress and malicious input. A green narrow suite cannot support a broad capability claim. Production and shared staging databases are never automated-test targets.
 
-This repository currently contains planning documents only, so the commands and suites below are future gates, not tests claimed as passing today.
+The repository has no production implementation. A separately scoped
+`spikes/ffi-streaming` artifact has its own evidence runner; its pass/fail
+results do not establish production capability. The commands and suites below
+remain future production gates unless an exact command is recorded as run.
 
 ## 2. Quality principles
 
@@ -82,7 +85,8 @@ The C ABI suite is independently release-blocking. It covers:
 - exact ABI version/feature handshake and incompatible pair rejection;
 - fixed-width record layout/size/alignment on supported architectures;
 - null, malformed length, unknown enum, stale/invalid handle and allocation-failure behavior;
-- ownership transfer, idempotent release, double release, use after terminal, leak detection;
+- caller-owned destination lifetime, idempotent release, double release, use
+  after terminal, stale-generation and leak detection;
 - panic containment for every exported entry point;
 - pull/ack streaming with row and byte limits under a slow/failed consumer;
 - callback ordering, documented executor, reentrancy and no UI mutation off MainActor;
@@ -278,7 +282,13 @@ PR selection uses a dependency-aware test map but always runs safety classifier,
 
 ## 15. Traceability and evidence
 
-Each backlog item names required test IDs. Each capability links to conformance tests. Each threat links to controls/tests. Each performance budget links to benchmark jobs. Release evidence records commit, toolchains, dependency lock/SBOM, fixture image digests, commands, pass/fail/skip list and artifact signatures.
+Before implementation, each backlog item must be assigned stable test IDs.
+The current planning backlog records required test categories in prose and
+DF-M0-001 records its spike test evidence separately. Each capability must link
+to conformance tests, each threat to controls/tests and each performance budget
+to benchmark jobs before its milestone gate. Release evidence records commit,
+toolchains, dependency lock/SBOM, fixture image digests, commands,
+pass/fail/skip list and artifact signatures.
 
 “Pass” may be reported only for commands actually run. If infrastructure prevents a suite, the completion report states the exact unrun tests, reason, remaining risk and reviewer command.
 

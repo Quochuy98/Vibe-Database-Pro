@@ -185,7 +185,7 @@ sequenceDiagram
       FFI->>Core: demand token
       Core->>DB: poll bounded stream
       DB-->>Core: typed rows/status
-      Core-->>FFI: owned chunk
+      Core-->>FFI: bounded bytes copied into caller buffer
       FFI-->>App: copy/consume + ack
       App-->>UI: visible-page update
     end
@@ -215,7 +215,9 @@ Boundary contract:
 - opaque `uint64_t` handles, never Rust/Swift object pointers or borrowed references;
 - fixed-width integers, tagged enums, length-delimited byte slices, and small plain records;
 - caller/callee ownership documented per function; explicit `release` is idempotent and tested;
-- no large result set in one call; Swift pulls bounded chunks and acknowledges release;
+- no large result set in one call; Swift supplies a bounded destination buffer,
+  pulls one chunk and acknowledges the logical demand token (Rust retains no
+  caller pointer after return; see ADR-0008);
 - every long operation has cancel and terminal-status functions;
 - `catch_unwind` at each exported entry point prevents panic crossing FFI;
 - a runtime ABI version/feature handshake rejects incompatible library and binding pairs;
@@ -352,8 +354,15 @@ M0 must run disposable spikes, not evolve them silently into production:
 | SQL editor | TextKit 2 remains responsive on large SQL and incremental edits | Prototype editor only | Meets editor latency/memory/accessibility budgets | Delete UI prototype; retain measurements |
 | Grid | AppKit grid supports paging, pending edits, style updates, accessibility | Generated typed fixture, no real writes | Scroll/theme/edit identity budgets and VoiceOver checks pass | Delete prototype; implement reviewed component later |
 | Distribution | Rust dylib/helpers/update path can sign and notarize | Empty shell artifact | Signature, Hardened Runtime, notarization, tamper rejection pass | Delete shell or regenerate from approved scaffold |
+| SQLite/Keychain | Non-secret metadata and credentials remain separate | Synthetic profile/workspace only | Transactional migration, locked/denied behavior and canary absence | Delete; retain schema/security decision |
 
-Architecture exits M0 only when ADRs are accepted, every spike has captured evidence and disposition, dependency/legal gates are recorded, threat/safety models are reviewed, performance budgets are measured on named hardware, and no production feature is claimed from prototype code.
+The original shell wireframes and accessibility annotations are the separate
+M0 design gate in [UX_WIREFRAMES.md](UX_WIREFRAMES.md), tracked by DF-M0-009;
+they are not runtime spike code. Architecture exits M0 only when ADRs are
+accepted, every mapped spike has captured evidence and disposition,
+dependency/legal gates are recorded, threat/safety models are reviewed,
+performance budgets are measured on named hardware, and no production feature
+is claimed from prototype code.
 
 ## 18. Authoritative references
 
