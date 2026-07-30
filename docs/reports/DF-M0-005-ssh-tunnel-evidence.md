@@ -1,7 +1,7 @@
 # DF-M0-005 SSH tunnel and host-trust evidence
 
-Status: Evidence complete; no SSH implementation or dependency adopted;
-`russh 0.62.4` retained only as a conditional planning candidate
+Status: Evidence and disposal complete; no SSH implementation or dependency
+adopted; `russh 0.62.4` retained only as a conditional planning candidate
 
 Evidence date: 2026-07-30
 
@@ -246,9 +246,9 @@ or proof against every protocol state.
 Twenty-five direct key-auth connect/close cycles completed in 839 ms with
 file-descriptor delta 0 and endpoint RSS delta -288 KiB. A separate
 `leaks --atExit` process ran one additional complete probe scenario set and
-reported zero unreachable nodes/bytes in that process snapshot. These results
-are a short lifecycle/leak smoke only. They do not establish leak-free or
-long-term bounded behavior, repeat forward/cancel/jump/failure cycles, replace
+reported 0 leaks for 0 total leaked bytes in that process snapshot. These
+results are a short lifecycle/leak smoke only. They do not establish leak-free
+or long-term bounded behavior, repeat forward/cancel/jump/failure cycles, replace
 explicit task/process/socket/channel counts, or satisfy a 1,000-cycle run or
 eight-hour soak.
 
@@ -391,8 +391,9 @@ direct database attempt or current unpatched advisory closes the gate.
 
 The exact disposable source is retained in Git history at
 `875dd468221ad1c6c3c35b34a83c0af48ae3f9ad`; its spike tree is
-`88c8419d8082aa48ad9cafe9505c2fe1283ab300`. The whole
-`spikes/ssh-tunnel` directory was deleted in the separate disposal commit
+`88c8419d8082aa48ad9cafe9505c2fe1283ab300`. Report, ADR and raw evidence were
+recorded in commit `11ea2c100aa212831b5e3c02659d5b25e97156d9`; the whole
+`spikes/ssh-tunnel` directory was then deleted in the separate disposal commit
 `0b80f7e155391a5e7d072bc944623d55fceed24b`. Future production code must be
 designed under the reviewed Connections/security boundaries and must not
 promote this probe wholesale.
