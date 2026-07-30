@@ -14,9 +14,9 @@ credible native SQL-editor candidate for large documents while keeping layout,
 highlighting, find, cancellation and edit history bounded.
 
 The artifact is a standalone AppKit/Swift package. It has no database, network,
-FFI, file persistence, query execution, history, credential, customer data or
-production module. It does not implement a full SQL parser, completion,
-formatting, folding, multiple cursors or crash recovery. No source, asset,
+FFI, file persistence, query execution, persisted query history, credential,
+customer data or production module. It does not implement a full SQL parser,
+completion, formatting, folding, multiple cursors or crash recovery. No source, asset,
 wording or private protocol from a commercial database product was used.
 
 ## 2. Evidence identity and environment
@@ -87,9 +87,16 @@ worker was active at the request instant.
 
 ## 5. Exact commands and validation results
 
-The working tree was clean at the source commit for the final runs.
+The working tree was clean at the source commit for the final runs. Commands
+through `leaks` below run from `spikes/textkit-editor`; the identity and final
+`git grep` commands run from the repository root.
 
 ```sh
+# Repository root
+git status --short --branch
+git rev-parse HEAD
+
+cd spikes/textkit-editor
 export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
 
 xcrun swift-format lint --strict --recursive Package.swift Sources Tests
@@ -144,6 +151,7 @@ xcrun xctrace export \
   --input /tmp/df-m0-003-130bd3a-time-profiler.trace \
   --xpath '/trace-toc/run[@number="1"]/data/table[@schema="device-thermal-state-intervals"]'
 
+cd ../..
 git grep -n -I -E \
   'AKIA[0-9A-Z]{16}|BEGIN ([A-Z ]+ )?PRIVATE KEY|password[[:space:]]*[:=]|api[_-]?key[[:space:]]*[:=]|access[_-]?token[[:space:]]*[:=]|refresh[_-]?token[[:space:]]*[:=]' \
   130bd3a -- spikes/textkit-editor
@@ -222,16 +230,18 @@ returned no range.
 
 | Fixture / operation | Median | p95 | Worst | Cancellation observed in all samples? |
 | --- | ---: | ---: | ---: | --- |
-| 10 MiB analysis | 0.002 | 0.006 | 0.006 | No; analysis completed first |
+| 10 MiB analysis | 0.002 | 0.006 | 0.006 | No aggregate; at least one sample completed normally |
 | 10 MiB absent find | 0.721 | 4.665 | 4.665 | Yes |
-| 100 MiB analysis | 0.002 | 0.004 | 0.004 | No; analysis completed first |
+| 100 MiB analysis | 0.002 | 0.004 | 0.004 | No aggregate; at least one sample completed normally |
 | 100 MiB absent find | 0.660 | 1.225 | 1.225 | Yes |
 
-The analysis numbers are completion-observation intervals after a late cancel
-request, not cancellation latency. They fail the “active cancellation observed”
-condition. Find cancellation was observed within 250 ms, but the missing
-worker-start barrier means a signposted run is still required before accepting
-the product cancellation gate.
+The runner retained each request-to-child-termination interval but only one
+`observedAll` boolean for the operation. `false` proves that at least one
+analysis child completed normally instead of observing cancellation; it does
+not preserve which individual samples did so. These numbers therefore cannot
+be labelled cancellation latency. Find cancellation was observed in every
+sample within 250 ms, but the missing worker-start barrier means a signposted
+run is still required before accepting the product cancellation gate.
 
 ## 7. Raw latency samples
 
@@ -353,7 +363,7 @@ the spike, so that text is not feature-availability evidence.
 | 100 MiB p95 input-to-paint ≤50 ms | **Not established**; proxy p95 ≤2.101 ms; large-file degradation did activate |
 | First matching find result ≤300 ms | Met on this developer host; worst p95 97.823 ms at 100 MiB |
 | Bounded visible analysis/highlighting | Partially met; bounded and validated, but 1,024-span output cap was reached |
-| Cancellation worker stops ≤250 ms | Partially met; find observed, analysis completed before cancel, no worker-start/signpost proof |
+| Cancellation worker stops ≤250 ms | Partially met; find aggregate true, analysis aggregate false with per-sample outcomes not retained, and no worker-start/signpost proof |
 | Start/middle/end edit and native undo | Met for the spike; bounded history and byte/revision regressions pass |
 | Keyboard behavior | Direct selector smoke met; real key events/responder routing not established |
 | VoiceOver/accessibility | Metadata smoke met; manual VoiceOver not established |
