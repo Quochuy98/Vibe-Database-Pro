@@ -111,8 +111,9 @@ Implementation may be reconsidered only after a new approved scaffold proves:
 
 ## Disposal
 
-After this ADR, report, sanitized raw evidence and runbook are committed, the
-whole `spikes/distribution` directory is deleted in a separate commit. The
-final disposal hash is then recorded here. A future release scaffold must be
-generated under ADR-0006, this ADR and the runbook rather than copied from the
-probe.
+The report, sanitized raw evidence, ADR and runbook were recorded in commit
+`ae1f94a2a6e6a4971d41df6f87d1f8062c7f3134`; the whole
+`spikes/distribution` directory was deleted in separate disposal commit
+`38c74417786807f0be421cbbec7e58fe95d5eac2`. A future release scaffold must
+be generated under ADR-0006, this ADR and the runbook rather than copied from
+the probe.

@@ -1,8 +1,7 @@
 # Technical Backlog
 
-Status: Production backlog remains planning-only; DF-M0-001 through DF-M0-005
-have durable disposed spike records; DF-M0-006 has a durable partial/defer
-disposition and awaits separate disposal; no production item is implemented
+Status: Production backlog remains planning-only; DF-M0-001 through DF-M0-006
+have durable disposed spike records; no production item is implemented
 
 Last updated: 2026-07-30
 
@@ -237,7 +236,9 @@ updater adoption disabled. See the
 tamper and exact Sparkle `2.9.4` offline signing smokes pass; Developer ID,
 secure timestamp, notarization, stapling, clean-Mac Gatekeeper and real updater
 install/rollback/key-rotation remain unsupported or partial. Production must
-regenerate an approved scaffold for the credentialed lane.
+regenerate an approved scaffold for the credentialed lane. The exact source
+remains auditable at `f0457dd` and was removed in separate disposal commit
+`38c7441`.
 
 ### DF-M0-007
 

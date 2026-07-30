@@ -1,7 +1,7 @@
 # DF-M0-006 direct-distribution and secure-update evidence
 
-Status: Evidence complete; direct-distribution recommendation retained for
-planning, production release gate closed, disposable source removal pending
+Status: Evidence and disposal complete; direct-distribution recommendation
+retained for planning, production release gate closed
 
 Evidence date: 2026-07-30
 
@@ -250,6 +250,7 @@ not establish Sparkle/Developer ID rotation.
 | `SB-01` | Met for sanitized provisional SPDX/provenance; legal approval remains false |
 | `SC-01` | Met for exact fake-seed scans in the runner's observed surfaces |
 | `CL-01` | Met; no key, app, archive, framework download or staging tree retained |
+| Spike disposal | Met; source removed in separate commit `38c74417786807f0be421cbbec7e58fe95d5eac2` |
 
 ## 11. Release runbook and re-entry gates
 
@@ -298,11 +299,12 @@ downgrade, replay, leaked seed or unexplained skip closes the gate.
 
 The exact disposable source remains auditable at
 `f0457dd01bcfe3ff3dbbe5fb1f8e06c2c4f91203`, with spike tree
-`bdbba911c7538517917462b2dfc63772e22c6973`. After this report, raw evidence,
-ADR and runbook are committed, `spikes/distribution` must be deleted in a
-separate commit. The disposal hash is then recorded here and in ADR-0013.
-Production release scaffolding must be regenerated rather than promoted from
-this probe.
+`bdbba911c7538517917462b2dfc63772e22c6973`. Report, raw evidence, ADR and
+runbook were recorded in commit
+`ae1f94a2a6e6a4971d41df6f87d1f8062c7f3134`; the whole
+`spikes/distribution` directory was then deleted in separate disposal commit
+`38c74417786807f0be421cbbec7e58fe95d5eac2`. Production release scaffolding
+must be regenerated rather than promoted from this probe.
 
 ## 14. Durable raw evidence
 

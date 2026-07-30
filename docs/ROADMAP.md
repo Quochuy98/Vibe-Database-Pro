@@ -485,8 +485,8 @@ but the release gate is closed: the host had no valid signing identity or full
 Xcode, so notarization, stapling and clean-Mac Gatekeeper did not run. Exact
 Sparkle `2.9.4` is conditional only; offline Ed25519/tamper and policy-model
 smokes do not establish framework integration, install, rollback or key
-rotation. The disposable source remains auditable at `f0457dd` until its
-separate disposal commit.
+rotation. The disposable source remains auditable at `f0457dd` and was removed
+in separate disposal commit `38c7441`.
 
 ### Canonical M0 traceability
 
