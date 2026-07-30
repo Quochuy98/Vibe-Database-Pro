@@ -446,6 +446,8 @@ implementation remains gated on true input-to-frame measurement at the
 M1/16 GiB floor, an editor RSS ceiling, real shortcut/VoiceOver behavior,
 durable recovery and signposted cancellation. The proxy and metadata smoke
 results are not treated as a full BF-01 or accessibility pass.
+The disposable M0-S03 source was removed in commit `262250a`; its evidence
+source remains auditable at `130bd3a`.
 
 ### Canonical M0 traceability
 

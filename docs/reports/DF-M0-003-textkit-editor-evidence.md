@@ -371,7 +371,7 @@ the spike, so that text is not feature-availability evidence.
 | RSS/Instruments | Baselines and residual leaks recorded; no editor-specific RSS gate or long soak |
 | M1/16 GiB release floor | Not run |
 | BF-01 multi-cursor/format/completion cancellation | Out of this bounded spike and not established |
-| Prototype disposal | Required after report/ADR commit; disposal commit is recorded by the follow-up update |
+| Prototype disposal | Met by commit `262250a1750b37e01e32ee082a06777aaf8ab159` |
 
 The backlog acceptance criterion is therefore not fully passed. Lowering or
 reinterpreting it would hide missing user-facing evidence.
@@ -418,8 +418,8 @@ required:
 6. A separate parser/highlighting/completion dependency and security/license
    decision; safety-critical SQL classification remains outside the editor.
 
-The complete `spikes/textkit-editor` directory is disposable and must be
-deleted after this report and ADR are committed. Future production code must be
+The complete `spikes/textkit-editor` directory was removed in disposal commit
+`262250a1750b37e01e32ee082a06777aaf8ab159`. Future production code must be
 implemented under `QueryEditor`/`SharedUI` boundaries from the reviewed
 contract, not promoted wholesale from the spike.
 

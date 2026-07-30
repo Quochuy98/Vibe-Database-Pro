@@ -1,8 +1,8 @@
 # Technical Backlog
 
 Status: Production backlog remains planning-only; DF-M0-001 through DF-M0-003
-have durable spike dispositions and their disposable artifacts are removed or
-queued for disposal; no production item is implemented
+have durable spike dispositions and their disposable artifacts have been
+removed; no production item is implemented
 
 Last updated: 2026-07-30
 
