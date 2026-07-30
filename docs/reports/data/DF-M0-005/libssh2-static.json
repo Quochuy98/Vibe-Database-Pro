@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "candidate_static_supply_chain_gate",
+  "evidence_date": "2026-07-30",
+  "candidate": {
+    "rust_binding": "ssh2",
+    "rust_binding_version": "0.9.6",
+    "rust_binding_checksum_sha256": "c95eb3c09e378543395a3fa9796f897861862466ee331d59140ade4ea0dcfdfc",
+    "rust_binding_license": "MIT OR Apache-2.0",
+    "sys_crate": "libssh2-sys",
+    "sys_crate_version": "0.3.2",
+    "sys_crate_checksum_sha256": "c04141a07bb0c0bc461cb657808764de571702a59bc5c726c400ac9a7625e3ab",
+    "sys_crate_license": "MIT OR Apache-2.0",
+    "vendored_repository": "https://github.com/Manishearth/libssh2",
+    "vendored_commit": "090f23d1852a0b62e081bd12c4d05adc1c4af47a",
+    "vendored_reported_version": "1.11.1_DEV"
+  },
+  "included_security_backports": [
+    "CVE-2025-15661",
+    "CVE-2026-55199",
+    "CVE-2026-55200"
+  ],
+  "known_missing_fixes": [
+    {
+      "cve": "CVE-2026-7598",
+      "upstream_fix": "256d04b60d80bf1190e96b0ad1e91b2174d744b1"
+    },
+    {
+      "cve": "CVE-2026-66032",
+      "upstream_fix": "5e4776146552d898b9c0e1b313cd093fa8dc92d0"
+    },
+    {
+      "cve": "CVE-2026-66033",
+      "upstream_fix": "a2ed82d40964bbc0d64cd717aa0a5a892117d2e6"
+    },
+    {
+      "cve": "CVE-2026-66034",
+      "upstream_fix": "a13bb6c773f0d55ad1628cede57e99803cd898d9"
+    },
+    {
+      "cve": "CVE-2026-66035",
+      "upstream_fix": "42e33d81577ed4b95d4b4f6f845e5ee8efe5eeb4"
+    }
+  ],
+  "runtime_test_executed": false,
+  "binary_size_delta_bytes": null,
+  "disposition": "rejected_before_build_and_runtime",
+  "blockers": [
+    "the exact vendored source omits current upstream security fixes, including pre-authentication memory-safety fixes",
+    "host verification is application-optional rather than fail-closed by construction",
+    "the synchronous API requires a separately proven nonblocking pump, cancellation and multi-hop lifecycle owner",
+    "DataForge will not maintain an internal security fork merely to make this candidate eligible"
+  ]
+}

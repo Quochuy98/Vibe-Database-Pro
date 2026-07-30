@@ -1,8 +1,9 @@
 # Technical Backlog
 
 Status: Production backlog remains planning-only; DF-M0-001 through DF-M0-004
-have durable spike dispositions and their disposable artifacts have been
-removed; no production item is implemented
+have durable disposed spike records; DF-M0-005 has a durable defer/reject
+disposition and awaits its separate disposal commit; no production item is
+implemented
 
 Last updated: 2026-07-30
 
@@ -186,6 +187,16 @@ auditable at `7acdec0`.
 **Out of scope:** Production connection UI and broad algorithm compatibility promises.
 
 **Definition of done:** Candidate decision, patched floor/fallback and threat/test evidence recorded; spike disposed.
+
+**M0 disposition (2026-07-30):** No SSH candidate is adopted by
+[ADR-0012](adr/0012-m0-ssh-disposition.md). See the
+[DF-M0-005 evidence](reports/DF-M0-005-ssh-tunnel-evidence.md). The tested
+system OpenSSH build and native `ProxyJump/-J` are rejected; the exact
+`ssh2`/libssh2 source is rejected on its current security floor; exact
+`russh 0.62.4` remains only a conditional planning candidate. Password,
+complete agent failure handling, connector-level no-direct fallback,
+local-listener echo and comprehensive cleanup remain unsupported. Production
+SSH is disabled until every ADR re-entry gate passes.
 
 ### DF-M0-006
 
@@ -563,19 +574,26 @@ auditable at `7acdec0`.
 
 **Complexity:** L
 
-**Dependencies:** M1, DF-M0-002/005, adopted driver/TLS/SSH dossiers
+**Dependencies:** M1, DF-M0-002 and adopted PostgreSQL/TLS dossiers; DF-M0-005
+and an adopted SSH dossier only if this item enables an SSH capability
 
 **User story:** As a PostgreSQL user, I need a validated connection whose safety capabilities are truthful.
 
-**Description:** Build adapter option transformation, connect/test/close, TLS/custom CA/client cert, accepted SSH subset, pool ceilings and capability snapshot.
+**Description:** Build adapter option transformation, connect/test/close,
+TLS/custom CA/client cert, pool ceilings and capability snapshot. Add only an
+explicitly adopted SSH subset; otherwise expose direct TLS connections only.
 
 **Technical notes:** Credentials enter only as leases; no UI connection string; tunnel owns DB lifecycle.
 
-**Security considerations:** Hostname/cert/host-key verification, no direct fallback, read-only/production, redacted errors.
+**Security considerations:** Hostname/certificate verification always;
+host-key verification and no-direct-fallback only when SSH is enabled;
+read-only/production context and redacted errors in every mode.
 
 **Acceptance criteria:** Declared matrix passes; invalid trust/auth blocks; cancel/cleanup works; capability conditions are source/version aware.
 
-**Tests required:** Disposable PG oldest/current, TLS/SSH/auth/timeout/cancel/pool/leak/security.
+**Tests required:** Disposable PG oldest/current,
+TLS/auth/timeout/cancel/pool/leak/security; add the full SSH matrix only when
+that capability is enabled.
 
 **Out of scope:** Query UI, metadata and writes.
 

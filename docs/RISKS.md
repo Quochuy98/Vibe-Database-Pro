@@ -16,7 +16,7 @@ Scoring: Probability (L/M/H), impact (L/M/H/Critical). Any Critical impact with 
 | R-04 | Driver licensing or terms block distribution | M | Critical | License/provenance/SBOM review before dependency lock | Permissive candidates; legal sign-off; replacement notes | Swap driver or defer engine; never ship unapproved client | Legal + dependency owner |
 | R-05 | Oracle client licensing/distribution is incompatible | H | High | Legal/vendor review and clean packaging spike | Phase-3 evaluation only; no bundled client assumption | Defer Oracle or require user-installed approved client | Product + legal |
 | R-06 | SQL Server authentication on macOS is incomplete | M | High | Azure/AD/Kerberos/auth matrix on supported macOS/driver | M6 spike; explicit auth capability matrix | Support password/TLS subset only or defer engine | SQL Server adapter owner |
-| R-07 | SSH implementation mishandles host keys, agents or jump hosts | M | Critical | Adversarial SSH fixture; changed-key/MITM/cancel/tunnel tests; advisory scan | In-process candidate only after audit; strict known-host policy; no shell interpolation | Reject candidate; use vetted alternative or disable SSH | Security + connection owner |
+| R-07 | SSH implementation mishandles host keys, agents, jump hosts or lifecycle | M | Critical | Per-hop unknown/changed/revoked/rekey fixtures; malicious server/agent; connector trap; shell-descendant, cancel/orphan/socket tests; OS/project-build and upstream advisory scan | ADR-0012 disables production SSH; any future candidate needs strict bounded trust, no shell, no direct endpoint and explicit lifecycle ownership | Reject candidate or keep SSH disabled; never degrade to direct/permissive transport | Security + connection owner |
 | R-08 | TLS trust or custom CA handling permits MITM | M | Critical | Invalid/expired/wrong-host/custom-CA tests; dependency advisories | Platform-root/cert validation, per-connection CA, fail closed; no global bypass | Block connection and provide remediation; no insecure mode | Security + adapter owner |
 | R-09 | Query cancellation is racy or leaves a session unsafe | H | High | Slow-query/interruption/connection-reuse tests per driver | Model requested vs confirmed; poison/close session when required | Tell user outcome unknown; require reconnect/reconcile | Query execution owner |
 | R-10 | Large results exhaust memory or freeze UI | M | Critical | 1M/10M row, 500-column, slow consumer, hostile length, RSS/frame/object-inventory metrics | Pull streaming, byte+row caps, bounded queues/pages, row-and-column viewport virtualization and retained-object caps; driver must cap decrypted backend frames before buffering | Stop fetch/export stream; defer renderer/driver when either physical-view or frame cap is unavailable | Performance + core owner |
@@ -24,7 +24,7 @@ Scoring: Probability (L/M/H), impact (L/M/H/Critical). Any Critical impact with 
 | R-12 | Schema diff mistakes rename/drop or dependency order | M | Critical | Synthetic rename/cycle/drift/rollback fixtures; plan review | Confidence-scored rename proposal; preview/dry-run; deterministic dependency graph | Block apply; require explicit manual mapping/SQL | Schema diff owner |
 | R-13 | Cross-engine type mapping silently loses data | H | High | Boundary/overflow/timezone/collation/JSON/BLOB fixture comparisons | Explicit mapping table, lossiness warnings, verification and error rows | Stop transfer or require per-column mapping; no silent coercion | Transfer owner |
 | R-14 | Backup/restore tools are unavailable or unsafe to package | M | Critical | Signature/license/version/path/cancel/restore validation spike | Adapter-specific official-tool policy; direct argv; secure temp; verify output | Mark native backup unsupported; document user-run workflow | Backup owner + release |
-| R-15 | App Sandbox blocks SSH/files/subprocess/backup/automation | H | High | Separate MAS entitlement/helper/file/tool prototype | Direct distribution first; separate channel matrix; feature capability gating | Do not ship affected capability in MAS; no entitlement overreach | macOS/release owner |
+| R-15 | App Sandbox blocks SSH/files/subprocess/backup/automation | H | High | Separate MAS entitlement/helper/file/tool prototype; if SSH is reconsidered, test agent/key/known-host access and any loopback listener/process model | Direct distribution first; separate channel matrix; feature capability gating | Do not ship affected capability in MAS; no entitlement overreach | macOS/release owner |
 | R-16 | Background jobs cannot run across logout/sleep or Keychain lock | H | High | SMAppService lifecycle, logout/sleep/locked-keychain tests | In-app MVP; explicit LaunchAgent consent/status; no guarantee claims | Require app-open execution; report skipped job | Automation owner |
 | R-17 | Rust/Swift FFI ownership/cancellation bugs | M | Critical | Sanitizers, ABI mismatch, leak/double-release/panic/concurrency tests | Versioned C ABI, opaque handles, pull/ack chunks, integration gate | Freeze FFI changes; revert to last compatible ABI; disable feature | Core/FFI owner |
 | R-18 | UI performance/regressions from SwiftUI/AppKit split | M | High | Instruments, frame/RSS/editor/grid/accessibility and retained-object budgets | Narrow AppKit bridges, MainActor state, incremental work; ADR-0011 bounded custom grid renderer with row-and-column virtualization | Replace/defer a failing component; never lower frame or accessibility gates | macOS UI owner |
@@ -38,7 +38,7 @@ Scoring: Probability (L/M/H), impact (L/M/H/Critical). Any Critical impact with 
 | R-26 | Community/Pro split creates unsafe feature gating or licensing uncertainty | M | High | Legal/product review, entitlement and offline-license threat tests | Safety controls common to all tiers; license seam not in DB path | Ship one tier; defer commercial packaging | Product + legal |
 | R-27 | Observability/telemetry violates user privacy or regulation | M | High | Payload preview, consent/opt-out network tests, privacy review | Off by default; allowlisted fields; deletion and retention policy | Disable upload; local diagnostics only | Privacy owner |
 | R-28 | Automation retries duplicate writes or applies stale targets | M | Critical | Checkpoint/crash/overlap/idempotency/target-drift tests | Immutable job digest; no write retry by default; explicit resume/verification | Stop job, mark unknown, require manual reconciliation | Automation + DB owner |
-| R-29 | Security fixes in a candidate dependency are not noticed | M | High | Scheduled advisory/RustSec/GitHub/vendor scans and SBOM diff | Pin patched floor; owner/expiry for exceptions; update playbook | Disable affected capability and release patched build | Dependency owner |
+| R-29 | Security fixes in a candidate dependency or OS-provided component are not noticed | M | High | Scheduled RustSec/GitHub/vendor/Apple source and OS/project-build scans plus SBOM diff | Pin exact package floors; allowlist verified platform builds/backports; owner/expiry for exceptions; update playbook | Disable affected capability and release/update to a verified build | Dependency owner |
 | R-30 | Product identity unintentionally copies a commercial product | L | High | Design/IP review, asset/source/copy provenance checks | Original name/artwork/copy/interaction; no reverse engineering/private API | Remove/rewrite asset/feature; legal review before release | Design + legal |
 | R-31 | Test infrastructure accidentally targets production/shared staging | L | Critical | Destructive guard, hostname/schema marker, CI secret scope, audit | Disposable containers/isolated schema and hard abort guards | Revoke credentials/stop run; incident review; quarantine fixture | QA + security |
 | R-32 | Future plugin becomes an arbitrary code/secret escape | M | Critical | Plugin threat-model/XPC capability prototype and signature tests | No plugins MVP; signed out-of-process, permissioned, crash-isolated API | Remove plugin support; revoke plugin keys/capabilities | Platform security |
@@ -62,7 +62,9 @@ No risk is silently accepted. An accepted exception records rationale, residual 
 ## 4. Unknowns requiring spikes
 
 1. Exact PostgreSQL/MySQL/MariaDB/SQLite driver versions, licenses, cancellation and TLS behavior.
-2. SSH candidate after the 2026 `russh` advisories and fallback comparison.
+2. SSH residual gates after ADR-0012: exact current advisory floor, complete
+   agent/auth subset, connector-level no-direct trap, local-listener echo,
+   deterministic cleanup, Keychain/FFI/distribution integration and long soak.
 3. TextKit 2 large-file and dialect parser strategy.
 4. Bounded custom native grid renderer performance, input behavior and unified
    accessibility contract after DF-M0-004 rejected the full-grid `NSTableView`
@@ -92,6 +94,12 @@ value evidence narrows the service design; true presented frames, M1/16 GiB,
 manual VoiceOver, a unified replacement accessibility tree and soak remain
 open.
 
+DF-M0-005 resolves the initial three-candidate comparison but does not close
+R-07, R-15 or R-29. [ADR-0012](adr/0012-m0-ssh-disposition.md) rejects the
+tested system OpenSSH/native `-J` and exact `ssh2`/libssh2 source, and retains
+exact `russh 0.62.4` only conditionally. Seven frozen rows remain unsupported,
+so production SSH stays disabled while direct TLS remains eligible.
+
 ## 5. Risk acceptance format
 
 ```text
@@ -108,4 +116,9 @@ Revisit trigger:
 
 ## 6. Current posture
 
-The repository is planning-only; no implementation risk is being claimed as mitigated by code. The strongest current evidence is the architecture/safety/test plan and primary-source dependency/platform review. The first implementation request must begin by closing M0 risks rather than building broad feature surfaces.
+The repository is planning-only; no implementation risk is being claimed as
+mitigated by code. The strongest current evidence is the architecture/safety/
+test plan, disposed spike records and primary-source dependency/platform
+review. DF-M0-005 narrows candidate choices but leaves SSH disabled. Future
+implementation requests must close their remaining M0 gates rather than build
+broad feature surfaces.

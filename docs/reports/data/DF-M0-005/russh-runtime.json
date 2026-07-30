@@ -1,0 +1,264 @@
+{
+  "schema_version": 2,
+  "evidence_kind": "disposable_local_ssh_candidate",
+  "candidate": {
+    "name": "russh",
+    "version": "0.62.4",
+    "crypto_provider": "aws-lc-rs",
+    "enabled_optional_features": [
+      "aws-lc-rs"
+    ],
+    "compression_enabled": false,
+    "rsa_enabled": false,
+    "credential_memory_contract": "private-key bytes zeroized by probe; password mode disabled; upstream session cleanup still under evaluation"
+  },
+  "bounds": {
+    "handshake_deadline_ms": 5000,
+    "cleanup_deadline_ms": 2000,
+    "channel_window_bytes": 262144,
+    "maximum_packet_bytes": 32768,
+    "channel_message_capacity": 8,
+    "agent_frame_bytes": 262144,
+    "agent_identity_count": 64,
+    "trust_store_bytes": 65536,
+    "trust_store_lines": 256,
+    "trust_store_line_bytes": 4096,
+    "password_input_bytes": 0,
+    "hostile_banner_bytes_sent": 4096,
+    "repetition_cycles": 25
+  },
+  "scenarios": [
+    {
+      "id": "TR-01",
+      "status": "pass",
+      "category": "host_trust",
+      "elapsed_ms": 32,
+      "observations": {
+        "expected_outcome": "matched",
+        "fingerprint_observation_is_sha256": true,
+        "observed_outcome": "matched"
+      }
+    },
+    {
+      "id": "TR-02",
+      "status": "pass",
+      "category": "host_trust",
+      "elapsed_ms": 12,
+      "observations": {
+        "expected_outcome": "unknown",
+        "fingerprint_observation_is_sha256": true,
+        "observed_outcome": "unknown",
+        "trust_store_mutated": false
+      }
+    },
+    {
+      "id": "TR-03",
+      "status": "pass",
+      "category": "host_trust",
+      "elapsed_ms": 13,
+      "observations": {
+        "expected_outcome": "changed",
+        "fingerprint_observation_is_sha256": true,
+        "observed_outcome": "changed",
+        "trust_store_mutated": false
+      }
+    },
+    {
+      "id": "TR-04",
+      "status": "pass",
+      "category": "host_trust",
+      "elapsed_ms": 40,
+      "observations": {
+        "expected_outcome": "matched",
+        "fingerprint_observation_is_sha256": true,
+        "observed_outcome": "matched"
+      }
+    },
+    {
+      "id": "TR-05",
+      "status": "pass",
+      "category": "host_trust",
+      "elapsed_ms": 10,
+      "observations": {
+        "expected_outcome": "revoked",
+        "failed_closed": true,
+        "fingerprint_observation_is_sha256": true,
+        "observed_outcome": "revoked",
+        "revoked_classified_as": "revoked",
+        "trust_store_mutated": false
+      }
+    },
+    {
+      "id": "AU-01",
+      "status": "pass",
+      "category": "key_permissions",
+      "elapsed_ms": 0,
+      "observations": {
+        "mode_0600_loaded": true,
+        "mode_0644_rejected_before_auth": true
+      }
+    },
+    {
+      "id": "AU-02",
+      "status": "unsupported",
+      "category": "password_disabled",
+      "elapsed_ms": 0,
+      "observations": {
+        "credential_entered_runtime": false,
+        "reason": "upstream_password_retention_and_debug_payload_logging"
+      }
+    },
+    {
+      "id": "AU-03",
+      "status": "unsupported",
+      "category": "partial_agent_evidence",
+      "elapsed_ms": 30,
+      "observations": {
+        "ephemeral_agent_auth": true,
+        "frame_limit_bytes": 262144,
+        "identity_limit": 64,
+        "not_exercised": "missing_malformed_stalled_agent_socket_identity_and_failure_cleanup",
+        "oversized_frame_rejected": true
+      }
+    },
+    {
+      "id": "JP-01",
+      "status": "pass",
+      "category": "jump_trust",
+      "elapsed_ms": 113,
+      "observations": {
+        "bastion_mismatch_rejected": true,
+        "both_hops_authenticated": true,
+        "target_mismatch_rejected": true
+      }
+    },
+    {
+      "id": "JP-02",
+      "status": "unsupported",
+      "category": "model_only_no_direct_fallback",
+      "elapsed_ms": 0,
+      "observations": {
+        "direct_attempts_after_failure": 0,
+        "evidence_kind": "deterministic_plan_test",
+        "explicit_direct_policy_direct_attempts": 1,
+        "jump_attempts": 1,
+        "network_connector_trap_executed": false
+      }
+    },
+    {
+      "id": "TN-01",
+      "status": "unsupported",
+      "category": "direct_tcpip_banner_smoke_only",
+      "elapsed_ms": 0,
+      "observations": {
+        "direct_tcpip_banner_received": true,
+        "echo_roundtrip_executed": false,
+        "local_listener_measured": false
+      }
+    },
+    {
+      "id": "TN-02",
+      "status": "pass",
+      "category": "cancellation",
+      "elapsed_ms": 39,
+      "observations": {
+        "cleanup_deadline_ms": 2000,
+        "cleanup_ms": 0,
+        "evidence_scope": "one_active_single_hop_forward_happy_path",
+        "listener_closed": true
+      }
+    },
+    {
+      "id": "TN-03",
+      "status": "unsupported",
+      "category": "destination_failure_cleanup_only",
+      "elapsed_ms": 0,
+      "observations": {
+        "destination_failure_cleanup_passed": true,
+        "failed_destination_port": 1,
+        "not_exercised": "all_auth_trust_jump_phase_failures_and_post_cleanup_resource_counts"
+      }
+    },
+    {
+      "id": "MI-01",
+      "status": "pass",
+      "category": "ssh",
+      "elapsed_ms": 0,
+      "observations": {
+        "bytes_sent": 4096,
+        "rejected": true,
+        "rss_delta_kib": 48,
+        "rss_delta_limit_kib": 16384,
+        "terminal_category": "ssh"
+      }
+    },
+    {
+      "id": "MI-02",
+      "status": "pass",
+      "category": "ssh",
+      "elapsed_ms": 0,
+      "observations": {
+        "rejected": true,
+        "rss_delta_kib": 0,
+        "rss_delta_limit_kib": 16384,
+        "terminal_category": "ssh"
+      }
+    },
+    {
+      "id": "MI-03",
+      "status": "pass",
+      "category": "timeout",
+      "elapsed_ms": 501,
+      "observations": {
+        "rejected": true,
+        "rss_delta_kib": 0,
+        "rss_delta_limit_kib": 16384,
+        "terminal_category": "timeout"
+      }
+    },
+    {
+      "id": "SC-01",
+      "status": "unsupported",
+      "category": "requires_outer_runner_completion",
+      "elapsed_ms": 0,
+      "observations": {
+        "candidate_process_alone_can_assert_pass": false,
+        "compiled_static_max_level": "INFO",
+        "external_canary_scan_required": true,
+        "password_auth_compiled_but_not_exposed_by_probe": true,
+        "release_debug_trace_compile_out_required": true,
+        "runtime_logger_initialized": false
+      }
+    },
+    {
+      "id": "LC-01",
+      "status": "pass",
+      "category": "repetition",
+      "elapsed_ms": 839,
+      "observations": {
+        "cycles": 25,
+        "fd_delta": 0,
+        "fd_delta_limit": 1,
+        "rss_delta_kib": -288,
+        "rss_delta_limit_kib": 32768
+      }
+    },
+    {
+      "id": "DP-01",
+      "status": "unsupported",
+      "category": "external_dependency_gate",
+      "elapsed_ms": 0,
+      "observations": {
+        "evaluated_by": "cargo_audit_cargo_deny_primary_source_report",
+        "runtime_claim": false
+      }
+    }
+  ],
+  "summary": {
+    "pass": 12,
+    "fail": 0,
+    "unsupported": 7,
+    "rows_without_failure": true,
+    "complete_matrix_passed": false
+  }
+}

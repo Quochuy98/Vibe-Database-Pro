@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "upstream_security_advisory_snapshot",
+  "evidence_date": "2026-07-30",
+  "source": "https://api.github.com/repos/Eugeny/russh/security-advisories?per_page=100",
+  "advisory_count": 14,
+  "advisories": [
+    {"id": "GHSA-cqjc-rmpq-xprq", "severity": "medium", "patched_floor": "0.62.4"},
+    {"id": "GHSA-5xvq-cp9x-6p6r", "severity": "medium", "patched_floor": "0.62.4"},
+    {"id": "GHSA-g9hv-x236-4qp3", "severity": "medium", "patched_floor": "0.62.4"},
+    {"id": "GHSA-wwx6-x28x-8259", "cve": "CVE-2026-46702", "severity": "high", "patched_floor": "0.61.1"},
+    {"id": "GHSA-4r3c-5hpg-58qr", "cve": "CVE-2026-48110", "severity": "high", "patched_floor": "0.61.0"},
+    {"id": "GHSA-76r6-x97p-67vr", "cve": "CVE-2026-48108", "severity": "medium", "patched_floor": "0.61.0"},
+    {"id": "GHSA-hpv4-5h6f-wqr3", "cve": "CVE-2026-46705", "severity": "medium", "patched_floor": "0.61.0"},
+    {"id": "GHSA-g9g7-5cgw-6v28", "cve": "CVE-2026-48107", "severity": "medium", "patched_floor": "0.61.0"},
+    {"id": "GHSA-g9f8-wqj9-fjw5", "cve": "CVE-2026-46673", "severity": "high", "patched_floor": "0.60.3"},
+    {"id": "GHSA-f5v4-2wr6-hqmg", "cve": "CVE-2026-42189", "severity": "high", "patched_floor": "0.60.1"},
+    {"id": "GHSA-h5rc-j5f5-3gcm", "cve": "CVE-2025-54804", "severity": "medium", "patched_floor": "0.54.1"},
+    {"id": "GHSA-vgvv-x7xg-6cqg", "cve": "CVE-2024-43410", "severity": "high", "patched_floor": "0.44.1"},
+    {"id": "GHSA-45x7-px36-x8w8", "cve": "CVE-2023-48795", "severity": "medium", "patched_floor": "0.40.2"},
+    {"id": "GHSA-cqvm-j2r2-hwpg", "cve": "CVE-2023-28113", "severity": "medium", "patched_floor": "0.36.2 or 0.37.1"}
+  ],
+  "conclusion": "0.62.4 is the exact current patched floor on the evidence date; RustSec alone does not expose every July 2026 upstream advisory"
+}

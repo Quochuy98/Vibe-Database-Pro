@@ -17,6 +17,7 @@ ADRs preserve why a material decision was made. They are immutable once supersed
 | [0009](0009-m0-postgres-driver-disposition.md) | Defer exact PostgreSQL driver stack pending hard resource/security caps | Candidate deferred; production gated |
 | [0010](0010-m0-textkit-editor-disposition.md) | Conditionally retain TextKit 2 after the M0 editor spike | Planning candidate retained; production gated |
 | [0011](0011-m0-grid-disposition.md) | Reject full-grid `NSTableView`; evaluate a bounded custom native renderer | Replacement planning candidate selected; production gated |
+| [0012](0012-m0-ssh-disposition.md) | Defer SSH capability; retain exact russh only as a conditional planning candidate | No candidate adopted; production SSH disabled |
 
 ## ADR lifecycle
 

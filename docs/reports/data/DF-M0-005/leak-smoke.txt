@@ -1,0 +1,4 @@
+leaks_exit_status=0
+leaks_summary=0 leaks for 0 total leaked bytes.
+captured_output_bytes=7780
+scope=one additional full runtime-matrix process; not a long soak or proof of zero production leaks

@@ -162,9 +162,10 @@ Unless an epic says otherwise, all UI requirements include loading, empty, failu
 
 **Test strategy:** Unit tests for state migration; UI tests for window/tab restoration, crash recovery, keyboard focus, Light/Dark Mode, VoiceOver identifiers, and corrupt-state recovery.
 
-### EP-02 — Connections, credentials, TLS, and SSH
+### EP-02 — Connections, credentials, TLS, and conditional SSH
 
-**Phase / complexity:** MVP core; Post-MVP presets/auth expansion / XL
+**Phase / complexity:** MVP direct TLS core; SSH deferred until a future
+candidate passes ADR-0012; Post-MVP presets/auth expansion / XL
 
 **User story:** As an operator, I want reusable secure connections with clear environment and read-only controls so that I can connect without exposing secrets or confusing production with development.
 
@@ -175,7 +176,10 @@ Unless an epic says otherwise, all UI requirements include loading, empty, failu
 - Import/export non-sensitive metadata; secrets excluded by default and represented only by unresolved secret requirements.
 - Keychain-backed authentication modes declared by each adapter.
 - TLS with system trust, custom CA, optional client certificate, hostname validation, and per-connection exceptional policy only when explicitly designed and warned.
-- SSH password/private key/agent modes, known-host policy, host-key change handling, jump host model, clean tunnel lifecycle, and no direct fallback.
+- If a future ADR enables SSH: expose only its adopted password/key/agent
+  subset, bounded known-host policy, per-hop host-key handling, clean tunnel
+  lifecycle and connector-level no-direct fallback. ADR-0012 currently keeps
+  the capability unavailable.
 - Cloud presets may populate non-secret fields but cannot bypass validation or capability checks.
 
 **Non-functional requirements:** Connection establishment is cancellable and off-main-thread; pool and reconnect policies are bounded; logs are structured and redacted.
@@ -186,9 +190,15 @@ Unless an epic says otherwise, all UI requirements include loading, empty, failu
 
 **Technical risks:** Driver-specific auth/TLS behavior, SSH jump chains, Keychain access from background processes, reconnection transaction ambiguity.
 
-**Acceptance criteria:** Metadata persists without secrets; a saved secret round-trips through Keychain; invalid certificates and changed host keys fail closed; a failed tunnel never attempts direct connection; production/read-only status is visible and enforced.
+**Acceptance criteria:** Metadata persists without secrets; a saved secret
+round-trips through Keychain; invalid certificates fail closed; production/
+read-only status is visible and enforced. If SSH is enabled later, changed
+host keys fail closed and a failed tunnel produces zero direct attempts.
 
-**Test strategy:** Unit configuration validation; fake-secret redaction tests; disposable-engine TLS integration; SSH test server cases; cancellation, timeout, reconnect, Keychain denial, export leakage, and UI safety tests.
+**Test strategy:** Unit configuration validation; fake-secret redaction tests;
+disposable-engine TLS integration; cancellation, timeout, reconnect, Keychain
+denial, export leakage and UI safety tests. Add the complete ADR-0012 SSH
+matrix only for an enabled SSH capability.
 
 ### EP-03 — Database object explorer
 

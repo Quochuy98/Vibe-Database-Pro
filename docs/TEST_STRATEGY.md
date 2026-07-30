@@ -153,7 +153,10 @@ Each declared capability maps to a stable test ID and evidence:
 
 - valid/invalid config, connect, auth failure, timeout, disconnect, graceful close, reconnect policy;
 - TLS trust/hostname/custom CA/client certificate and no global bypass;
-- SSH valid/unknown/changed host key, agent/key/password/jump host as scoped, cancellation and no direct fallback;
+- when SSH is enabled: exact/hashed/multiple-port known hosts, unknown/changed/
+  revoked and malicious-rekey behavior per hop; declared key/agent/password
+  subset; connector-level no-direct trap; local-listener echo; phase-by-phase
+  cancellation and owned resource cleanup;
 - lazy metadata, limited privilege, quoted/unicode objects, refresh/invalidation and bounded large schema;
 - query/script success, syntax/constraint/auth/network errors, warnings/messages, multiple results;
 - typed streaming, slow consumer, row/byte limit, deferred BLOB, server interruption;
@@ -178,7 +181,8 @@ High-value integration flows:
 8. Schema/data compare → target changes after preview → apply blocked as stale.
 9. Malicious import/archive/spreadsheet fixture → bounded failure/no traversal/no formula injection/no partial write beyond policy.
 10. Export cancellation/disk-full/overwrite → atomic or clearly marked/cleaned artifact.
-11. Tunnel failure → DB operation fails and tunnel closes; no direct fallback.
+11. If SSH is enabled: tunnel failure → DB operation fails and every tunnel
+    resource closes; packet/socket observation proves no direct endpoint attempt.
 12. Restore/privilege/kill-session flows → capability/permission/confirmation and partial consequence handling.
 
 ## 9. UI, keyboard and accessibility tests
@@ -205,7 +209,20 @@ The threat IDs in [SECURITY_THREAT_MODEL.md](SECURITY_THREAT_MODEL.md) map to te
 - Keychain storage/ACL/locked/denied behavior and no plaintext fallback;
 - seeded secret scan across SQLite, UserDefaults, exports, logs, crash payload, diagnostics, snapshots, temp files, process arguments and clipboard lifecycle;
 - valid/invalid/expired/mismatched TLS certificate, custom CA scope and bypass absence;
-- SSH unknown/changed host key, known-host policy, jump-host isolation and tunnel cleanup;
+- SSH unknown/changed/revoked/rekey host keys, exact/hashed/multiple-port
+  known-host policy and independent jump-hop isolation;
+- SSH key/agent/password canaries for only the declared auth subset, including
+  missing/malformed/stalled/oversized agent responses and key owner/mode/size/
+  symlink cases;
+- SSH connector trap and packet-level assertion of zero direct DB attempts,
+  local-listener echo, destination refusal, backpressure and cancellation at
+  DNS/TCP/trust/auth/channel/forward/teardown states;
+- SSH task/channel/FD/socket/listener/child/control-socket/askpass cleanup,
+  1,000-cycle repetition and soak. System OpenSSH-specific tests cover `-J`/
+  config/username metacharacters, no shell descendants, `ExitOnForwardFailure`
+  limits, ControlMaster fallback and SIGTERM-to-Cancellation mapping;
+- never run a malicious-rekey exploit against a platform client below the
+  verified security floor; use only a disposable instrumented patched client;
 - malicious database server frames/metadata/lengths/type values, bounded allocation and no panic;
 - SQL injection in generated operations and identifier/literal quoting;
 - path traversal/symlink race, archive/ZIP bomb, XXE, deep JSON, malformed XLSX/CSV and encoding attacks;
@@ -296,8 +313,10 @@ PR selection uses a dependency-aware test map but always runs safety classifier,
 ## 15. Traceability and evidence
 
 Before implementation, each backlog item must be assigned stable test IDs.
-The current planning backlog records required test categories in prose and
-DF-M0-001 records its disposed spike evidence separately in the durable report.
+The current planning backlog records required test categories in prose.
+DF-M0-001 through DF-M0-005 record separate durable spike evidence and ADR
+dispositions; incomplete candidate rows remain unsupported rather than being
+collapsed into a task-level pass.
 Each capability must link to conformance tests, each threat to controls/tests
 and each performance budget to benchmark jobs before its milestone gate.
 Release evidence records commit, toolchains, dependency lock/SBOM, fixture

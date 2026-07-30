@@ -2,7 +2,7 @@
 
 Status: Recommended direct-distribution baseline; channel decision gated by release spike
 
-Last updated: 2026-07-29
+Last updated: 2026-07-30
 
 ## 1. Recommendation
 
@@ -18,7 +18,7 @@ This recommendation is a planning decision, not evidence that a release artifact
 | Gatekeeper/trust | Notarization ticket stapled/online; release verifies `spctl`/codesign | Store distribution includes Apple review/security checks |
 | App Sandbox | Optional for outside-Store distribution; initial app does not enable it, but least privilege still required | Mandatory App Sandbox; every file/network/helper entitlement justified |
 | User-selected files | Security-scoped bookmarks/NSOpenPanel still used; no broad file assumption | Security-scoped bookmarks and sandbox extension lifecycle are mandatory |
-| SSH tunnels | In-process library candidate; helper/XPC entitlement review | Same only if sandbox/network/Keychain constraints pass; no shell escape assumption |
+| SSH tunnels | Disabled by ADR-0012; exact russh is conditional only, while the tested system OpenSSH/native `-J` is not a vetted fallback | Absent unless a future candidate also passes sandbox network/listener, Keychain, file/agent and lifecycle gates; no shell escape assumption |
 | Native DB tools | Bundle only signed, licensed, supported executables; direct argv/no shell | Subprocess and embedded-tool review/entitlements may block some tools |
 | Backup/restore | Easier to support user-selected binaries/files, still secure and signed | Sandbox path/tool/restore limitations can make capabilities unavailable |
 | Network DB access | Outbound client policy documented and tested | `com.apple.security.network.client`, endpoint behavior and review required |
@@ -149,7 +149,8 @@ The planning recommendation is a proprietary commercial application with one cod
 ### Pre-beta gate
 
 - PostgreSQL vertical slice has adapter/security/performance evidence;
-- Keychain, TLS, SSH candidate and native file/tool paths pass their spikes;
+- Keychain, TLS and native file/tool paths pass their spikes; any shipped SSH
+  capability must pass every ADR-0012 residual gate, otherwise SSH is absent;
 - crash/telemetry consent and diagnostics preview tests pass;
 - privacy policy/support/disclosure are approved;
 - rollback/key rotation/incident tabletop completed.
@@ -174,12 +175,15 @@ The planning recommendation is a proprietary commercial application with one cod
 | Stale/notarization policy | Recheck Apple docs/toolchain every RC and retain logs |
 | Crash/telemetry leakage | Off by default, preview/redaction canary suite, bounded deletion |
 | Intel/Universal drift | Arm64-only claim until dedicated ADR, CI and hardware evidence |
+| OS-provided SSH/process drift | Keep SSH disabled; if reconsidered, gate exact OS/project build, Apple update ownership, argv/no-shell process tree, loopback listener and askpass/agent access |
 
 ## 12. Technical spikes
 
 - sign/notarize/staple empty Swift/Rust shell and nested helper;
 - Sparkle 2 feed/signature/update/rollback/tamper test, including license and helper review;
-- App Sandbox prototype for user-selected file, Keychain, SSH, helper, subprocess and bookmark flows;
+- App Sandbox prototype for user-selected file, Keychain, helper, subprocess
+  and bookmark flows; add SSH agent/key/known-host/listener tests only for a
+  candidate selected by a future ADR;
 - `SMAppService` LaunchAgent/XPC lifecycle with consent, logout/sleep behavior and Keychain access;
 - native backup tool packaging/signature/argument/temporary-file/cancel behavior per engine;
 - crash/diagnostics canary and exact opt-in payload inspection;

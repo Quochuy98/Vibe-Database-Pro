@@ -4,7 +4,7 @@ Status: Proposed baseline for Milestone 0
 
 Owner: Security Engineering
 
-Last reviewed: 2026-07-29
+Last reviewed: 2026-07-30
 
 ## 1. Scope and assumptions
 
@@ -22,7 +22,8 @@ SwiftUI/AppKit UI
 Supporting boundaries:
     macOS Keychain          secrets
     local SQLite/GRDB       non-sensitive metadata only
-    SSH/TLS                 transport boundaries
+    TLS                     direct database transport boundary
+    SSH                     optional tunnel/host-trust boundary; disabled until adopted
     user-selected files     import/export/backup/restore
     signed update service   Direct distribution only
     opt-in diagnostics      explicit preview before upload
@@ -69,6 +70,8 @@ Secrets are modeled as handles across layers. A Swift `SecretReference` may iden
 - **Authorized user:** may intentionally execute powerful operations; mistakes and misunderstood scope are part of the threat model.
 - **Local unprivileged attacker:** has access to the same account, clipboard history, logs, temp locations or process observation opportunities.
 - **Malicious or compromised database server:** controls protocol frames, metadata, errors, certificates and result sizes.
+- **Malicious or compromised SSH server/agent:** controls SSH frames, rekey,
+  host identity, auth responses, agent messages and tunnel timing.
 - **Network attacker:** can intercept, delay, replay, redirect or modify traffic but does not initially hold trusted signing keys.
 - **Malicious file author:** supplies crafted import, workspace, backup or restore input.
 - **Compromised dependency/build/update operator:** can attempt to inject code or replace release artifacts.
@@ -85,7 +88,8 @@ Secrets are modeled as handles across layers. A Swift `SecretReference` may iden
 | App -> Keychain | Secret values and lookup metadata | Least-accessible item class that meets UX, scoped service/account keys, status checking, deletion |
 | App -> local SQLite/files | Workspace, history, imports, exports, temporary data | No secrets, permissions, canonical paths, atomic write, size/depth limits, user approval |
 | App -> native database tool/helper | Executable and arguments, environment, file descriptors | Trusted bundled/user-selected executable, argv API without a shell, minimal environment, signed helper |
-| App -> SSH/TLS endpoint | Server identity, CA/host key, tunnel traffic | Chain/hostname validation, known-host policy, no silent fallback |
+| Adapter -> TLS/database endpoint | Certificate chain, hostname, custom CA, database frames | Chain/hostname validation, per-connection CA scope, protocol bounds and no global bypass |
+| Tunnel provider -> SSH server/agent/process | Per-hop host key, auth challenge, agent response, tunnel bytes and process lifecycle | Bounded known-host/auth policy, no shell, no direct fallback, deadlines and explicit resource ownership |
 | App -> updater | Appcast, archive, release notes | HTTPS plus signed metadata/archive, Developer ID verification, notarization, version monotonicity |
 | App -> diagnostics service | Redacted events, crash/minidump, system metadata | Opt-in, local preview, allowlist schema, retention notice, deletion control |
 | Main app -> future plugin | Messages and granted resources | Out-of-process isolation, signed package, versioned RPC, per-capability authorization |
@@ -264,6 +268,34 @@ Each threat has an owner who must turn the controls and verification items into 
 - **Verification:** dependency-diff gate, scheduled advisory scan, SBOM completeness check, clean-room release rebuild comparison where feasible, provenance verification and compromised-token tabletop. GitHub documents [dependency review](https://docs.github.com/en/code-security/concepts/supply-chain-security/dependency-review) and [artifact attestations](https://docs.github.com/en/actions/how-tos/secure-your-work/use-artifact-attestations/use-artifact-attestations); the SBOM format must conform to the selected published [SPDX specification](https://spdx.dev/specifications/).
 - **Residual risk:** signed and reviewed upstream code may still be malicious or vulnerable. Minimize dependencies, isolate high-risk parsers/drivers and preserve an emergency rollback/removal path.
 
+### T18 — Malicious SSH endpoint, agent or process integration
+
+- **Assets:** database/SSH credentials, tunneled query/result data, process
+  integrity, local sockets/files and app availability.
+- **Actors:** malicious SSH/bastion server, compromised agent, local attacker
+  controlling config/socket paths, vulnerable OS/dependency client.
+- **Trust boundaries:** tunnel application service, per-hop trust store,
+  Keychain/FFI secret lease, agent socket, SSH protocol parser, optional child
+  process and database adapter tunnel lease.
+- **Abuse path:** a server sends malformed/rekey frames to a vulnerable client;
+  an agent returns oversized/malicious identities or signatures; a jump value
+  becomes shell syntax; password/key material reaches argv/logs; a failed
+  tunnel leaves tasks/listeners/processes or retries the remote DB directly.
+- **Controls:** ADR-0012 keeps SSH disabled. A future candidate must pin a
+  current exact source, authenticate every hop, reject unsupported trust/auth
+  syntax, compile sensitive upstream logging out, use direct typed APIs/argv
+  without shell execution, give the adapter only a loopback `TunnelLease`, and
+  own every task/channel/socket/listener/process through terminal cleanup.
+- **Verification:** hostile rekey/banner/packet/agent fixtures; exact/hashed/
+  revoked/multi-port trust; key/agent/password canaries for the declared
+  subset; shell-descendant and connector-level zero-direct traps; cancellation
+  at each phase; post-cleanup resource counts; signed app/minimum-host/soak and
+  current advisory checks. Never exercise a known vulnerable platform client
+  against a malicious rekey fixture.
+- **Residual risk:** protocol/library zero-days and a compromised trusted
+  agent remain possible. Capability kill switch, rapid signed update and an
+  SSH-disabled fallback posture are required.
+
 ## 7. Privacy and diagnostics design
 
 ### 7.1 Default state
@@ -312,7 +344,7 @@ Any failed credential, trust-validation, update-authenticity, wrong-row write or
 
 ## 9. External facts and review cadence
 
-The platform and dependency facts cited here were checked against primary project/platform documentation **as of 2026-07-29**. They are not promises about future Apple policy or dependency behavior:
+The platform and dependency facts cited here were checked against primary project/platform documentation **as of 2026-07-30**. They are not promises about future Apple policy or dependency behavior:
 
 - Apple requires App Sandbox for Mac App Store submission: [App Sandbox](https://developer.apple.com/documentation/security/app-sandbox).
 - Apple describes Developer ID, Hardened Runtime and notarization requirements for outside-Store software: [Notarizing macOS software before distribution](https://developer.apple.com/documentation/security/notarizing-macos-software-before-distribution).
@@ -322,7 +354,10 @@ The platform and dependency facts cited here were checked against primary projec
 ## 10. Open security decisions
 
 - Select and audit the Rust TLS trust integration, including how platform roots and per-connection custom CAs are represented without creating a global bypass.
-- Select an SSH implementation only after a host-key, agent, jump-host, cancellation and arm64 spike; rerun the full matrix if Universal 2 is later approved.
+- ADR-0012 adopts no SSH implementation. Reconsider exact `russh` or another
+  candidate only after every host-key, auth, no-direct, cleanup, advisory,
+  Keychain/FFI, distribution, minimum-host and soak re-entry gate passes; rerun
+  the full matrix if Universal 2 is later approved.
 - Decide whether high-assurance certificate/public-key pinning is a Pro policy feature or an all-edition safety feature; security controls must not be paywalled if their absence makes a connection unsafe.
 - Validate that Sparkle 2 license, maintenance, signing workflow and helper entitlements meet release requirements before adoption; otherwise design a minimal signed-update service or use manual updates.
 - Define the privacy jurisdiction, controller/contact and retention policy before collecting any opt-in crash or telemetry data.

@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "task": "DF-M0-005",
+  "evidence_date": "2026-07-30",
+  "source": {
+    "commit": "875dd468221ad1c6c3c35b34a83c0af48ae3f9ad",
+    "repository_tree": "350f1137bd38a973e1ddcf0b618f71f77ed2ded2",
+    "spike_tree": "88c8419d8082aa48ad9cafe9505c2fe1283ab300",
+    "git_archive_sha256": "55dca26075d4907360947fe93f4b4f24a6673559b4fceb52c4e22e0df139b710",
+    "cargo_lock_sha256": "634d476eca69b75645841611fe88ad6a2620c365477296bcb0f5b6fba19a2514"
+  },
+  "developer_host": {
+    "hardware_model": "Mac15,3",
+    "architecture": "arm64",
+    "memory_bytes": 25769803776,
+    "logical_cpu_count": 8,
+    "macos_version": "26.5.2",
+    "macos_build": "25F84",
+    "minimum_m1_16_gib_macos_14_gate_established": false
+  },
+  "toolchain": {
+    "rustc": "1.97.1 (8bab26f4f 2026-07-14)",
+    "cargo": "1.97.1 (c980f4866 2026-06-30)",
+    "rust_host": "aarch64-apple-darwin",
+    "docker_client": "28.4.0",
+    "docker_server": "28.4.0",
+    "docker_api": "1.51",
+    "cargo_audit": "0.22.2",
+    "cargo_deny": "0.20.2",
+    "rustsec_database_commit": "7c7ccac53056b87f69ac677f15ea2d9a98a6f8e2",
+    "rustsec_database_commit_date": "2026-07-29T08:17:10-07:00",
+    "leaks_project": "SamplingTools-64575.39.1",
+    "xcodebuild_available_from_selected_developer_directory": false
+  },
+  "fixture": {
+    "base_image": "docker.io/library/alpine:3.24.1@sha256:28bd5fe8b56d1bd048e5babf5b10710ebe0bae67db86916198a6eec434943f8b",
+    "built_image_id": "sha256:2a03bcfbe467eef828c9825d1339ca8cda5f514547aeea80385ef7db4c876767",
+    "built_image_architecture": "arm64",
+    "built_image_bytes": 5259626,
+    "openssh_server_package": "openssh-server-10.3_p1-r0",
+    "network_exposure": "random loopback-only bastion port; target reachable only on the disposable Docker network",
+    "credential_policy": "runtime-generated fake Ed25519 keys, password and agent socket under an owner-only temporary directory"
+  },
+  "candidate_inputs": {
+    "russh": {
+      "version": "0.62.4",
+      "crate_checksum_sha256": "b8b67b5a0d8068c89dcbe9d95df986af7a851d1f3c604525274c37468e60464f",
+      "features": ["aws-lc-rs"],
+      "rsa_present": false,
+      "compression_present": false,
+      "lock_packages": 179,
+      "normal_third_party_package_versions": 131
+    },
+    "system_openssh": {
+      "version": "OpenSSH_10.2p1, LibreSSL 3.3.6",
+      "apple_project": "OpenSSH-354.120.2",
+      "code_signature_valid_on_disk": true,
+      "apple_anchor_requirement_verified": false
+    },
+    "ssh2_libssh2": {
+      "ssh2_version": "0.9.6",
+      "ssh2_checksum_sha256": "c95eb3c09e378543395a3fa9796f897861862466ee331d59140ade4ea0dcfdfc",
+      "libssh2_sys_version": "0.3.2",
+      "libssh2_sys_checksum_sha256": "c04141a07bb0c0bc461cb657808764de571702a59bc5c726c400ac9a7625e3ab",
+      "vendored_commit": "090f23d1852a0b62e081bd12c4d05adc1c4af47a"
+    }
+  },
+  "release_binaries": {
+    "russh_probe": {
+      "sha256": "377cbaf7e4e93d28fdccdac994b2d2a10f56ae12ff6af7f080f518b793eed1e6",
+      "bytes": 5912168,
+      "architecture": "arm64"
+    },
+    "openssh_probe": {
+      "sha256": "1f24f70086e40a958cceb5c755421a4125c089a1e9beaeac4765357df581599b",
+      "bytes": 530984,
+      "architecture": "arm64"
+    },
+    "system_ssh": {
+      "sha256": "470f812f6e71ee4ca1b49c79f9c2982c054493e22502d4648bd010feb4b2a9b2",
+      "bytes": 1555472,
+      "architectures": ["x86_64", "arm64e"]
+    }
+  },
+  "validation": {
+    "cargo_fmt_check": "pass",
+    "warnings_as_errors_check": "pass",
+    "cargo_clippy_strict": "pass",
+    "unit_tests": {"pass": 9, "fail": 0},
+    "cargo_audit": {"status": "pass", "lock_dependencies_scanned": 179},
+    "cargo_deny": {"advisories": "pass", "bans": "pass", "licenses": "pass", "sources": "pass"},
+    "minimal_feature_graph": "pass; RSA and flate2 absent",
+    "release_sensitive_format_string_scan": "pass; debug binary negative control contained the primary targeted literal",
+    "runtime_matrix": {"pass": 12, "fail": 0, "unsupported": 7, "complete_matrix_passed": false},
+    "secret_canary_scan": "pass only in the outer runner; candidate SC-01 remains unsupported by itself",
+    "leaks_at_exit_smoke": "exit 0; zero reported nodes and bytes in one additional runtime-matrix process",
+    "fixture_cleanup": "pass; no owned container, network, image, agent or temporary directory retained",
+    "runner_completion_marker": "written atomically only after outer canary scan and cleanup passed"
+  },
+  "artifact_sha256": {
+    "build-metrics.txt": "5a219b57969fb745a27b60dc5b49d9ba34f089d5b979edd8aef5ec32fd65658d",
+    "leak-smoke.txt": "6db09a6f127f60c870b63fa061c601edb09583f3b3e73806c81aa9bb3eb9c337",
+    "libssh2-static.json": "b82601a5a9458b17e4bb42cf881c65538c14b293809b319ebce21a2756a6b7e7",
+    "openssh-static.json": "5212931b975e7c1288625433b71b3e59371a405163e20b2435f8cbe5bfcb9978",
+    "runner-completion.txt": "43a7b8c7a13afdbfbe7619bfe58de663d9d35240f92031614abf9d6449de97e0",
+    "russh-advisory-snapshot.json": "32bb0f19114e619d049da87ebdda1a267511afe6b1025d3e4576128f6e408472",
+    "russh-runtime.json": "253197545b2f018d13b7d4c69d79890a51f047b354da362f9ea76ca80cbdd92f"
+  },
+  "limitations": [
+    "the developer host is not the provisional M1/16 GiB/macOS 14 minimum",
+    "the 25-cycle repetition and one leak-tool process are not a 1000-cycle or eight-hour soak",
+    "the candidate matrix is incomplete: agent failure modes, connector trap, local-listener echo and comprehensive failure cleanup are unsupported",
+    "no signed, notarized, sandboxed, Finder-launched, Keychain, Swift/Rust FFI or production app integration was exercised",
+    "no real database, database driver, database endpoint, user credential or user trust store was used",
+    "TLS is outside DF-M0-005 and remains governed by its separate evidence and gates"
+  ]
+}

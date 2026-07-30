@@ -42,7 +42,9 @@ Last updated: 2026-07-29
 1. Choose adapter; the form renders only declared configuration/auth capabilities.
 2. Enter non-secret endpoint/database/options, environment and optional read-only policy.
 3. Enter secret fields; the UI labels Keychain storage and never writes them to profile drafts/diagnostics.
-4. Configure TLS (validation on), optional custom CA/client identity, then optional SSH/jump host and known-host policy.
+4. Configure TLS (validation on) and optional custom CA/client identity. Show
+   SSH/jump-host/known-host controls only after an SSH capability is adopted;
+   ADR-0012 currently keeps them unavailable.
 5. “Test” validates form, acquires a short credential lease, establishes tunnel/TLS/database session with timeout/cancel, then closes everything.
 6. Result states exactly which layers succeeded (SSH, TLS, authentication, selected database) without exposing internals.
 7. Save non-secret metadata to SQLite and secret to Keychain only after successful Keychain operation; partial save rolls back/reconciles.

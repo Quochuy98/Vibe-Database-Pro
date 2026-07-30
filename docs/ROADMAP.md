@@ -57,7 +57,9 @@ flowchart LR
 - PostgreSQL spike proves valid/invalid TLS, typed streaming, transaction and cancellation truth against a disposable DB.
 - Editor/grid prototypes meet provisional M0 budgets and accessibility checks or produce an accepted fallback decision.
 - Empty arm64 Swift/Rust shell signs, notarizes, staples and rejects tampered/downgraded update.
-- SSH candidate fails closed for unknown/changed host key and cleans tunnels; 2026 advisories/patched floor/fallback reviewed.
+- SSH spike records an adopt/reject disposition. Any retained candidate must
+  fail closed for unknown/changed host keys, clean owned resources and pass the
+  current advisory floor; otherwise SSH remains unavailable.
 - No spike contains real credentials/data or is represented as a product feature.
 
 ### Test requirements
@@ -134,7 +136,9 @@ flowchart LR
 
 ### Included scope
 
-- PostgreSQL profile/test/connect/disconnect; TLS/custom CA/client cert; accepted SSH tunnel subset; bounded pool; read-only/production context.
+- PostgreSQL profile/test/connect/disconnect; TLS/custom CA/client cert; an SSH
+  tunnel subset only after separate adoption; bounded pool; read-only/
+  production context.
 - Lazy object explorer for databases/schemas/tables/columns/keys/indexes/views/materialized views/routines and DDL/details as capability permits.
 - TextKit SQL tabs, current/selection/script execution, parser/classifier, timeout/row limit, typed streaming, messages/multiple results, cancel.
 - Transactions/autocommit/commit/rollback and close/lost-state warnings.
@@ -147,7 +151,9 @@ flowchart LR
 
 ### Dependencies
 
-- M1 foundation; adopted PostgreSQL/TLS/SSH/parser dependencies; disposable PG matrix; M0 grid/editor/driver evidence.
+- M1 foundation; adopted PostgreSQL/TLS/parser dependencies; an adopted SSH
+  dependency only if SSH is in scope; disposable PG matrix; M0 grid/editor/
+  driver evidence.
 
 ### Deliverables
 
@@ -161,16 +167,22 @@ flowchart LR
 - R3 production/readonly controls cannot be bypassed by shortcut/stale preview/parser failure.
 - One-million-row result stays within memory/frame budget and cancellation truth is accurate.
 - Key edit changes exactly one row; zero/multiple/concurrent conflict and rollback are safe; no-key source is read-only.
-- Bad certificate/hostname/host key fails closed; tunnel failure never uses direct connection.
+- Bad certificate/hostname fails closed. If SSH is enabled, bad host keys fail
+  closed and tunnel failure never uses a direct connection.
 - CSV export is correct, formula-safe, bounded, cancellable and atomic/marked on failure.
 
 ### Test requirements
 
-- PostgreSQL oldest/current disposable matrix, TLS/SSH/auth; classifier fuzz; transaction/cancel/loss; type round-trip; edit wrong-row regressions; UI/accessibility; performance/security.
+- PostgreSQL oldest/current disposable matrix and TLS/auth; add SSH tests only
+  for an enabled SSH capability; classifier fuzz; transaction/cancel/loss;
+  type round-trip; edit wrong-row regressions; UI/accessibility; performance/
+  security.
 
 ### Security review
 
-- Credential leases, TLS/SSH trust, malicious server/result limits, SQL generation/injection, production/read-only/destructive safeguards, export path/formula.
+- Credential leases, TLS trust, conditional SSH trust, malicious server/result
+  limits, SQL generation/injection, production/read-only/destructive
+  safeguards and export path/formula.
 
 ### Performance review
 
@@ -416,7 +428,7 @@ flowchart LR
 | --- | --- |
 | Architecture | ADR/spike evidence, boundary tests and no unresolved Critical design conflict |
 | Database safety | Classifier/read-only/production/transaction/row identity/preview tests pass |
-| Credential/trust | Keychain/TLS/SSH/secret-leak gates pass before any real connection feature |
+| Credential/trust | Keychain/TLS/secret-leak gates pass before direct connection; every shipped SSH capability must separately pass ADR-0012 re-entry gates |
 | Adapter capability | Truthful supported/conditional/unknown snapshot and conformance matrix |
 | Streaming/performance | Named fixture shows bounded memory/queue/cache/cancel and UI responsiveness |
 | Distribution | Signed/notarized/update-tamper evidence before external beta |
@@ -459,6 +471,14 @@ accessibility, manual VoiceOver and soak. The proxy values are not treated as
 FPS or a presentation-budget pass. The disposable source was removed in commit
 `c775b8e`; the exact evidence source remains auditable at `7acdec0`.
 
+M0-S05 now has a durable SSH evidence record and ADR-0012 disposition. No
+candidate is adopted: the tested system OpenSSH/native `-J` and exact
+`ssh2`/libssh2 candidate are rejected, while exact `russh 0.62.4` is retained
+only conditionally with seven frozen rows still unsupported. Production SSH
+remains disabled; direct PostgreSQL/TLS planning does not depend on enabling
+SSH. The exact disposable source is auditable at `875dd46` and is removed only
+after the report/ADR commit.
+
 ### Canonical M0 traceability
 
 The IDs below prevent the spike list, backlog and architecture section from
@@ -472,18 +492,17 @@ spikes.
 | M0-S02 PostgreSQL driver | DF-M0-002 | PostgreSQL driver row |
 | M0-S03 SQL editor | DF-M0-003 | SQL editor row |
 | M0-S04 result grid | DF-M0-004 | Grid row |
-| M0-S05 SSH/TLS | DF-M0-005 | SSH/TLS row |
+| M0-S05 SSH tunnel/host trust | DF-M0-005 | SSH tunnel/host-trust row |
 | M0-S06 distribution | DF-M0-006 | Distribution row |
 | M0-S07 SQLite/Keychain | DF-M0-007 | SQLite/Keychain row |
 | M0 dependency gate | DF-M0-008 | Dependency/adoption gate |
 | M0 wireframe/accessibility gate | DF-M0-009 | UX wireframe artifact |
 
-## 12. Recommended first implementation task
+## 12. Recommended next planning task
 
-**Only one next task:** execute `M0-S05 / DF-M0-005 — SSH tunnel and host-trust
-candidate spike` exactly as bounded above. Use only ephemeral local
-SSH/jump-host fixtures and fake credentials; compare the patched `russh`,
-system OpenSSH and libssh2-class options under unknown/changed-host,
-agent/key/password, jump, cancellation, cleanup, advisory and no-direct-fallback
-gates. Dispose the prototype after its report/ADR. This does not open the
-production implementation gate.
+**Only one next task:** execute `M0-S06 / DF-M0-006 — direct signing,
+notarization and secure-update chain spike` using an empty arm64 app/core and
+optional empty helper. Prove nested signing, Hardened Runtime, notarization,
+stapling, Gatekeeper and tamper/downgrade/rollback behavior with fake or
+dedicated test credentials. This remains disposable planning work and does not
+open the production implementation gate.

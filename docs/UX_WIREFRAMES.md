@@ -81,6 +81,11 @@ heading with the consequence and next action; there is no global insecure
 bypass. Choosing `Production` adds a persistent text badge and requires the
 same keyboard-accessible confirmation path as a mouse click.
 
+ADR-0012 currently leaves SSH unadopted, so a production UI must hide or
+disable the SSH row with an explicit unsupported explanation until a future
+candidate passes every re-entry gate. The wireframe preserves the conditional
+layout only; it is not evidence that SSH is available.
+
 ## WF-03 — Query editor, result stream and grid
 
 ```text

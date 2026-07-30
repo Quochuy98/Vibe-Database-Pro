@@ -1,0 +1,4 @@
+status=complete
+canary_scan=pass
+cleanup=pass
+scope=fake disposable fixtures only
