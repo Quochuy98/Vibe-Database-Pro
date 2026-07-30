@@ -11,6 +11,7 @@ cargo fmt --all -- --check
 RUSTFLAGS='-D warnings' cargo check --workspace --all-targets
 cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo test --workspace --all-features
+cargo build --workspace
 cargo audit
 cargo deny check
 
@@ -22,8 +23,15 @@ fi
 
 RUSTFLAGS='-D warnings' cargo build --release --workspace
 
+if ! /usr/bin/strings target/debug/dataforge-russh-probe | LC_ALL=C grep -F \
+    'session_write_encrypted, buf = ' >/dev/null 2>&1; then
+    print -u2 -- 'Sensitive-string scanner negative control was not present in the debug probe.'
+    exit 70
+fi
+
 if /usr/bin/strings target/release/dataforge-russh-probe | LC_ALL=C grep -E \
-    'session_write_encrypted, buf|enc: \{|sign_request: \{' >/dev/null 2>&1; then
+    'session_write_encrypted, buf = |enc: |sign_request: |identities: |self\.buf = ' \
+    >/dev/null 2>&1; then
     print -u2 -- 'Release russh probe retains a sensitive Debug/Trace formatting path.'
     exit 70
 fi

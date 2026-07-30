@@ -34,6 +34,7 @@ readonly FIXTURE_DIRECTORY="${SPIKE_DIRECTORY}/fixtures/openssh"
 readonly ARTIFACT_DIRECTORY="${SPIKE_DIRECTORY}/artifacts/df-m0-005"
 readonly RUSSH_PROBE="${SPIKE_DIRECTORY}/target/release/dataforge-russh-probe"
 readonly OPENSSH_PROBE="${SPIKE_DIRECTORY}/target/release/dataforge-openssh-probe"
+readonly COMPLETION_ARTIFACT="${ARTIFACT_DIRECTORY}/runner-completion.txt"
 
 if [[ ! -x "$RUSSH_PROBE" || ! -x "$OPENSSH_PROBE" ]]; then
     print -u2 -- 'Release probes are unavailable; run cargo build --release --workspace first.'
@@ -184,6 +185,24 @@ cleanup() {
         [[ ! -e "$TEMPORARY_ROOT" ]] || exit_status=$EX_SOFTWARE
     fi
 
+    if (( exit_status == 0 && OUTPUTS_SCANNED == 1 )); then
+        typeset completion_temporary="${ARTIFACT_DIRECTORY}/.runner-completion.$$"
+        {
+            print -r -- 'status=complete'
+            print -r -- 'canary_scan=pass'
+            print -r -- 'cleanup=pass'
+            print -r -- 'scope=fake disposable fixtures only'
+        } >"$completion_temporary" || exit_status=$EX_SOFTWARE
+        chmod 0600 "$completion_temporary" >/dev/null 2>&1 || exit_status=$EX_SOFTWARE
+        if (( exit_status == 0 )); then
+            mv -f -- "$completion_temporary" "$COMPLETION_ARTIFACT" || \
+                exit_status=$EX_SOFTWARE
+        fi
+    fi
+    if (( exit_status != 0 )); then
+        rm -f -- "$COMPLETION_ARTIFACT"
+    fi
+
     exit "$exit_status"
 }
 
@@ -211,6 +230,7 @@ chmod 0700 "$TEMPORARY_ROOT"
 mkdir -m 0700 "${TEMPORARY_ROOT}/bastion" "${TEMPORARY_ROOT}/target" \
     "${TEMPORARY_ROOT}/trust" "${TEMPORARY_ROOT}/logs"
 mkdir -m 0700 -p "$ARTIFACT_DIRECTORY"
+rm -f -- "$COMPLETION_ARTIFACT"
 
 SECRET_PATTERN_FILE="${TEMPORARY_ROOT}/secret-patterns"
 TEST_PASSWORD="DF_TEST_SECRET_${RUN_MARKER}_$(openssl rand -hex 24)"
@@ -353,7 +373,7 @@ chmod 0600 "${ARTIFACT_DIRECTORY}/openssh-static.json" \
 typeset leaks_log="${TEMPORARY_ROOT}/logs/russh-leaks.log"
 typeset -gi leaks_exit_status=0
 set +e
-/usr/bin/leaks --noContent --nostacks --atExit -- \
+LC_ALL=C /usr/bin/leaks --noContent --nostacks --atExit -- \
     "$RUSSH_PROBE" "${russh_probe_arguments[@]}" >"$leaks_log" 2>&1
 leaks_exit_status=$?
 set -e
@@ -365,12 +385,20 @@ leaks_summary="$(LC_ALL=C sed -n \
 if [[ -z "$leaks_summary" ]]; then
     leaks_summary='unavailable; inspect the transient leak log for tool diagnostics'
 fi
+typeset -gi leaks_log_bytes
+leaks_log_bytes="$(stat -f '%z' "$leaks_log")"
 {
     print -r -- "leaks_exit_status=${leaks_exit_status}"
     print -r -- "leaks_summary=${leaks_summary}"
+    print -r -- "captured_output_bytes=${leaks_log_bytes}"
     print -r -- 'scope=one additional full runtime-matrix process; not a long soak or proof of zero production leaks'
 } >"${ARTIFACT_DIRECTORY}/leak-smoke.txt"
 chmod 0600 "${ARTIFACT_DIRECTORY}/leak-smoke.txt"
+if (( leaks_exit_status != 0 || leaks_log_bytes > 1048576 )) || \
+    [[ "$leaks_summary" != '0 leaks for 0 total leaked bytes.' ]]; then
+    print -u2 -- 'Leak smoke did not produce the required bounded zero-unreachable-leak summary.'
+    exit "$EX_SOFTWARE"
+fi
 
 capture_container_logs
 scan_outputs

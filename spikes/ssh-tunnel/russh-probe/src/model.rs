@@ -64,7 +64,8 @@ pub struct Summary {
     pub pass: usize,
     pub fail: usize,
     pub unsupported: usize,
-    pub runtime_matrix_passed: bool,
+    pub rows_without_failure: bool,
+    pub complete_matrix_passed: bool,
 }
 
 impl Scenario {
@@ -110,7 +111,29 @@ impl Summary {
             pass,
             fail,
             unsupported,
-            runtime_matrix_passed: fail == 0,
+            rows_without_failure: fail == 0,
+            complete_matrix_passed: fail == 0 && unsupported == 0,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{Scenario, Status, Summary};
+
+    #[test]
+    fn unsupported_row_never_becomes_a_complete_matrix_pass() {
+        let scenarios = [
+            Scenario::new("pass", Status::Pass, "runtime", 0),
+            Scenario::new("unsupported", Status::Unsupported, "external", 0),
+        ];
+
+        let summary = Summary::from_scenarios(&scenarios);
+
+        assert_eq!(summary.pass, 1);
+        assert_eq!(summary.fail, 0);
+        assert_eq!(summary.unsupported, 1);
+        assert!(summary.rows_without_failure);
+        assert!(!summary.complete_matrix_passed);
     }
 }

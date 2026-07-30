@@ -4,7 +4,6 @@ mod hostile;
 mod model;
 mod trust;
 
-use std::future::Future;
 use std::io::Write;
 use std::sync::Arc;
 use std::time::Instant;
@@ -176,12 +175,12 @@ async fn run() -> Result<Evidence, ()> {
         Scenario::new(
             "AU-03",
             if agent_passed {
-                Status::Pass
+                Status::Unsupported
             } else {
                 Status::Fail
             },
             if agent_passed {
-                "agent"
+                "partial_agent_evidence"
             } else {
                 first_error_category(&agent_result, &oversized_agent_result)
             },
@@ -190,7 +189,11 @@ async fn run() -> Result<Evidence, ()> {
         .observe("ephemeral_agent_auth", agent_result.is_ok())
         .observe("oversized_frame_rejected", oversized_agent_result.is_ok())
         .observe("frame_limit_bytes", MAX_AGENT_FRAME_BYTES as u64)
-        .observe("identity_limit", MAX_AGENT_IDENTITIES as u64),
+        .observe("identity_limit", MAX_AGENT_IDENTITIES as u64)
+        .observe(
+            "not_exercised",
+            "missing_malformed_stalled_agent_socket_identity_and_failure_cleanup",
+        ),
     );
 
     let jump_started = Instant::now();
@@ -242,11 +245,11 @@ async fn run() -> Result<Evidence, ()> {
                 && direct_policy_attempts.jump == 0
                 && direct_policy_attempts.direct == 1
             {
-                Status::Pass
+                Status::Unsupported
             } else {
                 Status::Fail
             },
-            "no_direct_fallback",
+            "model_only_no_direct_fallback",
             0,
         )
         .observe("jump_attempts", attempts.jump as u64)
@@ -255,18 +258,32 @@ async fn run() -> Result<Evidence, ()> {
             "explicit_direct_policy_direct_attempts",
             direct_policy_attempts.direct as u64,
         )
-        .observe("evidence_kind", "deterministic_plan_test"),
+        .observe("evidence_kind", "deterministic_plan_test")
+        .observe("network_connector_trap_executed", false),
     );
 
+    let forward_banner =
+        verify_forward_banner(&config, &config.known_correct, Arc::clone(&key)).await;
     scenarios.push(
-        expect_ok(
+        Scenario::new(
             "TN-01",
-            "forwarding",
-            verify_forward_banner(&config, &config.known_correct, Arc::clone(&key)),
+            if forward_banner.is_ok() {
+                Status::Unsupported
+            } else {
+                Status::Fail
+            },
+            if forward_banner.is_ok() {
+                "direct_tcpip_banner_smoke_only"
+            } else {
+                forward_banner
+                    .err()
+                    .map_or("forwarding_regression", CandidateError::category)
+            },
+            0,
         )
-        .await
-        .observe("listener_scope", "loopback")
-        .observe("destination_banner_bounded", true),
+        .observe("direct_tcpip_banner_received", forward_banner.is_ok())
+        .observe("local_listener_measured", false)
+        .observe("echo_roundtrip_executed", false),
     );
 
     let cancellation_started = Instant::now();
@@ -289,7 +306,8 @@ async fn run() -> Result<Evidence, ()> {
             .map_or("cancellation", CandidateError::category),
         cancellation_started.elapsed().as_millis(),
     )
-    .observe("cleanup_deadline_ms", CLEANUP_DEADLINE.as_millis() as u64);
+    .observe("cleanup_deadline_ms", CLEANUP_DEADLINE.as_millis() as u64)
+    .observe("evidence_scope", "one_active_single_hop_forward_happy_path");
     if let Ok(metrics) = cancellation {
         cancellation_scenario = cancellation_scenario
             .observe("cleanup_ms", metrics.cleanup_ms as u64)
@@ -297,14 +315,34 @@ async fn run() -> Result<Evidence, ()> {
     }
     scenarios.push(cancellation_scenario);
 
+    let destination_failure =
+        verify_destination_failure_cleanup(&config, &config.known_correct, Arc::clone(&key)).await;
     scenarios.push(
-        expect_ok(
+        Scenario::new(
             "TN-03",
-            "failure_cleanup",
-            verify_destination_failure_cleanup(&config, &config.known_correct, Arc::clone(&key)),
+            if destination_failure.is_ok() {
+                Status::Unsupported
+            } else {
+                Status::Fail
+            },
+            if destination_failure.is_ok() {
+                "destination_failure_cleanup_only"
+            } else {
+                destination_failure
+                    .err()
+                    .map_or("failure_cleanup_regression", CandidateError::category)
+            },
+            0,
         )
-        .await
-        .observe("failed_destination_port", 1_u64),
+        .observe("failed_destination_port", 1_u64)
+        .observe(
+            "destination_failure_cleanup_passed",
+            destination_failure.is_ok(),
+        )
+        .observe(
+            "not_exercised",
+            "all_auth_trust_jump_phase_failures_and_post_cleanup_resource_counts",
+        ),
     );
 
     scenarios.push(
@@ -316,11 +354,21 @@ async fn run() -> Result<Evidence, ()> {
     scenarios.push(hostile_scenario("MI-03", HostileMode::PartialBanner, &config).await);
 
     scenarios.push(
-        Scenario::new("SC-01", Status::Pass, "secret_surface", 0)
-            .observe("password_auth_compiled_but_not_exposed_by_probe", true)
-            .observe("runtime_logger_initialized", false)
-            .observe("release_debug_trace_compile_out_required", true)
-            .observe("external_canary_scan_required", true),
+        Scenario::new(
+            "SC-01",
+            Status::Unsupported,
+            "requires_outer_runner_completion",
+            0,
+        )
+        .observe("password_auth_compiled_but_not_exposed_by_probe", true)
+        .observe("runtime_logger_initialized", false)
+        .observe("release_debug_trace_compile_out_required", true)
+        .observe(
+            "compiled_static_max_level",
+            log::STATIC_MAX_LEVEL.to_string(),
+        )
+        .observe("external_canary_scan_required", true)
+        .observe("candidate_process_alone_can_assert_pass", false),
     );
 
     let repetition_started = Instant::now();
@@ -364,7 +412,7 @@ async fn run() -> Result<Evidence, ()> {
 
     let summary = Summary::from_scenarios(&scenarios);
     Ok(Evidence {
-        schema_version: 1,
+        schema_version: 2,
         evidence_kind: "disposable_local_ssh_candidate",
         candidate: Candidate {
             name: "russh",
@@ -433,24 +481,6 @@ async fn trust_scenario(
     .observe(
         "fingerprint_observation_is_sha256",
         probe.observation.fingerprint_is_sha256,
-    )
-}
-
-async fn expect_ok<T, F>(id: &'static str, category: &'static str, future: F) -> Scenario
-where
-    F: Future<Output = Result<T, CandidateError>>,
-{
-    let started = Instant::now();
-    let result = future.await;
-    Scenario::new(
-        id,
-        if result.is_ok() {
-            Status::Pass
-        } else {
-            Status::Fail
-        },
-        result.err().map_or(category, CandidateError::category),
-        started.elapsed().as_millis(),
     )
 }
 
