@@ -434,6 +434,12 @@ flowchart LR
 | M0-S06 | Direct artifact/update chain is viable | Empty app/core/helper | Sign/notarize/staple/tamper/downgrade/rollback | Delete/regenerate approved scaffold |
 | M0-S07 | SQLite/Keychain separation is reliable | Synthetic profile/workspace | Transactional migration, denial/locked, canary absence | Delete; retain schema/security decision |
 
+M0-S02 now has a complete runtime/dependency evidence record: the exact
+PostgreSQL candidate is deferred by ADR-0009 because its upstream
+frame and request-resource boundaries do not yet meet the product safety
+contract. The spike source is disposable and is removed after the durable
+report is committed.
+
 ### Canonical M0 traceability
 
 The IDs below prevent the spike list, backlog and architecture section from

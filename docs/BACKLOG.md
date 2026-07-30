@@ -69,6 +69,12 @@ Priorities: P0 safety/architecture blocker, P1 milestone-critical, P2 important,
 
 **Definition of done:** Prototype deleted; driver adopted/rejected with exact evidence and risk owner.
 
+**M0 disposition (2026-07-30):** Evidence complete; exact stack deferred by
+[ADR-0009](adr/0009-m0-postgres-driver-disposition.md). See
+[DF-M0-002 evidence](reports/DF-M0-002-postgres-driver-evidence.md). The
+production adapter gate remains closed until a hard backend-frame cap, bounded
+request admission, logging policy and credential-memory decision are verified.
+
 ### DF-M0-003
 
 **ID:** DF-M0-003

@@ -14,6 +14,7 @@ ADRs preserve why a material decision was made. They are immutable once supersed
 | [0006](0006-distribution-model.md) | Direct Developer ID distribution first | Accepted for planning |
 | [0007](0007-database-adapter-interface.md) | Capability-based, driver-per-adapter ports | Accepted for planning |
 | [0008](0008-m0-ffi-spike-disposition.md) | M0 C ABI spike evidence and caller-owned buffer refinement | Evidence recorded; implementation gated |
+| [0009](0009-m0-postgres-driver-disposition.md) | Defer exact PostgreSQL driver stack pending hard resource/security caps | Candidate deferred; production gated |
 
 ## ADR lifecycle
 

@@ -252,7 +252,12 @@ Snapshot plus semantic integration tests cover Unicode identifiers, reserved wor
 
 ### 13.1 PostgreSQL — M2
 
-Candidate driver: `tokio-postgres`, subject to M0 adoption gate.
+Candidate driver: `tokio-postgres`, subject to M0 adoption gate. DF-M0-002
+completed its disposable matrix, but ADR-0009 defers the exact
+`tokio-postgres 0.7.18`/`tokio-postgres-rustls 0.14.0` stack because upstream
+backend frames are buffered without a product hard cap, request admission is
+unbounded, and logging/credential-memory controls require an explicit adapter
+policy. No production capability is approved from the spike.
 
 Prove SSL modes with hostname verification/custom CA/client certificate, cancel-token race handling, row streams/portals, arrays/enums/domains/composites/ranges/JSONB/large objects, notices, multiple result sets/script semantics, search path, transaction-aborted state, materialized views/extensions/routines, `EXPLAIN` safety, `COPY` streaming, and official `pg_dump`/`pg_restore` orchestration constraints.
 

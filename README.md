@@ -33,6 +33,7 @@ The baseline assumptions above remain subject to the Architecture Decision Recor
 - [System architecture](docs/ARCHITECTURE.md)
 - [Database adapter model](docs/DATABASE_ADAPTERS.md)
 - [Architecture Decision Records](docs/adr/README.md)
+- [DF-M0-002 PostgreSQL driver evidence](docs/reports/DF-M0-002-postgres-driver-evidence.md)
 
 ### Assurance and release
 
