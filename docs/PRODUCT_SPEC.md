@@ -27,16 +27,23 @@ Phase labels have one meaning throughout the planning set:
 
 ### 1.1 Repository assessment at planning start
 
-The repository began at commit `6af6b9e` with only `AGENTS.md`, `MASTER_PROMPT.md`, and a short planning-pack `README.md`. The planning baseline then added the `docs/` tree and safeguards. It still has no production app/module implementation; the only executable material is the explicitly disposable `spikes/ffi-streaming` M0 feasibility spike, with its own SwiftPM/Cargo manifests and ignored build output. The only local untracked artifact observed during planning was `.DS_Store`; `.gitignore` excludes macOS metadata, secret-bearing `.env` files, local diagnostics and build output.
+The repository began at commit `6af6b9e` with only `AGENTS.md`,
+`MASTER_PROMPT.md`, and a short planning-pack `README.md`. The planning
+baseline then added the `docs/` tree and safeguards. It still has no production
+app/module implementation. The separately authorized DF-M0-001 feasibility
+spike was executed and then removed; its exact disposable source remains at
+evidence commit `ce33ff1` and its durable result is recorded in
+[ADR-0008](adr/0008-m0-ffi-spike-disposition.md). `.gitignore` excludes macOS
+metadata, secret-bearing `.env` files, local diagnostics and build output.
 
 Files read before planning changes: `AGENTS.md` (all 787 lines), `MASTER_PROMPT.md` (all 1,416 lines), and `README.md`. There was no `docs/` directory or nearer `AGENTS.md` to apply. Survey commands included `git status --short --branch`, `git remote -v`, `git log --oneline --decorate`, `git ls-files`, `find`, `rg --files`, `rg` heading/requirement searches, `wc -l`, and bounded `sed` reads. Current platform/dependency recommendations were checked against primary Apple/project documentation and are date-stamped; they must be revalidated at adoption/release.
 
 The decisive constraint remains that production work is gated: this task may
-create specifications, ADRs, risk analysis and a bounded, disposable spike,
-but cannot claim a production feature. Build/test commands now exist only for
-that spike; [TEST_STRATEGY.md](TEST_STRATEGY.md) continues to define the
-production commands and evidence gates, separately from the recorded M0
-experiment.
+create specifications, ADRs, risk analysis and bounded disposable spikes, but
+cannot claim a production feature. Historical DF-M0-001 commands and results
+are retained in its durable report and evidence commit;
+[TEST_STRATEGY.md](TEST_STRATEGY.md) continues to define future production
+commands and gates separately from the recorded M0 experiment.
 
 ## 2. Product vision
 

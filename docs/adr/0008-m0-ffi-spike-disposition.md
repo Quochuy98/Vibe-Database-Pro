@@ -1,7 +1,7 @@
 # ADR-0008: M0 C ABI streaming spike disposition
 
-Status: Remediation evidence recorded; independent disposal re-review pending;
-production implementation remains gated
+Status: Accepted for planning; disposable prototype removed; production
+implementation remains gated
 
 Date: 2026-07-30
 
@@ -21,10 +21,10 @@ rows and 4 MiB encoded bytes.
 
 The durable command, result, failure and measurement record is
 [`docs/reports/DF-M0-001-ffi-streaming-evidence.md`](../reports/DF-M0-001-ffi-streaming-evidence.md).
-The disposable artifact remains at
-[`spikes/ffi-streaming`](../../spikes/ffi-streaming/README.md) only until
-independent re-review. On an arm64 Mac15,3 developer machine (macOS 26.5.2,
-24 GiB), with Rust 1.97.1, nightly 1.99.0 and Xcode 26.0.1/Swift 6.2:
+The disposable artifact is retained only in evidence source commit
+`ce33ff1bf8b81a7bc7a5c78e56d57e58f25f70a2`. On an arm64 Mac15,3 developer
+machine (macOS 26.5.2, 24 GiB), with Rust 1.97.1, nightly 1.99.0 and Xcode
+26.0.1/Swift 6.2:
 
 - Rust format, clippy with `-D warnings`, 13 native tests, the complete 13-test
   ASan/TSan matrices and seven targeted Miri tests passed. The expanded suite
@@ -93,10 +93,11 @@ so it cannot be used as evidence that database safety requirements are met.
 
 ## Disposal
 
-After independent re-review accepts the durable report, delete
-`spikes/ffi-streaming` and retain this ADR plus the report. The evidence commit
-recorded in the report keeps the exact disposable source auditable through Git
-history. Recreate production code under the approved module boundaries rather
-than copying the spike wholesale. If a future implementation chooses Rust-owned
-leases, callbacks, a different cap or UniFFI, create a superseding ADR with
-equivalent ownership, cancellation, memory and security evidence.
+The remediation disposition checked every initial independent-review blocker
+against the durable report, then removed `spikes/ffi-streaming`. This ADR and
+the report remain; the recorded evidence commit keeps the exact disposable
+source auditable through Git history. Recreate production code under the
+approved module boundaries rather than copying the spike wholesale. If a future
+implementation chooses Rust-owned leases, callbacks, a different cap or
+UniFFI, create a superseding ADR with equivalent ownership, cancellation,
+memory and security evidence.

@@ -1,6 +1,7 @@
 # Technical Backlog
 
-Status: Production backlog remains planning-only; DF-M0-001 may have a separately authorized disposable spike artifact, but no production item is implemented
+Status: Production backlog remains planning-only; DF-M0-001 evidence is accepted
+and its disposable artifact has been removed; no production item is implemented
 
 Last updated: 2026-07-29
 

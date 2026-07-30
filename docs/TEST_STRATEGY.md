@@ -10,10 +10,12 @@ Owners: Quality Engineering with feature, Database Core, macOS and Security owne
 
 Tests must prove that DataForge is safe and correct under success, failure, cancellation, concurrency, partial progress and malicious input. A green narrow suite cannot support a broad capability claim. Production and shared staging databases are never automated-test targets.
 
-The repository has no production implementation. A separately scoped
-`spikes/ffi-streaming` artifact has its own evidence runner; its pass/fail
-results do not establish production capability. The commands and suites below
-remain future production gates unless an exact command is recorded as run.
+The repository has no production implementation. The separately scoped
+DF-M0-001 artifact was disposed after its commands/results were preserved in
+[`docs/reports/DF-M0-001-ffi-streaming-evidence.md`](reports/DF-M0-001-ffi-streaming-evidence.md)
+and its source commit. That evidence does not establish production capability.
+The commands and suites below remain future production gates unless an exact
+command is recorded as run.
 
 ## 2. Quality principles
 
@@ -284,11 +286,11 @@ PR selection uses a dependency-aware test map but always runs safety classifier,
 
 Before implementation, each backlog item must be assigned stable test IDs.
 The current planning backlog records required test categories in prose and
-DF-M0-001 records its spike test evidence separately. Each capability must link
-to conformance tests, each threat to controls/tests and each performance budget
-to benchmark jobs before its milestone gate. Release evidence records commit,
-toolchains, dependency lock/SBOM, fixture image digests, commands,
-pass/fail/skip list and artifact signatures.
+DF-M0-001 records its disposed spike evidence separately in the durable report.
+Each capability must link to conformance tests, each threat to controls/tests
+and each performance budget to benchmark jobs before its milestone gate.
+Release evidence records commit, toolchains, dependency lock/SBOM, fixture
+image digests, commands, pass/fail/skip list and artifact signatures.
 
 “Pass” may be reported only for commands actually run. If infrastructure prevents a suite, the completion report states the exact unrun tests, reason, remaining risk and reviewer command.
 

@@ -1,6 +1,7 @@
 # DF-M0-001 — C ABI streaming spike evidence
 
-Status: Remediation evidence recorded; independent disposal re-review pending
+Status: Accepted for planning; disposable source retained only in the evidence
+commit; production implementation remains gated
 
 Evidence date: 2026-07-30
 
@@ -8,7 +9,7 @@ Evidence source commit: `ce33ff1bf8b81a7bc7a5c78e56d57e58f25f70a2`
 
 ## 1. Scope and decision question
 
-This report is the durable evidence required before deleting the disposable
+This report is the durable evidence retained after deleting the disposable
 `spikes/ffi-streaming` artifact. It asks only whether a fake Rust producer and
 Swift consumer support a viable planning contract for versioned fixed-width C
 records, caller-owned bounded chunks, pull/ACK backpressure, cancellation,
@@ -21,8 +22,10 @@ signing or distribution readiness.
 An initial independent review rejected disposal because the prior evidence
 depended on the directory that would be deleted and lacked property/race,
 secret-canary, sanitizer and copy/latency evidence. Commit `ce33ff1` closes
-those gaps without changing the recommended ownership model. This report now
-survives disposal and makes the remaining limitations explicit.
+those gaps without changing the recommended ownership model. The follow-up
+disposition checked every recorded blocker against this report before removing
+the prototype. This report survives disposal and makes the remaining
+limitations explicit.
 
 ## 2. Evidence identity and environment
 
@@ -253,6 +256,7 @@ runs before release.
 Recommendation: retain the ADR-0008 planning contract—versioned fixed-width C
 records, caller-owned destination buffers, opaque generation handles, one
 outstanding pull/ACK chunk, hard row/byte caps, stateful cancellation and panic
-containment. Do not copy the spike into production. Independent review must
-confirm this report before deleting the prototype; the report and ADR remain
-after deletion.
+containment. Do not copy the spike into production. The disposable prototype
+has been removed; this report, ADR and evidence source commit remain. A new
+review and production implementation must re-establish Swift sanitizer,
+executor, real-driver cancellation and app-level performance evidence.
