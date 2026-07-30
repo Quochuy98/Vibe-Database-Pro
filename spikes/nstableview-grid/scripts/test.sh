@@ -13,6 +13,8 @@ if [[ ! -d "${DEVELOPER_DIR}" ]]; then
 fi
 
 SCRATCH_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/dataforge-grid-spike.XXXXXX")"
+ARTIFACT_ROOT="${GRID_SPIKE_ARTIFACT_DIR:-${SPIKE_ROOT}/artifacts/df-m0-004}"
+mkdir -p "${ARTIFACT_ROOT}"
 cleanup() {
     rm -rf "${SCRATCH_ROOT}"
 }
@@ -67,7 +69,8 @@ for rows in 1000000 10000000; do
         --rows "${rows}" \
         --samples "${SAMPLES}" \
         --scroll-seconds "${SCROLL_SECONDS}" \
-        --source-revision "${SOURCE_REVISION}"
+        --source-revision "${SOURCE_REVISION}" \
+        | tee "${ARTIFACT_ROOT}/bf02-${rows}.json"
 done
 
 echo "== BF-03 wide-grid release evidence =="
@@ -77,4 +80,5 @@ echo "== BF-03 wide-grid release evidence =="
     --rows 100000 \
     --samples "${SAMPLES}" \
     --scroll-seconds "${SCROLL_SECONDS}" \
-    --source-revision "${SOURCE_REVISION}"
+    --source-revision "${SOURCE_REVISION}" \
+    | tee "${ARTIFACT_ROOT}/bf03-100000.json"
