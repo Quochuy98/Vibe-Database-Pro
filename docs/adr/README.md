@@ -13,6 +13,7 @@ ADRs preserve why a material decision was made. They are immutable once supersed
 | [0005](0005-secret-storage.md) | macOS Keychain for all secrets | Accepted for planning |
 | [0006](0006-distribution-model.md) | Direct Developer ID distribution first | Accepted for planning |
 | [0007](0007-database-adapter-interface.md) | Capability-based, driver-per-adapter ports | Accepted for planning |
+| [0008](0008-m0-ffi-spike-disposition.md) | M0 C ABI spike evidence and caller-owned buffer refinement | Evidence recorded; implementation gated |
 
 ## ADR lifecycle
 

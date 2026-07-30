@@ -1,6 +1,6 @@
 # Technical Backlog
 
-Status: Planning backlog; no item is implemented or authorized
+Status: Production backlog remains planning-only; DF-M0-001 may have a separately authorized disposable spike artifact, but no production item is implemented
 
 Last updated: 2026-07-29
 
@@ -247,6 +247,36 @@ Priorities: P0 safety/architecture blocker, P1 milestone-critical, P2 important,
 **Out of scope:** General dependency upgrades and product licensing decision.
 
 **Definition of done:** Dossiers reviewed by engineering/security/legal; ADR/backlog updated with exact decisions.
+
+### DF-M0-009
+
+**ID:** DF-M0-009
+
+**Title:** Review original shell wireframes and accessibility annotations
+
+**Epic:** Native macOS UX foundation
+
+**Priority:** P1
+
+**Complexity:** S
+
+**Dependencies:** ADR-0001, `docs/USER_FLOWS.md`, `docs/UX_WIREFRAMES.md`
+
+**User story:** As a macOS user, I need a reviewed keyboard- and VoiceOver-first shell before application UI implementation begins.
+
+**Description:** Review the low-fidelity shell, connection, editor/grid, destructive-confirmation and transaction-close wireframes; record terminology, focus order, production/read-only language and accessibility acceptance decisions.
+
+**Technical notes:** This is a design gate, not a SwiftUI/AppKit implementation. Validate resizing, Light/Dark, Increase Contrast, Differentiate Without Color, Reduce Motion and localized consequence text against the M0 budgets.
+
+**Security considerations:** Production and destructive warnings must remain text/icon/VoiceOver-visible; no color-only or shortcut-only bypass may be approved.
+
+**Acceptance criteria:** Product/design/accessibility reviewers approve or explicitly disposition every wireframe; unresolved focus, warning, resize or VoiceOver issue has an owner and revisit trigger; the approved artifact is linked from M1 dependencies.
+
+**Tests required:** Keyboard/focus walkthrough, accessibility-label review, appearance/contrast checklist, resize/localization review and traceability check to UF-01/02/04/05/06.
+
+**Out of scope:** Production UI, database calls, credentials, assets, pixel-perfect measurements and competitor comparison.
+
+**Definition of done:** Review record and artifact status are current; M1-002 can reference the decision without relying on an untracked design assumption.
 
 ## Milestone 1 — Application shell
 

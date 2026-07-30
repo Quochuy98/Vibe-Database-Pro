@@ -23,6 +23,7 @@ The baseline assumptions above remain subject to the Architecture Decision Recor
 - [Product specification](docs/PRODUCT_SPEC.md)
 - [Feature matrix](docs/FEATURE_MATRIX.md)
 - [User flows](docs/USER_FLOWS.md)
+- [UX wireframes](docs/UX_WIREFRAMES.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Implementation backlog](docs/BACKLOG.md)
 - [Risks and unknowns](docs/RISKS.md)
@@ -57,7 +58,12 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the development gate and [SECURITY.md
 
 ## Current scope
 
-The current planning task may create documentation, decision records, specifications, risk analysis, and tightly scoped feasibility-spike proposals. It must not implement the recommended first production task. The proposed first task is recorded in the roadmap/backlog only after architecture, safety, test, and performance gates are defined.
+The repository may contain documentation, decision records, specifications,
+risk analysis, and tightly scoped disposable feasibility spikes. It must not
+claim production implementation from a spike or import spike code into a
+product target. The proposed first production task remains recorded in the
+roadmap/backlog only after architecture, safety, test, and performance gates
+are defined.
 
 ## License
 

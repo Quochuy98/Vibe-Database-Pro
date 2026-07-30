@@ -30,7 +30,7 @@ flowchart LR
 ### Included scope
 
 - Product specification, feature matrix, user flows, architecture, adapter contract, security threat model, database safety, tests, performance, distribution, roadmap/backlog/risks and ADRs.
-- UX wireframes for shell, connection, editor/grid, production/destructive confirmation and transaction close; original identity only.
+- Original low-fidelity UX wireframes and accessibility annotations for shell, connection, editor/grid, production/destructive confirmation and transaction close (see [UX_WIREFRAMES.md](UX_WIREFRAMES.md)).
 - Disposable spikes: Swift/Rust C ABI bounded stream/cancel/panic; PostgreSQL driver/TLS/cancel; SQL editor; virtualized grid; SSH/known-host/jump host; signed/notarized/update shell; local SQLite/Keychain boundary.
 - Dependency/driver/editor/parser/grid/updater/SSH/license/advisory/binary-size and Apple Silicon evaluation.
 - Supported macOS/architecture and direct-vs-Store distribution proposal.
@@ -45,10 +45,10 @@ flowchart LR
 
 ### Deliverables
 
-- Accepted-for-planning ADR-0001–0007 and spike decision records with measurements/disposition.
+- Accepted-for-planning ADR-0001–0007 plus M0 evidence ADRs and spike decision records with measurements/disposition.
 - Architecture/module/FFI/capability/error/cancellation contracts.
 - Threat-to-control-to-test traceability and prioritized risk register.
-- Original low-fidelity UX wireframes and accessibility annotations.
+- Original low-fidelity UX wireframes and accessibility annotations reviewed against [UX_WIREFRAMES.md](UX_WIREFRAMES.md).
 - Proposed exact dependency versions/checksums/licenses/advisories only after adoption review.
 
 ### Acceptance criteria
@@ -434,6 +434,25 @@ flowchart LR
 | M0-S06 | Direct artifact/update chain is viable | Empty app/core/helper | Sign/notarize/staple/tamper/downgrade/rollback | Delete/regenerate approved scaffold |
 | M0-S07 | SQLite/Keychain separation is reliable | Synthetic profile/workspace | Transactional migration, denial/locked, canary absence | Delete; retain schema/security decision |
 
+### Canonical M0 traceability
+
+The IDs below prevent the spike list, backlog and architecture section from
+drifting. `M0-S01`–`M0-S07` are disposable technical spikes; the dependency
+dossier and wireframe review are milestone gates, not additional runtime
+spikes.
+
+| Roadmap spike/gate | Backlog item | Architecture evidence |
+| --- | --- | --- |
+| M0-S01 C ABI stream | DF-M0-001 | C ABI stream row |
+| M0-S02 PostgreSQL driver | DF-M0-002 | PostgreSQL driver row |
+| M0-S03 SQL editor | DF-M0-003 | SQL editor row |
+| M0-S04 result grid | DF-M0-004 | Grid row |
+| M0-S05 SSH/TLS | DF-M0-005 | SSH/TLS row |
+| M0-S06 distribution | DF-M0-006 | Distribution row |
+| M0-S07 SQLite/Keychain | DF-M0-007 | SQLite/Keychain row |
+| M0 dependency gate | DF-M0-008 | Dependency/adoption gate |
+| M0 wireframe/accessibility gate | DF-M0-009 | UX wireframe artifact |
+
 ## 12. Recommended first implementation task
 
-**Only one next task:** execute `M0-S01 — C ABI bounded streaming, cancellation and panic-containment spike` exactly as bounded above. It is prerequisite evidence for every database/result feature, touches no real database or credential, and must be deleted/replaced after its report. This roadmap does not implement it.
+**Only one next task:** execute `M0-S01 — C ABI bounded streaming, cancellation and panic-containment spike` exactly as bounded above. It is prerequisite evidence for every database/result feature, touches no real database or credential, and must be deleted/replaced after its report. A separately authorized disposable artifact may implement this spike; that artifact is never a production feature and does not open the production implementation gate.
