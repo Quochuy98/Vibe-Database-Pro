@@ -479,6 +479,15 @@ remains disabled; direct PostgreSQL/TLS planning does not depend on enabling
 SSH. The exact disposable source is auditable at `875dd46` and was removed in
 separate disposal commit `0b80f7e`.
 
+M0-S06 now has a durable distribution evidence record and ADR-0013
+disposition. The direct Developer ID channel remains the planning baseline,
+but the release gate is closed: the host had no valid signing identity or full
+Xcode, so notarization, stapling and clean-Mac Gatekeeper did not run. Exact
+Sparkle `2.9.4` is conditional only; offline Ed25519/tamper and policy-model
+smokes do not establish framework integration, install, rollback or key
+rotation. The disposable source remains auditable at `f0457dd` until its
+separate disposal commit.
+
 ### Canonical M0 traceability
 
 The IDs below prevent the spike list, backlog and architecture section from
@@ -500,9 +509,9 @@ spikes.
 
 ## 12. Recommended next planning task
 
-**Only one next task:** execute `M0-S06 / DF-M0-006 — direct signing,
-notarization and secure-update chain spike` using an empty arm64 app/core and
-optional empty helper. Prove nested signing, Hardened Runtime, notarization,
-stapling, Gatekeeper and tamper/downgrade/rollback behavior with fake or
-dedicated test credentials. This remains disposable planning work and does not
-open the production implementation gate.
+**Only one next task:** execute `M0-S07 / DF-M0-007 — SQLite metadata and
+Keychain separation spike` with synthetic profiles/workspaces and fake
+credential canaries. Prove transactional migration, corruption/rollback,
+locked/denied Keychain behavior and absence of secret material from SQLite,
+logs, exports and snapshots. This remains disposable planning work and does
+not open production implementation.

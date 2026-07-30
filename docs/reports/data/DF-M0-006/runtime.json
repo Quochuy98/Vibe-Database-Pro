@@ -1,0 +1,218 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "developer-host-disposable-distribution-spike",
+  "scenarios": [
+    {
+      "id": "EN-01",
+      "status": "pass",
+      "observation": {
+        "identity_count": 0,
+        "identity_names_enumerated": false,
+        "notary_profile_searched": false
+      }
+    },
+    {
+      "id": "AR-01",
+      "status": "pass",
+      "observation": {
+        "app": "arm64",
+        "core": "arm64",
+        "helper": "arm64",
+        "minimum_macos": "14.0"
+      }
+    },
+    {
+      "id": "AR-02",
+      "status": "pass",
+      "observation": {
+        "relative_core_load": true,
+        "app_and_helper_launch": true
+      }
+    },
+    {
+      "id": "SG-01",
+      "status": "pass",
+      "scope": "local_ad_hoc",
+      "observation": {
+        "inside_out": true,
+        "signing_deep_used": false,
+        "secure_timestamp": false
+      }
+    },
+    {
+      "id": "SG-02",
+      "status": "pass",
+      "scope": "local_ad_hoc",
+      "observation": {
+        "strict_nested_verification": true
+      }
+    },
+    {
+      "id": "DR-01",
+      "status": "partial",
+      "observation": {
+        "stable_identifiers_across_versions": true,
+        "developer_id_team_anchor_proven": false
+      }
+    },
+    {
+      "id": "ET-01",
+      "status": "pass",
+      "scope": "local_ad_hoc",
+      "observation": {
+        "hardened_runtime": true,
+        "entitlement_exceptions": 0
+      }
+    },
+    {
+      "id": "TM-01",
+      "status": "pass",
+      "scope": "local_ad_hoc",
+      "observation": {
+        "sealed_resource_tamper_rejected": true
+      }
+    },
+    {
+      "id": "TM-02",
+      "status": "partial",
+      "observation": {
+        "wrong_requirement_rejected": true,
+        "same_identifier_ad_hoc_outer_verifies": true,
+        "publisher_authenticity_proven": false
+      }
+    },
+    {
+      "id": "GK-01",
+      "status": "unsupported",
+      "observation": {
+        "ad_hoc_assessment_exit": 3,
+        "clean_mac_run": false,
+        "developer_id_artifact": false
+      }
+    },
+    {
+      "id": "NT-01",
+      "status": "unsupported",
+      "observation": {
+        "submission_attempted": false,
+        "request_id_retained": false
+      }
+    },
+    {
+      "id": "ST-01",
+      "status": "unsupported",
+      "observation": {
+        "no_ticket_validation_exit": 65,
+        "accepted_ticket_available": false
+      }
+    },
+    {
+      "id": "SP-01",
+      "status": "pass",
+      "observation": {
+        "exact_release": true,
+        "digest": true,
+        "license_notices": true,
+        "advisories": true,
+        "arm64_slice": true,
+        "strict_signatures": true
+      }
+    },
+    {
+      "id": "SP-02",
+      "status": "pass",
+      "observation": {
+        "fake_seed": true,
+        "unchanged_archive_verified": true
+      }
+    },
+    {
+      "id": "SP-03",
+      "status": "pass",
+      "observation": {
+        "tampered_archive_rejected": true,
+        "wrong_key_rejected": true
+      }
+    },
+    {
+      "id": "SP-04",
+      "status": "partial",
+      "observation": {
+        "signed_feed_tool_smoke": true,
+        "host_pre_extraction_configuration_run": false,
+        "framework_integration_run": false
+      }
+    },
+    {
+      "id": "UP-01",
+      "status": "partial",
+      "observation": {
+        "actual_fixture_metadata": true,
+        "model_policy_accepted": true,
+        "updater_install_run": false
+      }
+    },
+    {
+      "id": "UP-02",
+      "status": "partial",
+      "observation": {
+        "model_negative_count": 5,
+        "updater_install_run": false
+      }
+    },
+    {
+      "id": "UP-03",
+      "status": "partial",
+      "observation": {
+        "injected_phase": "before_replacement",
+        "installed_hash_before": "3d04f6ece4cc3457b2552c604f087b93957d856cace974332b29b698492864ae",
+        "installed_hash_after": "3d04f6ece4cc3457b2552c604f087b93957d856cace974332b29b698492864ae",
+        "real_interruption_run": false
+      }
+    },
+    {
+      "id": "KR-01",
+      "status": "partial",
+      "observation": {
+        "old_and_new_fake_key_signatures_verified": true,
+        "cross_key_rejected": true,
+        "developer_id_rotation_run": false
+      }
+    },
+    {
+      "id": "SB-01",
+      "status": "pass",
+      "observation": {
+        "spdx_2_3": true,
+        "provenance_manifest": true,
+        "legal_approval": false
+      }
+    },
+    {
+      "id": "SC-01",
+      "status": "pass",
+      "observation": {
+        "seed_absent_from_retained_output_git_and_process_snapshot": true
+      }
+    },
+    {
+      "id": "CL-01",
+      "status": "pass",
+      "observation": {
+        "run_directory_removed": true,
+        "retained_private_seed": false,
+        "retained_download": false
+      }
+    }
+  ],
+  "summary": {
+    "pass": 13,
+    "partial": 6,
+    "unsupported": 4,
+    "fail": 0,
+    "total": 23,
+    "complete_release_gate_passed": false,
+    "production_distribution_enabled": false,
+    "updater_adopted": false
+  }
+}

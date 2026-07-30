@@ -315,8 +315,8 @@ This compact register complements the accepted ADR set. “Revisit” is a gate,
 | 9 | Secrets | SQLite encryption; `UserDefaults`; Keychain | Security.framework Keychain; metadata stores reference only | Background access policy complexity | Never downgrade; revisit access class only |
 | 10 | SSH | system OpenSSH; `russh`; libssh2 | **Defer capability by ADR-0012.** Exact `russh 0.62.4` remains conditional planning input; the tested system OpenSSH/native `-J` and exact `ssh2`/libssh2 candidates are rejected | Seven frozen russh rows unsupported; security/advisory, auth, cleanup and distribution gates remain | Reconsider only when every ADR-0012 re-entry gate passes; otherwise ship without SSH |
 | 11 | TLS | driver default; rustls; platform TLS | Adapter TLS with platform roots and per-connection custom CA, fail closed | Cross-driver consistency | Trust-store/certificate spike fails |
-| 12 | Distribution | Direct; Mac App Store | Direct Developer ID for tools/helpers/file workflows | Greater self-managed update/security burden | MAS-specific product demand funds separate build |
-| 13 | Auto-update | Sparkle 2; manual; custom | Sparkle 2 candidate with EdDSA + Apple signature validation | Updater supply-chain/entitlements | Security review or license fails |
+| 12 | Distribution | Direct; Mac App Store | Direct Developer ID remains the first-channel plan after ADR-0013; production release stays closed pending credentialed notarization/Gatekeeper evidence | Greater self-managed update/security burden; local ad-hoc evidence has no publisher anchor | MAS-specific product demand funds a separate build, or the full direct lane fails |
+| 13 | Auto-update | Sparkle 2; manual; custom | Exact Sparkle `2.9.4` is conditional only after DF-M0-006; manual verified delivery is the fail-closed fallback | Framework/XPC entitlements, real install/rollback, key rotation, legal and Developer ID integration remain open | Exact candidate fails security/legal/integration, or a better reviewed option appears |
 | 14 | Automation | In-app; LaunchAgent; daemon/cloud | In-app MVP; consented `SMAppService` LaunchAgent later | Cannot promise logout/sleep execution | M7 requirements and threat model accepted |
 | 15 | Test DBs | Shared servers; local install; containers | Disposable containers/ephemeral isolated schemas with host guard | macOS CI/container cost | Driver cannot run in container fixture |
 | 16 | Feature flags | Remote arbitrary config; local allowlist; compile-time | Typed local/build allowlist; signed remote policy only if later justified | Slower emergency rollout | Operational need plus threat model |
@@ -349,7 +349,7 @@ the same source/project-build/advisory gate even when absent from Cargo/SBOM.
 | [GRDB](https://github.com/groue/GRDB.swift) | MIT; preliminarily permissive | Actively released in 2026; review each major migration/security history | Swift Package using platform/custom SQLite options; current project documents macOS/Swift requirements; measure arm64 app size | Strong metadata candidate; persistence port permits direct SQLite/another wrapper replacement |
 | [tree-sitter runtime](https://github.com/tree-sitter/tree-sitter) | MIT; preliminarily permissive | Active 2026 project; C runtime is mature, but every SQL grammar is a separate project/security/license decision | Embedded C/runtime and generated grammar sources must build/sign arm64; grammar size multiplies by dialect | Use only after grammar corpus/fuzz/license gates; fallback is editor highlighting plus adapter-owned safety parser |
 | [SQLx](https://github.com/launchbadge/sqlx) | MIT/Apache-2.0; preliminarily permissive | Active and supports PostgreSQL/MySQL/MariaDB/SQLite streaming; prior protocol advisories show the need for pinned patched versions | Features can pull multiple drivers/TLS/macros/SQLite C; arm64 and binary-size impact may be larger | Evaluated alternative, not selected as a generic `Any` driver; reconsider per-adapter only if it wins conformance |
-| [Sparkle 2](https://github.com/sparkle-project/Sparkle) | MIT; preliminarily permissive with notices | Active project; official docs describe EdDSA and Apple signature checks; review release/advisories each update | Ships framework/updater/XPC code that must be embedded, arm64-built, signed, notarized and entitlement-tested | Update compromise is Critical; fallback is manual verified updates or separately reviewed updater |
+| [Sparkle 2](https://github.com/sparkle-project/Sparkle) | Exact `2.9.4` license file is MIT with bundled third-party notices; legal approval open | DF-M0-006 matched tag/asset and found two published medium advisories whose declared affected ranges end at `2.9.1`; repeat every release | Universal framework/tools include arm64 and valid upstream signatures; extracted framework is about 3.13 MB, but embedding/XPC entitlements/notarization were not run | **Conditional by ADR-0013:** offline Ed25519 tool smokes pass, while real install, pre-extraction configuration, rollback and key rotation remain gated; fallback is manual verified delivery |
 | [Sentry Cocoa](https://github.com/getsentry/sentry-cocoa) | MIT SDK; service terms/privacy are separate | Active 2026 releases; SDK/vendor/security/privacy review required | SPM/XCFramework and networking/crash-capture transitives affect size and payload; arm64 support still verified in artifact | Optional only after consent/payload/legal gate; fallback is local diagnostics/no upload |
 
 Build/test tools (`swiftformat`, `swiftlint`, `cargo-audit`, `cargo-deny`, SBOM/provenance tooling and CI actions) receive the same exact-source/license/advisory/pinning review even when they do not ship in the app. Container images and official database utilities also require digest, license, signature/provenance and redistribution review.
@@ -367,7 +367,7 @@ M0 must run disposable spikes, not evolve them silently into production:
 | SSH tunnel/host trust | Candidate can enforce per-hop host-key and auth policy without shell or direct fallback | Local ephemeral SSH/jump fixtures only | Unknown/changed/revoked trust, declared auth subset, connector trap, local echo and cancellation/cleanup gates pass | ADR-0012 defers capability; reject candidate or write a separately reviewed production design |
 | SQL editor | TextKit 2 remains responsive on large SQL and incremental edits | Prototype editor only | Meets editor latency/memory/accessibility budgets | Delete UI prototype; retain measurements |
 | Grid | Native grid supports paging, pending edits, style updates and accessibility | Generated typed fixture, no real writes | Scroll/theme/edit identity budgets and VoiceOver checks pass or a bounded fallback is selected | Delete prototype; benchmark the reviewed replacement separately |
-| Distribution | Rust dylib/helpers/update path can sign and notarize | Empty shell artifact | Signature, Hardened Runtime, notarization, tamper rejection pass | Delete shell or regenerate from approved scaffold |
+| Distribution | Rust dylib/helpers/update path can sign and notarize | Empty shell artifact | Signature, Hardened Runtime, notarization, clean-Mac Gatekeeper and update-tamper/rollback gates pass | ADR-0013 keeps the gate closed; delete shell and regenerate an approved scaffold for the credentialed rerun |
 | SQLite/Keychain | Non-secret metadata and credentials remain separate | Synthetic profile/workspace only | Transactional migration, locked/denied behavior and canary absence | Delete; retain schema/security decision |
 
 The SQL-editor row now has a partial disposition in
@@ -393,6 +393,15 @@ The SSH row now has a defer/reject disposition in
 evidence but its complete matrix is false. The tested system OpenSSH/native
 `-J` and exact `ssh2`/libssh2 source are rejected. Production SSH remains
 disabled and does not block a direct PostgreSQL/TLS slice.
+
+The distribution row now has a partial/defer disposition in
+[ADR-0013](adr/0013-m0-distribution-disposition.md), the
+[DF-M0-006 evidence report](reports/DF-M0-006-distribution-evidence.md) and the
+[direct release runbook](RELEASE_RUNBOOK.md). Arm64 topology, local ad-hoc
+Hardened Runtime, sealed-resource tamper rejection and exact Sparkle `2.9.4`
+offline signature tooling have evidence. Publisher identity, secure timestamp,
+notarization, stapling, clean-Mac Gatekeeper, framework integration and real
+update/rollback/key-rotation behavior remain closed gates.
 
 The original shell wireframes and accessibility annotations are the separate
 M0 design gate in [UX_WIREFRAMES.md](UX_WIREFRAMES.md), tracked by DF-M0-009;

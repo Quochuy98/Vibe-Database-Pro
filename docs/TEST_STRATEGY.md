@@ -16,7 +16,9 @@ artifacts preserve exact evidence in the
 [DF-M0-002 PostgreSQL report](reports/DF-M0-002-postgres-driver-evidence.md)
 and [DF-M0-003 editor report](reports/DF-M0-003-textkit-editor-evidence.md),
 plus the
-[DF-M0-004 grid report](reports/DF-M0-004-appkit-grid-evidence.md).
+[DF-M0-004 grid report](reports/DF-M0-004-appkit-grid-evidence.md),
+[DF-M0-005 SSH report](reports/DF-M0-005-ssh-tunnel-evidence.md) and
+[DF-M0-006 distribution report](reports/DF-M0-006-distribution-evidence.md).
 Their source commits remain auditable after disposal. None establishes a
 production capability: the PostgreSQL stack is deferred, and the TextKit 2
 candidate still lacks input-to-frame, M1/16 GiB, real keyboard/VoiceOver,
@@ -24,7 +26,9 @@ durable-recovery and active-cancellation evidence. The full-grid `NSTableView`
 candidate is rejected; its bounded-state tests do not establish presented
 frames, M1/16 GiB, one logical accessibility table, manual VoiceOver or soak
 for the ADR-0011 replacement. The commands and suites below remain future
-production gates unless an exact command is recorded as run.
+production gates unless an exact command is recorded as run. DF-M0-006 adds
+local arm64/ad-hoc signing and offline update-signature evidence, but Developer
+ID, notarization, clean-Mac Gatekeeper and real updater behavior remain open.
 
 ## 2. Quality principles
 
@@ -314,7 +318,7 @@ PR selection uses a dependency-aware test map but always runs safety classifier,
 
 Before implementation, each backlog item must be assigned stable test IDs.
 The current planning backlog records required test categories in prose.
-DF-M0-001 through DF-M0-005 record separate durable spike evidence and ADR
+DF-M0-001 through DF-M0-006 record separate durable spike evidence and ADR
 dispositions; incomplete candidate rows remain unsupported rather than being
 collapsed into a task-level pass.
 Each capability must link to conformance tests, each threat to controls/tests

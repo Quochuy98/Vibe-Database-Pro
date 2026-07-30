@@ -70,7 +70,9 @@ No risk is silently accepted. An accepted exception records rationale, residual 
    accessibility contract after DF-M0-004 rejected the full-grid `NSTableView`
    composition.
 5. C ABI chunk encoding/copy overhead and safe cancellation.
-6. Direct updater/helper signing and optional App Sandbox feasibility.
+6. Credentialed Developer ID/notarization/Gatekeeper and real updater/helper
+   integration after DF-M0-006 proved only local ad-hoc/offline mechanics;
+   optional App Sandbox remains separate.
 7. Official backup tools, licenses, native binaries and cancellation per engine.
 8. Keychain accessibility/access groups for future background jobs.
 9. Bidirectional diff conflict model and resumable cross-engine transfers.
@@ -99,6 +101,14 @@ R-07, R-15 or R-29. [ADR-0012](adr/0012-m0-ssh-disposition.md) rejects the
 tested system OpenSSH/native `-J` and exact `ssh2`/libssh2 source, and retains
 exact `russh 0.62.4` only conditionally. Seven frozen rows remain unsupported,
 so production SSH stays disabled while direct TLS remains eligible.
+
+DF-M0-006 narrows unknown 6 and R-21/R-25/R-33 but closes none of them.
+[ADR-0013](adr/0013-m0-distribution-disposition.md) retains direct distribution
+and exact Sparkle `2.9.4` only for planning. Arm64 layout, local ad-hoc
+Hardened Runtime/tamper and offline Ed25519 tooling have evidence; Developer
+ID publisher requirements, secure timestamp, notarization, stapling,
+clean-Mac Gatekeeper, framework/XPC integration, real install/rollback and key
+rotation remain release-blocking.
 
 ## 5. Risk acceptance format
 

@@ -1,0 +1,61 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "DF-M0-006-disposable-distribution-evidence",
+  "documentNamespace": "https://dataforge.invalid/spdx/DF-M0-006/f0457dd01bcfe3ff3dbbe5fb1f8e06c2c4f91203",
+  "creationInfo": {
+    "created": "2026-07-30T17:11:07Z",
+    "creators": [
+      "Tool: DF-M0-006-disposable-runner"
+    ]
+  },
+  "packages": [
+    {
+      "name": "dataforge-distribution-probe",
+      "SPDXID": "SPDXRef-Package-DistributionProbe",
+      "versionInfo": "0.0.101",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "be87acc430dbbeec7ab34341b3b4e7272cbf353a0852c64ca0ff7b943861a193"
+        }
+      ],
+      "primaryPackagePurpose": "APPLICATION",
+      "comment": "Disposable planning probe; no license grant or production artifact."
+    },
+    {
+      "name": "Sparkle",
+      "SPDXID": "SPDXRef-Package-Sparkle",
+      "versionInfo": "2.9.4",
+      "downloadLocation": "https://github.com/sparkle-project/Sparkle/releases/download/2.9.4/Sparkle-2.9.4.tar.xz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "ce89daf967db1e1893ed3ebd67575ed82d3902563e3191ca92aaec9164fbdef9"
+        }
+      ],
+      "primaryPackagePurpose": "LIBRARY",
+      "comment": "Candidate only; bundled third-party notices and legal review remain required."
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-DistributionProbe"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-Sparkle"
+    }
+  ]
+}

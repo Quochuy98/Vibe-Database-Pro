@@ -1,0 +1,39 @@
+{
+  "source": {
+    "commit": "f0457dd01bcfe3ff3dbbe5fb1f8e06c2c4f91203",
+    "tree": "bdbba911c7538517917462b2dfc63772e22c6973",
+    "archive_sha256": "09f003315a20288e17c411e66828d74680038ca1bc49a92a5d028485226458b9"
+  },
+  "generated_artifacts": {
+    "app_binary": {
+      "sha256": "3904efee7b80e7b3751423054a61829d2cf13d6a942e451f247c636fd034b14b",
+      "bytes": 88544,
+      "architecture": "arm64"
+    },
+    "rust_core": {
+      "sha256": "25fef35428124557a4b16451a6823df4d3d295bbccdb29a41bed98b94e59649c",
+      "bytes": 34944,
+      "architecture": "arm64"
+    },
+    "helper": {
+      "sha256": "68f5644062485831a64dfae06a33f5ed9a5f8e047b24107cdff3adff713a1816",
+      "bytes": 69504,
+      "architecture": "arm64"
+    },
+    "signed_app_tree": {
+      "sha256": "a8f8e1d14cd4a8a2daba6bdb4cda4de3309391d85b43958c53f028647f6dc5fd",
+      "signature": "ad-hoc",
+      "hardened_runtime": true
+    },
+    "update_archive": {
+      "sha256": "be87acc430dbbeec7ab34341b3b4e7272cbf353a0852c64ca0ff7b943861a193",
+      "bytes": 21355,
+      "retained": false
+    },
+    "sparkle_release_asset": {
+      "sha256": "ce89daf967db1e1893ed3ebd67575ed82d3902563e3191ca92aaec9164fbdef9",
+      "retained": false
+    }
+  },
+  "prohibited_artifacts_retained": false
+}

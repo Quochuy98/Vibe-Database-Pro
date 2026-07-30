@@ -38,6 +38,7 @@ The baseline assumptions above remain subject to the Architecture Decision Recor
 - [DF-M0-003 TextKit editor evidence](docs/reports/DF-M0-003-textkit-editor-evidence.md)
 - [DF-M0-004 AppKit grid evidence](docs/reports/DF-M0-004-appkit-grid-evidence.md)
 - [DF-M0-005 SSH tunnel/host-trust evidence](docs/reports/DF-M0-005-ssh-tunnel-evidence.md)
+- [DF-M0-006 direct-distribution evidence](docs/reports/DF-M0-006-distribution-evidence.md)
 
 ### Assurance and release
 
@@ -46,6 +47,7 @@ The baseline assumptions above remain subject to the Architecture Decision Recor
 - [Test strategy](docs/TEST_STRATEGY.md)
 - [Performance budget](docs/PERFORMANCE_BUDGET.md)
 - [Distribution strategy](docs/DISTRIBUTION_STRATEGY.md)
+- [Direct release runbook](docs/RELEASE_RUNBOOK.md)
 
 ## Governing rules
 

@@ -254,7 +254,7 @@ Each threat has an owner who must turn the controls and verification items into 
 - **Actors:** compromised web/CDN/CI account, stolen signing key, malicious maintainer.
 - **Trust boundaries:** release CI, signing/notarization, appcast/CDN, updater helper.
 - **Abuse path:** attacker serves a replaced archive/feed, replays a vulnerable version, steals an update key or modifies release notes to redirect users.
-- **Controls:** direct builds use Developer ID signing, Hardened Runtime and notarization; updater candidate is Sparkle 2 after dependency review, with HTTPS, EdDSA-signed archive, signed feed when operationally ready, pre-extraction verification, version/channel monotonicity and staged rollout; store Developer ID and EdDSA keys separately from hosting and ordinary CI; two-person release approval; verify final stapled artifact hash; Mac App Store builds use only Store updates. Sparkle's current security guidance recommends Developer ID signing plus EdDSA archive signatures in its [official documentation](https://sparkle-project.org/documentation/).
+- **Controls:** direct builds use Developer ID signing, Hardened Runtime and notarization; exact Sparkle `2.9.4` is only a conditional candidate after ADR-0013, with HTTPS, Ed25519-signed archive, signed feed, pre-extraction verification, version/channel monotonicity and staged rollout still required; store Developer ID and Ed25519 keys separately from hosting and ordinary CI; two-person release approval; verify final stapled artifact hash; Mac App Store builds use only Store updates. Sparkle's current security guidance recommends Developer ID signing plus Ed25519 archive signatures in its [official documentation](https://sparkle-project.org/documentation/).
 - **Verification:** tampered feed/archive, wrong key, expired/revoked signature, replay/downgrade, interrupted install and key-rotation drills; verify code signature, notarization ticket and updater signature on a clean Mac.
 - **Residual risk:** compromise of multiple signing identities or an authorized malicious release can still succeed. Maintain revocation and emergency communication runbooks plus an offline recovery key plan.
 
@@ -359,5 +359,9 @@ The platform and dependency facts cited here were checked against primary projec
   Keychain/FFI, distribution, minimum-host and soak re-entry gate passes; rerun
   the full matrix if Universal 2 is later approved.
 - Decide whether high-assurance certificate/public-key pinning is a Pro policy feature or an all-edition safety feature; security controls must not be paywalled if their absence makes a connection unsafe.
-- Validate that Sparkle 2 license, maintenance, signing workflow and helper entitlements meet release requirements before adoption; otherwise design a minimal signed-update service or use manual updates.
+- ADR-0013 keeps exact Sparkle `2.9.4` conditional. Validate its current
+  license/notices, maintenance, Developer ID/library validation, framework/XPC
+  entitlements, signed-feed/pre-extraction path, real install/rollback and key
+  rotation before adoption; otherwise use manual verified updates or evaluate
+  another updater.
 - Define the privacy jurisdiction, controller/contact and retention policy before collecting any opt-in crash or telemetry data.

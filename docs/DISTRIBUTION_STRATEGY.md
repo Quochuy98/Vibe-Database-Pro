@@ -1,6 +1,7 @@
 # Distribution Strategy
 
-Status: Recommended direct-distribution baseline; channel decision gated by release spike
+Status: Direct-distribution baseline retained by ADR-0013; production release
+and updater adoption remain gated
 
 Last updated: 2026-07-30
 
@@ -8,7 +9,11 @@ Last updated: 2026-07-30
 
 DataForge should ship its first public product through direct Developer ID distribution. The initial release targets macOS 14+ and Apple Silicon. It uses Hardened Runtime, secure timestamps, signed nested code, notarization, stapled tickets and a cryptographically verified update channel. A Mac App Store edition is a separately engineered channel with its own entitlement, helper, file-access, update, review and test matrix; it is not assumed to be the same binary.
 
-This recommendation is a planning decision, not evidence that a release artifact exists. Milestone 0 must prove the empty shell can be signed, notarized, installed, updated and tamper-rejected on a clean Mac.
+This recommendation is a planning decision, not evidence that a release
+artifact exists. DF-M0-006 proved only an arm64 empty-shell topology, local
+ad-hoc Hardened Runtime/tamper mechanics and exact Sparkle `2.9.4` offline
+signing-tool behavior. Developer ID, notarization, stapling, clean-Mac
+Gatekeeper and real updater installation remain closed by ADR-0013.
 
 ## 2. Channel decision matrix
 
@@ -23,7 +28,7 @@ This recommendation is a planning decision, not evidence that a release artifact
 | Backup/restore | Easier to support user-selected binaries/files, still secure and signed | Sandbox path/tool/restore limitations can make capabilities unavailable |
 | Network DB access | Outbound client policy documented and tested | `com.apple.security.network.client`, endpoint behavior and review required |
 | LaunchAgent/background | Direct product can evaluate signed `SMAppService` helper; user approval and Keychain policy | Login/background/helper policies and review are stricter; no guarantee while logged out/sleep |
-| Auto-update | Sparkle 2 candidate, EdDSA + Apple code-signature verification, signed feed | Store handles app updates; separate feature/config path |
+| Auto-update | Exact Sparkle `2.9.4` conditional candidate; Ed25519 + Apple code-signature verification and signed feed still require integration | Store handles app updates; separate feature/config path |
 | Release cadence | Team-owned feed, rollback, incident response and key rotation | Store review/propagation constraints |
 | Plugins | None MVP; future signed out-of-process only | Same plus sandbox/store review |
 | Crash/telemetry | Opt-in service or local diagnostics; no hidden collection | Store privacy disclosures and consent still required |
@@ -64,7 +69,15 @@ Apple platform policy and tooling are time-sensitive. Revalidate [Notarizing mac
 
 ## 5. Update strategy
 
-Sparkle 2 is the leading candidate for direct updates because its planning documentation describes EdDSA and Apple code-signature verification, atomic-safe installs and sandbox support. Adoption remains gated on current license, maintenance, helper entitlements, signing workflow and a security review.
+Exact Sparkle `2.9.4` remains the leading conditional candidate because its
+documentation describes Ed25519 and Apple code-signature verification,
+atomic-safe installs and sandbox support. DF-M0-006 matched the upstream
+release digest, inspected its arm64 slices/notices/advisories, and exercised
+offline archive/signature/tamper and sample signed-feed tools. It did not embed
+the framework/XPC services or run a real install. Adoption remains gated on
+current license, maintenance, helper entitlements, Developer ID/library
+validation, signed-feed/pre-extraction configuration, install/rollback/key
+rotation and a security review.
 
 Required update policy:
 
@@ -139,6 +152,9 @@ The planning recommendation is a proprietary commercial application with one cod
 
 ### M0 shell gate
 
+Current disposition: **not met** by ADR-0013. Local ad-hoc/model evidence is
+retained, but the credentialed and clean-Mac rows below remain mandatory.
+
 - clean arm64 app/Rust artifact signs and verifies;
 - Hardened Runtime has no unreviewed exceptions;
 - notarization/stapling/Gatekeeper pass on a clean Mac;
@@ -179,8 +195,10 @@ The planning recommendation is a proprietary commercial application with one cod
 
 ## 12. Technical spikes
 
-- sign/notarize/staple empty Swift/Rust shell and nested helper;
-- Sparkle 2 feed/signature/update/rollback/tamper test, including license and helper review;
+- rerun the empty Swift/Rust/helper shell with Developer ID, secure timestamp,
+  notarization, stapling and a quarantined clean supported Mac;
+- integrate exact Sparkle or a replacement for signed-feed/pre-extraction,
+  install/relaunch/interruption/rollback/tamper and key-rotation tests;
 - App Sandbox prototype for user-selected file, Keychain, helper, subprocess
   and bookmark flows; add SSH agent/key/known-host/listener tests only for a
   candidate selected by a future ADR;

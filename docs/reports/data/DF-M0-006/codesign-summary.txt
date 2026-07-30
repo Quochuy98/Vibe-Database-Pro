@@ -1,0 +1,12 @@
+app_requirement=identifier "com.dataforge.distribution-probe"
+core_requirement=identifier "com.dataforge.distribution-probe.core"
+helper_requirement=identifier "com.dataforge.distribution-probe.helper"
+signature=ad-hoc
+team_identifier=not-set
+hardened_runtime=true
+entitlement_exceptions=0
+resource_tamper_rejected=true
+wrong_requirement_helper_rejected=true
+same_identifier_ad_hoc_outer_verifies=true
+gatekeeper_exit=3
+stapler_exit=65
