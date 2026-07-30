@@ -126,7 +126,8 @@ shortcut/VoiceOver behavior, durable recovery and signposted cancellation.
 
 **Complexity:** L
 
-**Dependencies:** ADR-0001, BF-02/BF-03, normalized type draft
+**Dependencies:** ADR-0001, BF-02/BF-03, `DATABASE_ADAPTERS.md` §10 and
+`ARCHITECTURE.md` §10 normalized type/style contracts
 
 **User story:** As a data user, I need a grid that remains responsive and preserves safe edit state at scale.
 
