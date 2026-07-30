@@ -145,8 +145,8 @@ unmanaged resource or direct endpoint attempt closes the gate immediately.
 
 ## Disposal
 
-After this ADR, the report and sanitized raw evidence are committed, the whole
-`spikes/ssh-tunnel` directory is deleted in a separate commit. The final
-disposal hash is then recorded here. Production implementation must be rebuilt
-under the reviewed Connections, KeychainSecurity and DatabaseCore boundaries;
-the disposable probe is not promoted wholesale.
+The report and sanitized raw evidence were committed before the whole
+`spikes/ssh-tunnel` directory was deleted in separate disposal commit
+`0b80f7e155391a5e7d072bc944623d55fceed24b`. Production implementation must
+be rebuilt under the reviewed Connections, KeychainSecurity and DatabaseCore
+boundaries; the disposable probe is not promoted wholesale.

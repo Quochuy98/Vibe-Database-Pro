@@ -1,9 +1,7 @@
 # Technical Backlog
 
-Status: Production backlog remains planning-only; DF-M0-001 through DF-M0-004
-have durable disposed spike records; DF-M0-005 has a durable defer/reject
-disposition and awaits its separate disposal commit; no production item is
-implemented
+Status: Production backlog remains planning-only; DF-M0-001 through DF-M0-005
+have durable disposed spike records; no production item is implemented
 
 Last updated: 2026-07-30
 
@@ -197,6 +195,8 @@ system OpenSSH build and native `ProxyJump/-J` are rejected; the exact
 complete agent failure handling, connector-level no-direct fallback,
 local-listener echo and comprehensive cleanup remain unsupported. Production
 SSH is disabled until every ADR re-entry gate passes.
+The disposable source remains auditable at `875dd46` and was removed in
+separate disposal commit `0b80f7e`.
 
 ### DF-M0-006
 

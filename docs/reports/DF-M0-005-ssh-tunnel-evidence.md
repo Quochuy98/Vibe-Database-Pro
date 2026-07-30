@@ -189,10 +189,10 @@ negation and `@cert-authority` syntax instead of partially emulating it.
 
 | ID | Result | Final-run evidence |
 | --- | --- | --- |
-| TR-01 exact known host | Pass | Correct Ed25519 key matched and authentication continued; 31 ms |
-| TR-02 unknown host | Pass | Typed unknown result, SHA-256 fingerprint observation, trust file unchanged; 16 ms |
-| TR-03 changed host | Pass | Typed changed result and trust file unchanged; 10 ms |
-| TR-04 hashed host | Pass | Scoped OpenSSH hashed identity matched; 29 ms |
+| TR-01 exact known host | Pass | Correct Ed25519 key matched and authentication continued; 32 ms |
+| TR-02 unknown host | Pass | Typed unknown result, SHA-256 fingerprint observation, trust file unchanged; 12 ms |
+| TR-03 changed host | Pass | Typed changed result and trust file unchanged; 13 ms |
+| TR-04 hashed host | Pass | Scoped OpenSSH hashed identity matched; 40 ms |
 | TR-05 revoked host | Pass | Typed revoked result, fail closed, trust file unchanged; 10 ms |
 
 TR-03 changes the fixture key before a new handshake. It is not a malicious
@@ -205,7 +205,7 @@ production re-entry gate.
 | --- | --- | --- |
 | AU-01 local Ed25519 key | Pass for exercised mode path | Source wrapper uses `O_NOFOLLOW`, same-descriptor metadata/read, regular-file/current-owner/permission and 64 KiB checks; `0600` succeeds and `0644` rejects before auth; separate symlink/wrong-owner/oversize negatives were not run |
 | AU-02 password | Unsupported | No password entered the candidate; upstream retains an ordinary `String` in session auth state and has sensitive Debug formatting paths |
-| AU-03 agent | Partial; frozen row unsupported | Ephemeral agent authentication succeeds and a 256 KiB+1 frame rejects; missing, malformed, stalled, socket-identity and failure-cleanup cases were not run |
+| AU-03 agent | Partial; frozen row unsupported | Ephemeral agent authentication and oversized-frame rejection completed in 30 ms; a 256 KiB+1 frame rejects, while missing, malformed, stalled, socket-identity and failure-cleanup cases were not run |
 
 The private-key input buffer owned by the probe uses zeroizing storage, but the
 decoded upstream key object and future Keychain/FFI copies do not yet have an
@@ -223,10 +223,10 @@ used.
 
 | ID | Result | Final-run evidence |
 | --- | --- | --- |
-| JP-01 per-hop trust | Pass | Both hops authenticate; independent bastion and target mismatches each reject; 110 ms |
+| JP-01 per-hop trust | Pass | Both hops authenticate; independent bastion and target mismatches each reject; 113 ms |
 | JP-02 no direct fallback | Model smoke; frozen row unsupported | Tunnel-required model records one jump branch and zero direct branches; no connector trap or network observation ran |
 | TN-01 forwarding | Banner smoke; frozen row unsupported | `direct-tcpip` reaches a bounded SSH banner, but no local listener or echo round trip was exercised |
-| TN-02 active cancellation | Narrow pass | One active single-hop forward closes its listener; cleanup reported 0 ms at millisecond resolution, within 2,000 ms; scenario 54 ms total |
+| TN-02 active cancellation | Narrow pass | One active single-hop forward closes its listener; cleanup reported 0 ms at millisecond resolution, within 2,000 ms; scenario 39 ms total |
 | TN-03 failure cleanup | Partial; frozen row unsupported | Refused destination port cleanup passes; comprehensive auth/trust/jump failure and post-cleanup resource counts were not run |
 
 JP-02 is a deterministic transport-plan model, not a completed frozen gate or
@@ -238,16 +238,19 @@ attempt assertion remain mandatory before capability enablement.
 ### 6.5 Hostile input and lifecycle
 
 The client rejected a 4 KiB banner line, a packet length of `u32::MAX`, and a
-partial banner stalled for the bounded 500 ms case. Final-run RSS deltas were
-32, 0 and 0 KiB respectively, each below the 16 MiB spike ceiling. These are
-targeted cases, not fuzzing or proof against every protocol state.
+partial banner stalled for the bounded 501 ms case. Final-run RSS deltas were
+48, 0 and 0 KiB respectively, each below the 16 MiB spike ceiling. These are
+targeted cases, not the complete frozen hostile-input/resource gate, fuzzing
+or proof against every protocol state.
 
-Twenty-five connect/close cycles completed in 1,028 ms with file-descriptor
-delta 0 and endpoint RSS delta -384 KiB. A separate
-`leaks --atExit` process ran the complete probe scenario set again and reported zero leaked
-nodes/bytes. These results support the short disposable hypothesis only; they
-are not “zero production leaks,” a 1,000-cycle repetition run or an eight-hour
-soak.
+Twenty-five direct key-auth connect/close cycles completed in 839 ms with
+file-descriptor delta 0 and endpoint RSS delta -288 KiB. A separate
+`leaks --atExit` process ran one additional complete probe scenario set and
+reported zero unreachable nodes/bytes in that process snapshot. These results
+are a short lifecycle/leak smoke only. They do not establish leak-free or
+long-term bounded behavior, repeat forward/cancel/jump/failure cycles, replace
+explicit task/process/socket/channel counts, or satisfy a 1,000-cycle run or
+eight-hour soak.
 
 ### 6.6 Logging and secret surface
 
@@ -326,12 +329,12 @@ security fork simply to keep this option eligible.
 | TN-01 forwarding | Not met; bounded destination banner only, no local-listener echo round trip |
 | TN-02 cancellation | Partial; one active single-hop happy-path cancellation under 2 seconds |
 | TN-03 failure cleanup | Not met; destination failure only, not the complete failure/resource matrix |
-| MI-01…MI-03 | Met for the three targeted hostile peers; fuzz/rekey/channel pressure open |
+| MI-01…MI-03 | Partial targeted smoke; three inputs rejected, but the frozen hostile-input/resource gate is not fully met |
 | SC-01 secret surface | Candidate row unsupported; outer runner canary scan and atomic completion marker pass |
-| LC-01 lifecycle | Met for 25 cycles plus one leak smoke; long repetition/soak open |
+| LC-01 lifecycle | Partial smoke; 25 direct connect/close cycles and one process snapshot do not meet the frozen lifecycle/leak gate |
 | DP-01 dependency adoption | Not met; exact russh retained conditionally, other candidates rejected |
 | Candidate adoption | Not met; production SSH remains disabled |
-| Spike disposal | Pending the separate disposal commit when this evidence is first recorded |
+| Spike disposal | Met; source removed in separate disposal commit `0b80f7e155391a5e7d072bc944623d55fceed24b` |
 
 The definition of done permits an explicit reject/defer disposition. It does
 not permit weakening host trust or silently enabling a candidate that failed
@@ -388,11 +391,11 @@ direct database attempt or current unpatched advisory closes the gate.
 
 The exact disposable source is retained in Git history at
 `875dd468221ad1c6c3c35b34a83c0af48ae3f9ad`; its spike tree is
-`88c8419d8082aa48ad9cafe9505c2fe1283ab300`. After this report, ADR and raw
-evidence are committed, `spikes/ssh-tunnel` must be deleted in a separate
-commit. The final disposal hash is then recorded here and in ADR-0012. Future
-production code must be designed under the reviewed Connections/security
-boundaries and must not promote this probe wholesale.
+`88c8419d8082aa48ad9cafe9505c2fe1283ab300`. The whole
+`spikes/ssh-tunnel` directory was deleted in the separate disposal commit
+`0b80f7e155391a5e7d072bc944623d55fceed24b`. Future production code must be
+designed under the reviewed Connections/security boundaries and must not
+promote this probe wholesale.
 
 ## 12. Durable raw evidence
 

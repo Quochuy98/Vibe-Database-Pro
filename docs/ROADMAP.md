@@ -476,8 +476,8 @@ candidate is adopted: the tested system OpenSSH/native `-J` and exact
 `ssh2`/libssh2 candidate are rejected, while exact `russh 0.62.4` is retained
 only conditionally with seven frozen rows still unsupported. Production SSH
 remains disabled; direct PostgreSQL/TLS planning does not depend on enabling
-SSH. The exact disposable source is auditable at `875dd46` and is removed only
-after the report/ADR commit.
+SSH. The exact disposable source is auditable at `875dd46` and was removed in
+separate disposal commit `0b80f7e`.
 
 ### Canonical M0 traceability
 
