@@ -1,1 +1,0 @@
-print("dataforge-persistence-baseline")
