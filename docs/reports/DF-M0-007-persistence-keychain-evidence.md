@@ -1,7 +1,8 @@
 # DF-M0-007 SQLite metadata and Keychain separation evidence
 
-Status: Evidence complete; SQLite/Keychain architecture retained for planning,
-GRDB conditional, production persistence and credential gates closed
+Status: Evidence and disposal complete; SQLite/Keychain architecture retained
+for planning, GRDB conditional, production persistence and credential gates
+closed
 
 Evidence date: 2026-07-30
 
@@ -304,7 +305,9 @@ proves:
 
 ## 14. Disposal
 
-The sanitized evidence, report and ADR are retained. Disposal of
-`spikes/persistence-keychain` is recorded in a separate commit so the exact
-source above remains auditable. Production code must be regenerated rather
-than copied from this package.
+The report, ADR and sanitized evidence were recorded in commit
+`8cfa4b5125959eb70765d6807c508d5681bb3ee6`. The complete disposable package
+was deleted in separate disposal commit
+`02c86b7d05bdb0649fc9b2838b73c1eddfb2fa42`; the exact source remains
+auditable at `638886064b563aa3f472191c8edbf365a86d3feb`. Production code must
+be regenerated rather than copied from this package.

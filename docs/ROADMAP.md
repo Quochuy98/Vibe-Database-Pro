@@ -496,7 +496,7 @@ surfaces passed. Actual Data Protection Keychain CRUD/attributes and XCTest
 were unavailable because the host had no signed entitlement or full Xcode;
 they remain unsupported rather than inferred from injected policy tests. No
 production persistence or journal mode is enabled. The exact source is
-auditable at `6388860`; disposal is recorded separately.
+auditable at `6388860` and was removed in separate disposal commit `02c86b7`.
 
 ### Canonical M0 traceability
 

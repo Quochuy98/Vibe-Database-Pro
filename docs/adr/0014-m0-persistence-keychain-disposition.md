@@ -123,6 +123,7 @@ scaffold proves:
 
 The source is auditable at
 `638886064b563aa3f472191c8edbf365a86d3feb`. The report, ADR and sanitized raw
-evidence are retained; the disposable package is removed in a separate commit.
-Future production code must be regenerated from this contract rather than
-copied from the spike.
+evidence were recorded at `8cfa4b5125959eb70765d6807c508d5681bb3ee6`;
+the disposable package was removed in separate commit
+`02c86b7d05bdb0649fc9b2838b73c1eddfb2fa42`. Future production code must be
+regenerated from this contract rather than copied from the spike.

@@ -282,7 +282,8 @@ returned `errSecMissingEntitlement`; injected duplicate/missing/locked/denied
 and independent deletion are not substitutes for signed-app integration.
 Exact GRDB `7.11.1` is conditional only, XCTest/full Xcode did not run, no
 journal mode is selected and production persistence remains disabled. The
-source is auditable at `6388860`; disposal is recorded separately.
+source is auditable at `6388860` and was removed in separate disposal commit
+`02c86b7`.
 
 ### DF-M0-008
 

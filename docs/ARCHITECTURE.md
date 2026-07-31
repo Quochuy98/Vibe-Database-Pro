@@ -422,7 +422,8 @@ The SQLite/Keychain row now has a conditional disposition in
 The metadata migration/recovery and fail-closed/no-fallback contracts have
 positive disposable evidence. Actual Data Protection Keychain CRUD/attributes,
 full-Xcode tests, realistic journal/size measurement, helper/access-group and
-legal/adoption gates remain closed; no spike code is promoted.
+legal/adoption gates remain closed. The exact source is auditable at `6388860`
+and was disposed at `02c86b7`; no spike code is promoted.
 
 The original shell wireframes and accessibility annotations are the separate
 M0 design gate in [UX_WIREFRAMES.md](UX_WIREFRAMES.md), tracked by DF-M0-009;
