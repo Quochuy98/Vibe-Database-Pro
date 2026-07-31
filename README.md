@@ -39,6 +39,7 @@ The baseline assumptions above remain subject to the Architecture Decision Recor
 - [DF-M0-004 AppKit grid evidence](docs/reports/DF-M0-004-appkit-grid-evidence.md)
 - [DF-M0-005 SSH tunnel/host-trust evidence](docs/reports/DF-M0-005-ssh-tunnel-evidence.md)
 - [DF-M0-006 direct-distribution evidence](docs/reports/DF-M0-006-distribution-evidence.md)
+- [DF-M0-007 SQLite/Keychain separation evidence](docs/reports/DF-M0-007-persistence-keychain-evidence.md)
 
 ### Assurance and release
 

@@ -1,0 +1,36 @@
+{
+  "__foreign_keys": [
+    "query_history.profile_id->connection_profiles.id",
+    "workspaces.profile_id->connection_profiles.id"
+  ],
+  "__indices": [
+    "connection_profiles_credential_reference",
+    "query_history_profile_id",
+    "query_history_retention",
+    "workspaces_profile_id"
+  ],
+  "connection_profiles": [
+    "id",
+    "display_name",
+    "host",
+    "port",
+    "environment",
+    "read_only",
+    "credential_reference"
+  ],
+  "grdb_migrations": [
+    "identifier"
+  ],
+  "query_history": [
+    "id",
+    "profile_id",
+    "executed_at_milliseconds",
+    "operation_kind"
+  ],
+  "workspaces": [
+    "id",
+    "profile_id",
+    "title",
+    "updated_at_milliseconds"
+  ]
+}

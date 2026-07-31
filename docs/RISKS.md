@@ -74,7 +74,9 @@ No risk is silently accepted. An accepted exception records rationale, residual 
    integration after DF-M0-006 proved only local ad-hoc/offline mechanics;
    optional App Sandbox remains separate.
 7. Official backup tools, licenses, native binaries and cancellation per engine.
-8. Keychain accessibility/access groups for future background jobs.
+8. Signed-app Keychain accessibility, Team/access-group migration and future
+   background-helper access after DF-M0-007's unsigned CLI returned
+   `errSecMissingEntitlement`.
 9. Bidirectional diff conflict model and resumable cross-engine transfers.
 10. ER layout complexity and export fidelity.
 
@@ -109,6 +111,15 @@ Hardened Runtime/tamper and offline Ed25519 tooling have evidence; Developer
 ID publisher requirements, secure timestamp, notarization, stapling,
 clean-Mac Gatekeeper, framework/XPC integration, real install/rollback and key
 rotation remain release-blocking.
+
+DF-M0-007 narrows R-16/R-21/R-23/R-25/R-29 but closes none of them.
+[ADR-0014](adr/0014-m0-persistence-keychain-disposition.md) records positive
+transactional migration/rollback, future-version refusal, crash/corruption,
+bounded retention/concurrency, backup/permissions and canary-negative
+evidence. Actual Data Protection Keychain CRUD/attributes, full XCTest,
+Team/access-group/helper behavior, production-schema/soak, realistic journal
+and incremental product-size evidence remain open. Exact GRDB `7.11.1` is
+conditional and production persistence stays disabled.
 
 ## 5. Risk acceptance format
 

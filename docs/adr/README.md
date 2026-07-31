@@ -19,6 +19,7 @@ ADRs preserve why a material decision was made. They are immutable once supersed
 | [0011](0011-m0-grid-disposition.md) | Reject full-grid `NSTableView`; evaluate a bounded custom native renderer | Replacement planning candidate selected; production gated |
 | [0012](0012-m0-ssh-disposition.md) | Defer SSH capability; retain exact russh only as a conditional planning candidate | No candidate adopted; production SSH disabled |
 | [0013](0013-m0-distribution-disposition.md) | Retain direct distribution planning after the M0 release-chain spike | Developer ID/updater implementation gated |
+| [0014](0014-m0-persistence-keychain-disposition.md) | Retain SQLite/Keychain separation after the M0 persistence spike | GRDB conditional; production persistence/Keychain gated |
 
 ## ADR lifecycle
 

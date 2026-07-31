@@ -236,13 +236,26 @@ UniFFI remains a considered alternative. It offers production-quality Swift bind
 
 ### 8.1 Local metadata
 
-Swift infrastructure owns an application SQLite database through a narrow persistence protocol. GRDB is the leading candidate, subject to license/security/maintenance review at adoption. Use WAL where measurement supports it, transactional versioned migrations, integrity checks, bounded history/diagnostic retention, and secure file permissions.
+Swift infrastructure owns an application SQLite database through a narrow
+persistence protocol. Exact GRDB `7.11.1` remains a conditional candidate after
+DF-M0-007/ADR-0014, not an adopted dependency. Use transactional versioned
+migrations, unknown-future-version refusal without rebuild, integrity checks,
+bounded history/diagnostic retention, checkpointed backup and owner-only files.
+Select WAL versus DELETE only after repeated realistic minimum-host
+measurement; the M0 one-host sample selected neither.
 
 Permitted data includes workspace state, saved queries, snippets, UI preferences, job summaries, history subject to retention, and non-sensitive connection metadata. SQL text/history is user data and is not telemetry.
 
 ### 8.2 Credentials
 
-Keychain Security uses Security.framework and data-protection Keychain APIs. SQLite stores only a random credential-reference ID. Secret types are non-`Codable`, avoid `CustomStringConvertible`, redact debug descriptions, and never enter `UserDefaults`, exports, logs, analytics, crash attachments, snapshots, clipboard persistence, or diagnostics.
+Keychain Security uses Security.framework and data-protection Keychain APIs.
+SQLite stores only a random credential-reference ID. Secret types are
+non-`Codable`, avoid `CustomStringConvertible`, redact debug descriptions, and
+never enter `UserDefaults`, exports, logs, analytics, crash attachments,
+snapshots, clipboard persistence, or diagnostics. DF-M0-007 proved the
+unsigned CLI fails closed with no fallback when Data Protection Keychain add
+returns `errSecMissingEntitlement`; actual CRUD/attributes still require the
+signed app's Team/bundle/entitlement boundary.
 
 A `CredentialLease` is acquired immediately before connection/authentication and released after the driver has established the protected session. Background helpers require a separately reviewed Keychain access group/accessibility policy; there is no silent downgrade when a secret is unavailable.
 
@@ -311,8 +324,8 @@ This compact register complements the accepted ADR set. “Revisit” is a gate,
 | 5 | Drivers | One abstraction driver; driver-per-adapter; native client libraries | Driver-per-adapter for fidelity/cancel/capabilities | More adapter code/testing | Maintenance or licensing gate fails |
 | 6 | Metadata | Common-only model; raw-only; dual model | Normalized semantic model plus lossless engine descriptor | Mapping/version complexity | New engine proves model unworkable |
 | 7 | Bridge | C ABI; UniFFI; CXX | Versioned C ABI with opaque handles and Swift facade | Boilerplate, ownership tests | UniFFI proves equal control with less risk |
-| 8 | Persistence | SwiftData/Core Data; SQLite direct; GRDB | SQLite through Swift persistence port; GRDB candidate | Dependency and migration ownership | Adoption review fails or helper sharing dominates |
-| 9 | Secrets | SQLite encryption; `UserDefaults`; Keychain | Security.framework Keychain; metadata stores reference only | Background access policy complexity | Never downgrade; revisit access class only |
+| 8 | Persistence | SwiftData/Core Data; SQLite direct; GRDB | SQLite through Swift persistence port; exact GRDB `7.11.1` conditional by ADR-0014 | Full-Xcode, size/legal and production-schema gates remain | Adoption review fails or helper sharing dominates |
+| 9 | Secrets | SQLite encryption; `UserDefaults`; Keychain | Security.framework Keychain; metadata stores reference only; actual signed-app integration gated by ADR-0014 | Team/entitlement/background access policy complexity | Never downgrade; revisit access class only |
 | 10 | SSH | system OpenSSH; `russh`; libssh2 | **Defer capability by ADR-0012.** Exact `russh 0.62.4` remains conditional planning input; the tested system OpenSSH/native `-J` and exact `ssh2`/libssh2 candidates are rejected | Seven frozen russh rows unsupported; security/advisory, auth, cleanup and distribution gates remain | Reconsider only when every ADR-0012 re-entry gate passes; otherwise ship without SSH |
 | 11 | TLS | driver default; rustls; platform TLS | Adapter TLS with platform roots and per-connection custom CA, fail closed | Cross-driver consistency | Trust-store/certificate spike fails |
 | 12 | Distribution | Direct; Mac App Store | Direct Developer ID remains the first-channel plan after ADR-0013; production release stays closed pending credentialed notarization/Gatekeeper evidence | Greater self-managed update/security burden; local ad-hoc evidence has no publisher anchor | MAS-specific product demand funds a separate build, or the full direct lane fails |
@@ -346,7 +359,7 @@ the same source/project-build/advisory gate even when absent from Cargo/SBOM.
 | [`russh`](https://github.com/Eugeny/russh) | Apache-2.0; preliminarily permissive; AWS-LC notices/legal review open | Exact evidence floor is `0.62.4` on 2026-07-30; 14 upstream advisories were reviewed because RustSec alone omitted the three July 2026 entries | Minimal arm64 graph excludes RSA/compression but has 131 third-party package/version pairs; probe is 5,912,168 bytes, not a product delta | **Conditional only by ADR-0012:** password and seven frozen rows unsupported; no dependency approval |
 | macOS system OpenSSH | Apple/OpenSSH permissive source posture requires final notice/legal review; executable is OS-provided | Tested `OpenSSH-354.120.2`/10.2p1 is below the source-reviewed OpenSSH 10.4 client-security floor; Apple owns updates | Zero bundled executable bytes, but external-process, typed-error, lifecycle and OS-build gates apply | Tested build and native `ProxyJump/-J` rejected; no vetted fallback |
 | [`ssh2`/libssh2](https://github.com/rust-lang/ssh2-rs) | Rust crates MIT/Apache-2.0; vendored libssh2 notices require review | Exact `ssh2 0.9.6`/`libssh2-sys 0.3.2` fork omits current fixes including CVE-2026-7598 and CVE-2026-66032–66035 | Rejected before build/runtime; binary delta intentionally unavailable; synchronous lifecycle/cancellation design unproven | Reject exact source; do not maintain an internal security fork |
-| [GRDB](https://github.com/groue/GRDB.swift) | MIT; preliminarily permissive | Actively released in 2026; review each major migration/security history | Swift Package using platform/custom SQLite options; current project documents macOS/Swift requirements; measure arm64 app size | Strong metadata candidate; persistence port permits direct SQLite/another wrapper replacement |
+| [GRDB](https://github.com/groue/GRDB.swift) | Exact `7.11.1` MIT file hashed; final notices/legal approval open | Published 2026-06-18; upstream advisory API empty at DF-M0-007 evidence time; repeat at adoption/release | Swift 6.1+/Xcode 16.3+; uses system SQLite and has zero normal Swift package dependencies; arm64 standalone probe delta 5,780,048 bytes is not a product delta | **Conditional by ADR-0014:** migration/recovery evidence positive; full XCTest, signed Keychain, realistic size/performance and legal gates remain |
 | [tree-sitter runtime](https://github.com/tree-sitter/tree-sitter) | MIT; preliminarily permissive | Active 2026 project; C runtime is mature, but every SQL grammar is a separate project/security/license decision | Embedded C/runtime and generated grammar sources must build/sign arm64; grammar size multiplies by dialect | Use only after grammar corpus/fuzz/license gates; fallback is editor highlighting plus adapter-owned safety parser |
 | [SQLx](https://github.com/launchbadge/sqlx) | MIT/Apache-2.0; preliminarily permissive | Active and supports PostgreSQL/MySQL/MariaDB/SQLite streaming; prior protocol advisories show the need for pinned patched versions | Features can pull multiple drivers/TLS/macros/SQLite C; arm64 and binary-size impact may be larger | Evaluated alternative, not selected as a generic `Any` driver; reconsider per-adapter only if it wins conformance |
 | [Sparkle 2](https://github.com/sparkle-project/Sparkle) | Exact `2.9.4` license file is MIT with bundled third-party notices; legal approval open | DF-M0-006 matched tag/asset and found two published medium advisories whose declared affected ranges end at `2.9.1`; repeat every release | Universal framework/tools include arm64 and valid upstream signatures; extracted framework is about 3.13 MB, but embedding/XPC entitlements/notarization were not run | **Conditional by ADR-0013:** offline Ed25519 tool smokes pass, while real install, pre-extraction configuration, rollback and key rotation remain gated; fallback is manual verified delivery |
@@ -368,7 +381,7 @@ M0 must run disposable spikes, not evolve them silently into production:
 | SQL editor | TextKit 2 remains responsive on large SQL and incremental edits | Prototype editor only | Meets editor latency/memory/accessibility budgets | Delete UI prototype; retain measurements |
 | Grid | Native grid supports paging, pending edits, style updates and accessibility | Generated typed fixture, no real writes | Scroll/theme/edit identity budgets and VoiceOver checks pass or a bounded fallback is selected | Delete prototype; benchmark the reviewed replacement separately |
 | Distribution | Rust dylib/helpers/update path can sign and notarize | Empty shell artifact | Signature, Hardened Runtime, notarization, clean-Mac Gatekeeper and update-tamper/rollback gates pass | ADR-0013 keeps the gate closed; delete shell and regenerate an approved scaffold for the credentialed rerun |
-| SQLite/Keychain | Non-secret metadata and credentials remain separate | Synthetic profile/workspace only | Transactional migration, locked/denied behavior and canary absence | Delete; retain schema/security decision |
+| SQLite/Keychain | Non-secret metadata and credentials remain separate | Synthetic profile/workspace only | Transactional migration/recovery and canary absence pass; signed actual Keychain remains gated | ADR-0014 retains boundaries conditionally; delete spike and regenerate production code |
 
 The SQL-editor row now has a partial disposition in
 [ADR-0010](adr/0010-m0-textkit-editor-disposition.md) and the
@@ -402,6 +415,14 @@ Hardened Runtime, sealed-resource tamper rejection and exact Sparkle `2.9.4`
 offline signature tooling have evidence. Publisher identity, secure timestamp,
 notarization, stapling, clean-Mac Gatekeeper, framework integration and real
 update/rollback/key-rotation behavior remain closed gates.
+
+The SQLite/Keychain row now has a conditional disposition in
+[ADR-0014](adr/0014-m0-persistence-keychain-disposition.md) and the
+[DF-M0-007 evidence report](reports/DF-M0-007-persistence-keychain-evidence.md).
+The metadata migration/recovery and fail-closed/no-fallback contracts have
+positive disposable evidence. Actual Data Protection Keychain CRUD/attributes,
+full-Xcode tests, realistic journal/size measurement, helper/access-group and
+legal/adoption gates remain closed; no spike code is promoted.
 
 The original shell wireframes and accessibility annotations are the separate
 M0 design gate in [UX_WIREFRAMES.md](UX_WIREFRAMES.md), tracked by DF-M0-009;

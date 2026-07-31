@@ -105,7 +105,7 @@ Each threat has an owner who must turn the controls and verification items into 
 - **Trust boundaries:** UI/application service, Keychain, Swift/Rust ABI, process memory, export/diagnostics.
 - **Abuse path:** a broadly serializable connection model persists a password; a debug description or memory dump includes a secret; an overly broad Keychain access group lets another component retrieve it.
 - **Controls:** store only opaque `SecretReference` values outside Keychain; narrow Keychain access groups; fetch on demand; never make secret types `Codable`, printable or equatable by value; minimize copies and lifetime; clear paste fields and temporary buffers where feasible; exports omit secrets by construction; helpers receive one-use secret material through a protected IPC channel, never argv/environment.
-- **Verification:** unit tests reject secret fields in persisted/export schemas; canary-secret scans cover logs, crash fixtures, diagnostics bundles and snapshots; entitlement inspection verifies access groups; memory-lifetime review covers FFI and helpers; delete/rotate flows have integration tests.
+- **Verification:** unit tests reject secret fields in persisted/export schemas; canary-secret scans cover logs, crash fixtures, diagnostics bundles and snapshots; entitlement inspection verifies access groups; memory-lifetime review covers FFI and helpers; delete/rotate flows have integration tests. DF-M0-007 supplies unsigned-CLI fail-closed/no-fallback and metadata-negative evidence only; it does not replace signed-app Keychain integration.
 - **Residual risk:** a compromised user account or process with equivalent rights may access live secrets; memory clearing is best effort with managed/runtime copies. Document this limit and prefer short-lived tokens where supported.
 
 ### T02 — Malicious database server
@@ -364,4 +364,9 @@ The platform and dependency facts cited here were checked against primary projec
   entitlements, signed-feed/pre-extraction path, real install/rollback and key
   rotation before adoption; otherwise use manual verified updates or evaluate
   another updater.
+- ADR-0014 retains SQLite/Keychain separation and exact GRDB `7.11.1` only
+  conditionally. Require full-Xcode tests and signed Team/bundle/entitlement
+  Data Protection Keychain CRUD/attributes, ACL/access-group migration,
+  helper, secret-surface and minimum-host/soak evidence before implementation;
+  missing entitlement can never activate a plaintext fallback.
 - Define the privacy jurisdiction, controller/contact and retention policy before collecting any opt-in crash or telemetry data.

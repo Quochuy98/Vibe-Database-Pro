@@ -488,6 +488,16 @@ smokes do not establish framework integration, install, rollback or key
 rotation. The disposable source remains auditable at `f0457dd` and was removed
 in separate disposal commit `38c7441`.
 
+M0-S07 now has a durable persistence/credential evidence record and ADR-0014
+disposition. Exact GRDB `7.11.1` conditionally remains the metadata candidate:
+transactional migration/rollback, future-version refusal, crash/corruption,
+bounded concurrency, retention, backup, permissions and canary-negative
+surfaces passed. Actual Data Protection Keychain CRUD/attributes and XCTest
+were unavailable because the host had no signed entitlement or full Xcode;
+they remain unsupported rather than inferred from injected policy tests. No
+production persistence or journal mode is enabled. The exact source is
+auditable at `6388860`; disposal is recorded separately.
+
 ### Canonical M0 traceability
 
 The IDs below prevent the spike list, backlog and architecture section from
@@ -509,9 +519,9 @@ spikes.
 
 ## 12. Recommended next planning task
 
-**Only one next task:** execute `M0-S07 / DF-M0-007 — SQLite metadata and
-Keychain separation spike` with synthetic profiles/workspaces and fake
-credential canaries. Prove transactional migration, corruption/rollback,
-locked/denied Keychain behavior and absence of secret material from SQLite,
-logs, exports and snapshots. This remains disposable planning work and does
-not open production implementation.
+**Only one next task:** execute `DF-M0-008 — dependency and license adoption
+dossiers`. Consolidate exact source/version/checksum, license/notices,
+advisories, maintenance, transitives, Apple Silicon/toolchain/size evidence,
+replacement cost and adopt/defer/reject ownership for every candidate retained
+by DF-M0-002–007. This is an assurance/planning gate, not permission to add a
+production dependency.

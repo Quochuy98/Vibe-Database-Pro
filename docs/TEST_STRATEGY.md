@@ -211,6 +211,11 @@ Snapshot tests cover controlled appearance matrices but do not replace semantic 
 The threat IDs in [SECURITY_THREAT_MODEL.md](SECURITY_THREAT_MODEL.md) map to tests. Required suites include:
 
 - Keychain storage/ACL/locked/denied behavior and no plaintext fallback;
+- SQLite migration success/rollback/future-version refusal, crash/corruption,
+  bounded concurrency/retention, checkpointed backup and owner-only files;
+- signed-app Data Protection Keychain CRUD/attributes, exact duplicate/missing,
+  lock/ACL/access-group/Team migration and independent deletion; injected
+  errors may test mapping but cannot pass these system boundaries;
 - seeded secret scan across SQLite, UserDefaults, exports, logs, crash payload, diagnostics, snapshots, temp files, process arguments and clipboard lifecycle;
 - valid/invalid/expired/mismatched TLS certificate, custom CA scope and bypass absence;
 - SSH unknown/changed/revoked/rekey host keys, exact/hashed/multiple-port
@@ -318,7 +323,7 @@ PR selection uses a dependency-aware test map but always runs safety classifier,
 
 Before implementation, each backlog item must be assigned stable test IDs.
 The current planning backlog records required test categories in prose.
-DF-M0-001 through DF-M0-006 record separate durable spike evidence and ADR
+DF-M0-001 through DF-M0-007 record separate durable spike evidence and ADR
 dispositions; incomplete candidate rows remain unsupported rather than being
 collapsed into a task-level pass.
 Each capability must link to conformance tests, each threat to controls/tests

@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 1,
+  "evidenceKind": "developer-host-disposable-persistence-keychain-spike",
+  "scenarios": [
+    {
+      "id": "BK-01",
+      "observation": {
+        "backup_integrity": "ok",
+        "checkpointed_online_backup": "true",
+        "profile_workspace_retained": "true"
+      },
+      "status": "pass"
+    },
+    {
+      "id": "CL-01",
+      "status": "pass",
+      "observation": {
+        "keychain_final_missing_verified_by_probe": "true",
+        "outer_cleanup_exit": "1",
+        "transient_directory_removed": "true"
+      }
+    },
+    {
+      "id": "CO-01",
+      "observation": {
+        "completed_writes": "100",
+        "errors": "0",
+        "fixed_workers": "4",
+        "maximum_readers": "4"
+      },
+      "status": "pass"
+    },
+    {
+      "id": "CR-01",
+      "observation": {
+        "corrupt_copy_rebuilt": "false",
+        "corrupt_copy_refused": "true",
+        "original_integrity": "ok"
+      },
+      "status": "pass"
+    },
+    {
+      "id": "DL-01",
+      "observation": {
+        "credential_delete_preserved_profile": "true",
+        "credential_delete_preserved_workspace": "true",
+        "history_delete_preserved_credential": "model"
+      },
+      "status": "partial"
+    },
+    {
+      "id": "DP-01",
+      "status": "pass",
+      "observation": {
+        "exact_revision_license_advisories_graph_requirements_arm64_size_replacement_recorded": "true",
+        "size_delta_bytes": "5780048",
+        "adoption_approved": "false"
+      }
+    },
+    {
+      "id": "EN-01",
+      "status": "pass",
+      "observation": {
+        "host_and_tool_inventory_recorded": "true",
+        "environment_dumped": "false",
+        "xctest_available": "false"
+      }
+    },
+    {
+      "id": "FP-01",
+      "observation": {
+        "all_artifacts_owner_only_or_stricter": "true",
+        "root_directory_owner_only": "true",
+        "wal_shm_checked_when_present": "true"
+      },
+      "status": "pass"
+    },
+    {
+      "id": "KC-01",
+      "observation": {
+        "actual_data_protection_crud": "unsupported",
+        "final_missing_verified": "true",
+        "status_category": "missing-entitlement"
+      },
+      "status": "unsupported"
+    },
+    {
+      "id": "KC-02",
+      "observation": {
+        "actual_duplicate_and_missing": "unsupported",
+        "model_duplicate_and_missing": "typed",
+        "plaintext_fallback": "false"
+      },
+      "status": "partial"
+    },
+    {
+      "id": "KC-03",
+      "observation": {
+        "data_protection_attributes_verified": "false",
+        "synchronizable": "unverified",
+        "when_unlocked_this_device_only": "false"
+      },
+      "status": "unsupported"
+    },
+    {
+      "id": "KC-04",
+      "observation": {
+        "actual_session_lock_or_acl_changed": "false",
+        "injected_denied_typed": "true",
+        "injected_locked_typed": "true",
+        "plaintext_fallback": "false"
+      },
+      "status": "partial"
+    },
+    {
+      "id": "MD-01",
+      "observation": {
+        "credential_reference_format": "random_uuid",
+        "prohibited_secret_columns": "0",
+        "schema_allowlist_recorded": "true"
+      },
+      "status": "pass"
+    },
+    {
+      "id": "MG-01",
+      "observation": {
+        "profile_workspace_history_retained": "true",
+        "v1_to_v2": "atomic"
+      },
+      "status": "pass"
+    },
+    {
+      "id": "MG-02",
+      "observation": {
+        "migration_marker": "absent",
+        "partial_data": "absent",
+        "partial_table": "absent"
+      },
+      "status": "pass"
+    },
+    {
+      "id": "MG-03",
+      "observation": {
+        "auto_rebuild": "false",
+        "database_bytes_unchanged": "true",
+        "unknown_marker_refused": "true"
+      },
+      "status": "pass"
+    },
+    {
+      "id": "RT-01",
+      "observation": {
+        "inserted": "25",
+        "policy": "newest_then_id",
+        "profile_retained": "true",
+        "retained": "10"
+      },
+      "status": "pass"
+    },
+    {
+      "id": "SC-01",
+      "status": "pass",
+      "observation": {
+        "canary_absent_from_retained_transient_git_and_process_surfaces": "true"
+      }
+    },
+    {
+      "id": "TX-01",
+      "observation": {
+        "child_exit": "86",
+        "integrity": "ok",
+        "uncommitted_row_present": "false"
+      },
+      "status": "pass"
+    },
+    {
+      "id": "WL-01",
+      "observation": {
+        "delete_queue_measured": "true",
+        "iterations_each": "100",
+        "production_mode_selected": "false",
+        "wal_pool_measured": "true"
+      },
+      "status": "pass"
+    }
+  ],
+  "measurements": {
+    "concurrency_completed_writes": 100,
+    "concurrency_workers": 4,
+    "delete_duration_nanoseconds": 26881000,
+    "delete_open_bytes": 90112,
+    "wal_duration_nanoseconds": 9112541,
+    "wal_open_bytes": 1837336
+  },
+  "summary": {
+    "pass": 15,
+    "partial": 3,
+    "unsupported": 2,
+    "fail": 0,
+    "total": 20,
+    "complete_keychain_gate_passed": false,
+    "production_dependency_adopted": false,
+    "production_persistence_enabled": false
+  }
+}

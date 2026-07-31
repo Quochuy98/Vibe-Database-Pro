@@ -270,6 +270,20 @@ remains auditable at `f0457dd` and was removed in separate disposal commit
 
 **Definition of done:** Prototype disposed; schema/security contracts and dependency decision recorded.
 
+**M0 disposition (2026-07-30):**
+[DF-M0-007 evidence](reports/DF-M0-007-persistence-keychain-evidence.md)
+and [ADR-0014](adr/0014-m0-persistence-keychain-disposition.md) retain the
+SQLite-behind-a-Swift-port and Keychain-only boundaries. The exact matrix is
+`15 pass / 3 partial / 2 unsupported / 0 fail`: migrations, rollback,
+future-version refusal, crash/corruption, bounded concurrency, retention,
+backup, permissions and secret-negative surfaces passed. Actual Data
+Protection Keychain add/attributes were unsupported because the unsigned CLI
+returned `errSecMissingEntitlement`; injected duplicate/missing/locked/denied
+and independent deletion are not substitutes for signed-app integration.
+Exact GRDB `7.11.1` is conditional only, XCTest/full Xcode did not run, no
+journal mode is selected and production persistence remains disabled. The
+source is auditable at `6388860`; disposal is recorded separately.
+
 ### DF-M0-008
 
 **ID:** DF-M0-008
