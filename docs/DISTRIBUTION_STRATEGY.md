@@ -3,7 +3,7 @@
 Status: Direct-distribution baseline retained by ADR-0013; production release
 and updater adoption remain gated
 
-Last updated: 2026-07-30
+Last updated: 2026-08-01
 
 ## 1. Recommendation
 
@@ -23,7 +23,7 @@ Gatekeeper and real updater installation remain closed by ADR-0013.
 | Gatekeeper/trust | Notarization ticket stapled/online; release verifies `spctl`/codesign | Store distribution includes Apple review/security checks |
 | App Sandbox | Optional for outside-Store distribution; initial app does not enable it, but least privilege still required | Mandatory App Sandbox; every file/network/helper entitlement justified |
 | User-selected files | Security-scoped bookmarks/NSOpenPanel still used; no broad file assumption | Security-scoped bookmarks and sandbox extension lifecycle are mandatory |
-| SSH tunnels | Disabled by ADR-0012; exact russh is conditional only, while the tested system OpenSSH/native `-J` is not a vetted fallback | Absent unless a future candidate also passes sandbox network/listener, Keychain, file/agent and lifecycle gates; no shell escape assumption |
+| SSH tunnels | Disabled by ADR-0012/0015; exact `russh 0.62.4`, the tested system OpenSSH/native `-J` and exact ssh2/libssh2 are rejected | Absent unless a new exact candidate also passes advisory, sandbox network/listener, Keychain, file/agent and lifecycle gates; no shell escape assumption |
 | Native DB tools | Bundle only signed, licensed, supported executables; direct argv/no shell | Subprocess and embedded-tool review/entitlements may block some tools |
 | Backup/restore | Easier to support user-selected binaries/files, still secure and signed | Sandbox path/tool/restore limitations can make capabilities unavailable |
 | Network DB access | Outbound client policy documented and tested | `com.apple.security.network.client`, endpoint behavior and review required |
@@ -78,6 +78,12 @@ the framework/XPC services or run a real install. Adoption remains gated on
 current license, maintenance, helper entitlements, Developer ID/library
 validation, signed-feed/pre-extraction configuration, install/rollback/key
 rotation and a security review.
+
+The consolidated
+[DF-M0-008 dependency dossier](reports/DF-M0-008-dependency-adoption-dossiers.md)
+still defers Sparkle and records no approved dependency. Its prototype SPDX
+inventory is not a release SBOM; final embedded framework/XPC contents must be
+reconciled from the signed production artifact.
 
 Required update policy:
 

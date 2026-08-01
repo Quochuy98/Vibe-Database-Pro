@@ -40,6 +40,8 @@ The baseline assumptions above remain subject to the Architecture Decision Recor
 - [DF-M0-005 SSH tunnel/host-trust evidence](docs/reports/DF-M0-005-ssh-tunnel-evidence.md)
 - [DF-M0-006 direct-distribution evidence](docs/reports/DF-M0-006-distribution-evidence.md)
 - [DF-M0-007 SQLite/Keychain separation evidence](docs/reports/DF-M0-007-persistence-keychain-evidence.md)
+- [DF-M0-008 dependency adoption dossiers](docs/reports/DF-M0-008-dependency-adoption-dossiers.md)
+- [Dependency and supply-chain policy](docs/DEPENDENCY_POLICY.md)
 
 ### Assurance and release
 

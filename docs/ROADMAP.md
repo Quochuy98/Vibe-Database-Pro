@@ -2,7 +2,7 @@
 
 Status: Sequenced planning baseline; estimates require team sizing after M0
 
-Last updated: 2026-07-30
+Last updated: 2026-08-01
 
 ## 1. Delivery principles
 
@@ -473,11 +473,13 @@ FPS or a presentation-budget pass. The disposable source was removed in commit
 
 M0-S05 now has a durable SSH evidence record and ADR-0012 disposition. No
 candidate is adopted: the tested system OpenSSH/native `-J` and exact
-`ssh2`/libssh2 candidate are rejected, while exact `russh 0.62.4` is retained
-only conditionally with seven frozen rows still unsupported. Production SSH
-remains disabled; direct PostgreSQL/TLS planning does not depend on enabling
-SSH. The exact disposable source is auditable at `875dd46` and was removed in
-separate disposal commit `0b80f7e`.
+`ssh2`/libssh2 candidate are rejected. DF-M0-008/ADR-0015 subsequently rejects
+exact `russh 0.62.4` after a fresh official advisory included that version;
+upstream-reported `0.62.5` is unevaluated and inherits no approval. Seven
+frozen rows remain unsupported. Production SSH remains disabled; direct
+PostgreSQL/TLS planning does not depend on enabling SSH. The exact disposable
+source is auditable at `875dd46` and was removed in separate disposal commit
+`0b80f7e`.
 
 M0-S06 now has a durable distribution evidence record and ADR-0013
 disposition. The direct Developer ID channel remains the planning baseline,
@@ -497,6 +499,15 @@ were unavailable because the host had no signed entitlement or full Xcode;
 they remain unsupported rather than inferred from injected policy tests. No
 production persistence or journal mode is enabled. The exact source is
 auditable at `6388860` and was removed in separate disposal commit `02c86b7`.
+
+The M0 dependency gate now has a durable engineering dossier, proposed policy,
+prototype SPDX inventory and ADR-0015. It records
+`0 approve / 10 defer / 3 reject`; exact `russh 0.62.4` is newly rejected after
+an official upstream advisory published after DF-M0-005. Production adoption
+remains closed because independent engineering/security/legal review, exact
+identities for several future candidates and a production build/release SBOM
+do not exist. These external reviews remain an M0 exit gate, while the
+independent wireframe/accessibility review can proceed.
 
 ### Canonical M0 traceability
 
@@ -519,9 +530,10 @@ spikes.
 
 ## 12. Recommended next planning task
 
-**Only one next task:** execute `DF-M0-008 — dependency and license adoption
-dossiers`. Consolidate exact source/version/checksum, license/notices,
-advisories, maintenance, transitives, Apple Silicon/toolchain/size evidence,
-replacement cost and adopt/defer/reject ownership for every candidate retained
-by DF-M0-002–007. This is an assurance/planning gate, not permission to add a
-production dependency.
+**Only one next planning task:** execute `DF-M0-009 — review original shell
+wireframes and accessibility annotations`. Validate the low-fidelity artifact
+against UF-01/02/04/05/06, keyboard/focus order, VoiceOver semantics,
+Light/Dark/contrast/differentiate-without-color/reduce-motion, resizing and
+localized consequence text. This remains a design review, not permission to
+implement SwiftUI/AppKit production UI. DF-M0-008's independent legal/security/
+engineering approvals remain a parallel external M0 exit gate.

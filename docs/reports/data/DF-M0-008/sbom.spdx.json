@@ -1,0 +1,299 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "DataForge DF-M0-008 candidate evaluation inventory",
+  "documentNamespace": "https://dataforge.invalid/spdx/DF-M0-008/2026-08-01/3d61867",
+  "creationInfo": {
+    "created": "2026-08-01T04:16:03Z",
+    "creators": [
+      "Tool: Codex DF-M0-008 evidence assembler"
+    ],
+    "licenseListVersion": "3.28.0"
+  },
+  "documentDescribes": [
+    "SPDXRef-Package-CandidateInventory"
+  ],
+  "comment": "Prototype SPDX inventory for evaluated candidates only. It is not a production or release SBOM, does not assert that any package is adopted, and records no legal approval.",
+  "packages": [
+    {
+      "name": "DataForge-M0-Dependency-Candidate-Inventory",
+      "SPDXID": "SPDXRef-Package-CandidateInventory",
+      "versionInfo": "2026-08-01",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "primaryPackagePurpose": "OTHER",
+      "comment": "Planning repository has no production manifest or final product license. Summary disposition: 0 approve, 10 defer, 3 reject."
+    },
+    {
+      "name": "tokio",
+      "SPDXID": "SPDXRef-Package-Tokio-1.53.1",
+      "versionInfo": "1.53.1",
+      "downloadLocation": "https://crates.io/api/v1/crates/tokio/1.53.1/download",
+      "filesAnalyzed": false,
+      "checksums": [
+        {"algorithm": "SHA256", "checksumValue": "202caea871b69668250d242070849eb495be178ed697a3e98aebce5bc81a0bed"}
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION",
+      "primaryPackagePurpose": "LIBRARY",
+      "externalRefs": [
+        {"referenceCategory": "PACKAGE-MANAGER", "referenceType": "purl", "referenceLocator": "pkg:cargo/tokio@1.53.1"}
+      ],
+      "comment": "DF-M0-008 disposition: defer; exact crate observed in disposed PostgreSQL and SSH spike locks."
+    },
+    {
+      "name": "tokio-postgres",
+      "SPDXID": "SPDXRef-Package-TokioPostgres-0.7.18",
+      "versionInfo": "0.7.18",
+      "downloadLocation": "https://crates.io/api/v1/crates/tokio-postgres/0.7.18/download",
+      "filesAnalyzed": false,
+      "checksums": [
+        {"algorithm": "SHA256", "checksumValue": "a528f7d280f6d5b9cd149635c8705b0dd049754bc67d81d31fa25169a93809d3"}
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "copyrightText": "NOASSERTION",
+      "primaryPackagePurpose": "LIBRARY",
+      "externalRefs": [
+        {"referenceCategory": "PACKAGE-MANAGER", "referenceType": "purl", "referenceLocator": "pkg:cargo/tokio-postgres@0.7.18"}
+      ],
+      "comment": "DF-M0-008 disposition: defer as part of the exact PostgreSQL stack."
+    },
+    {
+      "name": "tokio-postgres-rustls",
+      "SPDXID": "SPDXRef-Package-TokioPostgresRustls-0.14.0",
+      "versionInfo": "0.14.0",
+      "downloadLocation": "https://crates.io/api/v1/crates/tokio-postgres-rustls/0.14.0/download",
+      "filesAnalyzed": false,
+      "checksums": [
+        {"algorithm": "SHA256", "checksumValue": "4c2ad44aa0ae96db89c4742212ed41645b2f597311ff6e1945542a4d9fadc2fb"}
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION",
+      "primaryPackagePurpose": "LIBRARY",
+      "externalRefs": [
+        {"referenceCategory": "PACKAGE-MANAGER", "referenceType": "purl", "referenceLocator": "pkg:cargo/tokio-postgres-rustls@0.14.0"}
+      ],
+      "comment": "Connector component of the deferred PostgreSQL stack; not a separate approved dossier."
+    },
+    {
+      "name": "mysql_async-candidate",
+      "SPDXID": "SPDXRef-Package-MySQLAsync-Unselected",
+      "downloadLocation": "https://github.com/blackbeam/mysql_async",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "primaryPackagePurpose": "LIBRARY",
+      "comment": "DF-M0-008 disposition: defer. No exact version, checksum, features, or graph selected."
+    },
+    {
+      "name": "rusqlite-candidate",
+      "SPDXID": "SPDXRef-Package-Rusqlite-Unselected",
+      "downloadLocation": "https://github.com/rusqlite/rusqlite",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "primaryPackagePurpose": "LIBRARY",
+      "comment": "DF-M0-008 disposition: defer. No exact version or system-versus-bundled SQLite choice selected."
+    },
+    {
+      "name": "rustls",
+      "SPDXID": "SPDXRef-Package-Rustls-0.23.43",
+      "versionInfo": "0.23.43",
+      "downloadLocation": "https://crates.io/api/v1/crates/rustls/0.23.43/download",
+      "filesAnalyzed": false,
+      "checksums": [
+        {"algorithm": "SHA256", "checksumValue": "0283386ce02abc0151e1761d08802dfe86c173b0b494af5cbc086574e453da06"}
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "Apache-2.0 OR ISC OR MIT",
+      "copyrightText": "NOASSERTION",
+      "primaryPackagePurpose": "LIBRARY",
+      "externalRefs": [
+        {"referenceCategory": "PACKAGE-MANAGER", "referenceType": "purl", "referenceLocator": "pkg:cargo/rustls@0.23.43"}
+      ],
+      "comment": "DF-M0-008 disposition: defer pending platform-root/custom-CA, provider, cross-driver, size, and legal gates."
+    },
+    {
+      "name": "russh",
+      "SPDXID": "SPDXRef-Package-Russh-0.62.4",
+      "versionInfo": "0.62.4",
+      "downloadLocation": "https://crates.io/api/v1/crates/russh/0.62.4/download",
+      "filesAnalyzed": false,
+      "checksums": [
+        {"algorithm": "SHA256", "checksumValue": "b8b67b5a0d8068c89dcbe9d95df986af7a851d1f3c604525274c37468e60464f"}
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "NOASSERTION",
+      "primaryPackagePurpose": "LIBRARY",
+      "externalRefs": [
+        {"referenceCategory": "PACKAGE-MANAGER", "referenceType": "purl", "referenceLocator": "pkg:cargo/russh@0.62.4"},
+        {"referenceCategory": "SECURITY", "referenceType": "advisory", "referenceLocator": "https://github.com/Eugeny/russh/security/advisories/GHSA-m65r-rprj-r5rg"}
+      ],
+      "comment": "DF-M0-008 disposition: reject. GHSA-m65r-rprj-r5rg affects <=0.62.4 and reports 0.62.5 patched; 0.62.5 has not been evaluated."
+    },
+    {
+      "name": "macOS-system-OpenSSH",
+      "SPDXID": "SPDXRef-Package-SystemOpenSSH-354.120.2",
+      "versionInfo": "Apple OpenSSH-354.120.2 / OpenSSH_10.2p1",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "checksums": [
+        {"algorithm": "SHA256", "checksumValue": "470f812f6e71ee4ca1b49c79f9c2982c054493e22502d4648bd010feb4b2a9b2"}
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "primaryPackagePurpose": "APPLICATION",
+      "comment": "DF-M0-008 disposition: reject tested OS build and native ProxyJump/-J. OS-provided component is indexed because project-build/advisory ownership is outside Cargo/SPM."
+    },
+    {
+      "name": "ssh2",
+      "SPDXID": "SPDXRef-Package-Ssh2-0.9.6",
+      "versionInfo": "0.9.6",
+      "downloadLocation": "https://crates.io/api/v1/crates/ssh2/0.9.6/download",
+      "filesAnalyzed": false,
+      "checksums": [
+        {"algorithm": "SHA256", "checksumValue": "c95eb3c09e378543395a3fa9796f897861862466ee331d59140ade4ea0dcfdfc"}
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "copyrightText": "NOASSERTION",
+      "primaryPackagePurpose": "LIBRARY",
+      "externalRefs": [
+        {"referenceCategory": "PACKAGE-MANAGER", "referenceType": "purl", "referenceLocator": "pkg:cargo/ssh2@0.9.6"}
+      ],
+      "comment": "DF-M0-008 disposition: reject exact ssh2/libssh2 source."
+    },
+    {
+      "name": "libssh2-sys",
+      "SPDXID": "SPDXRef-Package-Libssh2Sys-0.3.2",
+      "versionInfo": "0.3.2",
+      "downloadLocation": "https://crates.io/api/v1/crates/libssh2-sys/0.3.2/download",
+      "filesAnalyzed": false,
+      "checksums": [
+        {"algorithm": "SHA256", "checksumValue": "c04141a07bb0c0bc461cb657808764de571702a59bc5c726c400ac9a7625e3ab"}
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT OR Apache-2.0",
+      "copyrightText": "NOASSERTION",
+      "primaryPackagePurpose": "LIBRARY",
+      "externalRefs": [
+        {"referenceCategory": "PACKAGE-MANAGER", "referenceType": "purl", "referenceLocator": "pkg:cargo/libssh2-sys@0.3.2"}
+      ],
+      "comment": "Vendors libssh2 fork commit 090f23d1852a0b62e081bd12c4d05adc1c4af47a; exact source lacks current fixes."
+    },
+    {
+      "name": "GRDB",
+      "SPDXID": "SPDXRef-Package-GRDB-7.11.1",
+      "versionInfo": "7.11.1",
+      "downloadLocation": "https://github.com/groue/GRDB.swift/archive/b83108d10f42680d78f23fe4d4d80fc88dab3212.tar.gz",
+      "filesAnalyzed": false,
+      "checksums": [
+        {"algorithm": "SHA256", "checksumValue": "015b476733e6c34f567ef78071d2ac3b92b6249805496966856f3c7f03080e05"}
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION",
+      "primaryPackagePurpose": "LIBRARY",
+      "externalRefs": [
+        {"referenceCategory": "PACKAGE-MANAGER", "referenceType": "purl", "referenceLocator": "pkg:swift/groue/GRDB.swift@7.11.1"}
+      ],
+      "comment": "DF-M0-008 disposition: defer; source archive checksum is from DF-M0-007, not a production resolution."
+    },
+    {
+      "name": "tree-sitter-runtime-and-SQL-grammars-candidate",
+      "SPDXID": "SPDXRef-Package-TreeSitter-Unselected",
+      "downloadLocation": "https://github.com/tree-sitter/tree-sitter",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "primaryPackagePurpose": "LIBRARY",
+      "comment": "DF-M0-008 disposition: defer. Runtime and every grammar require separate exact identities and licenses."
+    },
+    {
+      "name": "SQLx-candidate",
+      "SPDXID": "SPDXRef-Package-SQLx-Unselected",
+      "downloadLocation": "https://github.com/launchbadge/sqlx",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "primaryPackagePurpose": "LIBRARY",
+      "comment": "DF-M0-008 disposition: defer. No exact per-adapter version/feature graph selected."
+    },
+    {
+      "name": "Sparkle",
+      "SPDXID": "SPDXRef-Package-Sparkle-2.9.4",
+      "versionInfo": "2.9.4",
+      "downloadLocation": "https://github.com/sparkle-project/Sparkle/releases/download/2.9.4/Sparkle-2.9.4.tar.xz",
+      "filesAnalyzed": false,
+      "checksums": [
+        {"algorithm": "SHA256", "checksumValue": "ce89daf967db1e1893ed3ebd67575ed82d3902563e3191ca92aaec9164fbdef9"}
+      ],
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "copyrightText": "NOASSERTION",
+      "primaryPackagePurpose": "LIBRARY",
+      "externalRefs": [
+        {"referenceCategory": "PACKAGE-MANAGER", "referenceType": "purl", "referenceLocator": "pkg:swift/sparkle-project/Sparkle@2.9.4"}
+      ],
+      "comment": "DF-M0-008 disposition: defer. Bundled third-party notices and product integration remain unreviewed."
+    },
+    {
+      "name": "Sentry-Cocoa-candidate",
+      "SPDXID": "SPDXRef-Package-SentryCocoa-Unselected",
+      "downloadLocation": "https://github.com/getsentry/sentry-cocoa",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "primaryPackagePurpose": "LIBRARY",
+      "comment": "DF-M0-008 disposition: defer. No exact SDK/service/privacy identity selected; crash upload remains off."
+    },
+    {
+      "name": "macOS-system-SQLite",
+      "SPDXID": "SPDXRef-Package-SystemSQLite",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "primaryPackagePurpose": "LIBRARY",
+      "comment": "Platform component used by the GRDB spike. It is not counted among the 13 third-party candidate dispositions."
+    }
+  ],
+  "relationships": [
+    {"spdxElementId": "SPDXRef-DOCUMENT", "relationshipType": "DESCRIBES", "relatedSpdxElement": "SPDXRef-Package-CandidateInventory"},
+    {"spdxElementId": "SPDXRef-Package-CandidateInventory", "relationshipType": "OTHER", "relatedSpdxElement": "SPDXRef-Package-Tokio-1.53.1", "comment": "EVALUATES; not adopted"},
+    {"spdxElementId": "SPDXRef-Package-CandidateInventory", "relationshipType": "OTHER", "relatedSpdxElement": "SPDXRef-Package-TokioPostgres-0.7.18", "comment": "EVALUATES tokio-postgres stack; not adopted"},
+    {"spdxElementId": "SPDXRef-Package-CandidateInventory", "relationshipType": "OTHER", "relatedSpdxElement": "SPDXRef-Package-MySQLAsync-Unselected", "comment": "EVALUATES; no exact source selected"},
+    {"spdxElementId": "SPDXRef-Package-CandidateInventory", "relationshipType": "OTHER", "relatedSpdxElement": "SPDXRef-Package-Rusqlite-Unselected", "comment": "EVALUATES; no exact source selected"},
+    {"spdxElementId": "SPDXRef-Package-CandidateInventory", "relationshipType": "OTHER", "relatedSpdxElement": "SPDXRef-Package-Rustls-0.23.43", "comment": "EVALUATES; not adopted"},
+    {"spdxElementId": "SPDXRef-Package-CandidateInventory", "relationshipType": "OTHER", "relatedSpdxElement": "SPDXRef-Package-Russh-0.62.4", "comment": "EVALUATES exact rejected source"},
+    {"spdxElementId": "SPDXRef-Package-CandidateInventory", "relationshipType": "OTHER", "relatedSpdxElement": "SPDXRef-Package-SystemOpenSSH-354.120.2", "comment": "EVALUATES exact rejected OS build"},
+    {"spdxElementId": "SPDXRef-Package-CandidateInventory", "relationshipType": "OTHER", "relatedSpdxElement": "SPDXRef-Package-Ssh2-0.9.6", "comment": "EVALUATES exact rejected ssh2/libssh2 source"},
+    {"spdxElementId": "SPDXRef-Package-CandidateInventory", "relationshipType": "OTHER", "relatedSpdxElement": "SPDXRef-Package-GRDB-7.11.1", "comment": "EVALUATES; not adopted"},
+    {"spdxElementId": "SPDXRef-Package-CandidateInventory", "relationshipType": "OTHER", "relatedSpdxElement": "SPDXRef-Package-TreeSitter-Unselected", "comment": "EVALUATES; no exact runtime/grammar set selected"},
+    {"spdxElementId": "SPDXRef-Package-CandidateInventory", "relationshipType": "OTHER", "relatedSpdxElement": "SPDXRef-Package-SQLx-Unselected", "comment": "EVALUATES; no exact source selected"},
+    {"spdxElementId": "SPDXRef-Package-CandidateInventory", "relationshipType": "OTHER", "relatedSpdxElement": "SPDXRef-Package-Sparkle-2.9.4", "comment": "EVALUATES; not adopted"},
+    {"spdxElementId": "SPDXRef-Package-CandidateInventory", "relationshipType": "OTHER", "relatedSpdxElement": "SPDXRef-Package-SentryCocoa-Unselected", "comment": "EVALUATES; no exact source selected"},
+    {"spdxElementId": "SPDXRef-Package-TokioPostgres-0.7.18", "relationshipType": "DEPENDS_ON", "relatedSpdxElement": "SPDXRef-Package-Tokio-1.53.1"},
+    {"spdxElementId": "SPDXRef-Package-TokioPostgresRustls-0.14.0", "relationshipType": "DEPENDS_ON", "relatedSpdxElement": "SPDXRef-Package-TokioPostgres-0.7.18"},
+    {"spdxElementId": "SPDXRef-Package-TokioPostgresRustls-0.14.0", "relationshipType": "DEPENDS_ON", "relatedSpdxElement": "SPDXRef-Package-Tokio-1.53.1"},
+    {"spdxElementId": "SPDXRef-Package-TokioPostgresRustls-0.14.0", "relationshipType": "DEPENDS_ON", "relatedSpdxElement": "SPDXRef-Package-Rustls-0.23.43"},
+    {"spdxElementId": "SPDXRef-Package-Russh-0.62.4", "relationshipType": "DEPENDS_ON", "relatedSpdxElement": "SPDXRef-Package-Tokio-1.53.1", "comment": "Observed in the disposed minimal-feature SSH spike lock."},
+    {"spdxElementId": "SPDXRef-Package-Ssh2-0.9.6", "relationshipType": "DEPENDS_ON", "relatedSpdxElement": "SPDXRef-Package-Libssh2Sys-0.3.2"},
+    {"spdxElementId": "SPDXRef-Package-GRDB-7.11.1", "relationshipType": "DEPENDS_ON", "relatedSpdxElement": "SPDXRef-Package-SystemSQLite"}
+  ]
+}

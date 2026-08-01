@@ -4,7 +4,7 @@ Status: Proposed baseline for Milestone 0
 
 Owner: Security Engineering
 
-Last reviewed: 2026-07-30
+Last reviewed: 2026-08-01
 
 ## 1. Scope and assumptions
 
@@ -264,8 +264,8 @@ Each threat has an owner who must turn the controls and verification items into 
 - **Actors:** compromised dependency/registry, contributor account, CI action or build worker.
 - **Trust boundaries:** GitHub pull request, package registries, toolchains, CI, release storage.
 - **Abuse path:** dependency confusion/typosquat, mutable CI action, malicious transitive update, stolen maintainer token or unreproducible build inserts code.
-- **Controls:** lock all Swift/Rust dependencies; allowlist registries/sources; review license, maintainership, advisories, macOS/arm64 support and transitive graph before adoption; pin CI actions to immutable commits; least-privilege short-lived CI credentials; protected branches and two-person review for dependencies/release files; advisory scanning; secret scanning; generate an SPDX SBOM; attest provenance where the repository plan supports it; archive checksums, build logs and notarization ID; documented replacement/kill-switch owner.
-- **Verification:** dependency-diff gate, scheduled advisory scan, SBOM completeness check, clean-room release rebuild comparison where feasible, provenance verification and compromised-token tabletop. GitHub documents [dependency review](https://docs.github.com/en/code-security/concepts/supply-chain-security/dependency-review) and [artifact attestations](https://docs.github.com/en/actions/how-tos/secure-your-work/use-artifact-attestations/use-artifact-attestations); the SBOM format must conform to the selected published [SPDX specification](https://spdx.dev/specifications/).
+- **Controls:** follow [`DEPENDENCY_POLICY.md`](DEPENDENCY_POLICY.md); lock all Swift/Rust dependencies; allowlist registries/sources; review exact licenses, maintainership, registry/RustSec/repository/vendor/OS advisories, macOS/arm64 support and transitive graph before adoption; pin CI actions to immutable commits; use least-privilege short-lived CI credentials, protected branches and two-person review for dependency/release files; scan secrets; generate an SPDX SBOM; attest provenance where supported; archive checksums/build/notarization evidence; retain a replacement/kill-switch owner. Conflicting sources resolve to the strongest current applicable finding.
+- **Verification:** dependency-diff and multi-source advisory gates, exact license review, SBOM completeness/reproducibility, clean-room release rebuild comparison where feasible, provenance verification and compromised-token tabletop. DF-M0-008 proves why one scanner is insufficient: official `GHSA-m65r-rprj-r5rg` affects locked `russh 0.62.4` although the current Cargo/RustSec dry run passed. GitHub documents [dependency review](https://docs.github.com/en/code-security/concepts/supply-chain-security/dependency-review) and [artifact attestations](https://docs.github.com/en/actions/how-tos/secure-your-work/use-artifact-attestations/use-artifact-attestations); the SBOM format must conform to the selected published [SPDX specification](https://spdx.dev/specifications/).
 - **Residual risk:** signed and reviewed upstream code may still be malicious or vulnerable. Minimize dependencies, isolate high-risk parsers/drivers and preserve an emergency rollback/removal path.
 
 ### T18 — Malicious SSH endpoint, agent or process integration
@@ -281,7 +281,8 @@ Each threat has an owner who must turn the controls and verification items into 
   an agent returns oversized/malicious identities or signatures; a jump value
   becomes shell syntax; password/key material reaches argv/logs; a failed
   tunnel leaves tasks/listeners/processes or retries the remote DB directly.
-- **Controls:** ADR-0012 keeps SSH disabled. A future candidate must pin a
+- **Controls:** ADR-0012/0015 keep SSH disabled and reject exact `russh 0.62.4`.
+  A future candidate must pin a
   current exact source, authenticate every hop, reject unsupported trust/auth
   syntax, compile sensitive upstream logging out, use direct typed APIs/argv
   without shell execution, give the adapter only a loopback `TunnelLease`, and
@@ -335,6 +336,7 @@ Prohibited fields are credentials, connection strings, usernames by default, raw
 | --- | --- | --- |
 | Architecture | Boundary review; capability and FFI contracts; data-flow update | Principal Architect |
 | Pull request | Threat-linked tests, secret scan, dependency/license diff, no unsafe logging | Feature owner + Security reviewer |
+| Dependency adoption | Exact identity/graph, multi-source advisories, license/notices, supported platform/product size, SPDX/reproducibility, replacement and independent sign-off | Dependency owner + Security + Legal |
 | Nightly | Parser/driver fuzz corpus, disposable TLS/SSH/database integration, leak scan | Security Engineering + QA |
 | Release candidate | Entitlement diff, declared architecture slice check (`arm64` for MVP), Hardened Runtime, signatures, notarization, SBOM, update tamper suite | Release Engineering |
 | Privacy release gate | Exact event/crash/diagnostics payload inspection and consent UI tests | Privacy owner |
@@ -344,7 +346,7 @@ Any failed credential, trust-validation, update-authenticity, wrong-row write or
 
 ## 9. External facts and review cadence
 
-The platform and dependency facts cited here were checked against primary project/platform documentation **as of 2026-07-30**. They are not promises about future Apple policy or dependency behavior:
+The platform and dependency facts cited here were checked against primary project/platform documentation **as of 2026-08-01**. They are not promises about future Apple policy or dependency behavior:
 
 - Apple requires App Sandbox for Mac App Store submission: [App Sandbox](https://developer.apple.com/documentation/security/app-sandbox).
 - Apple describes Developer ID, Hardened Runtime and notarization requirements for outside-Store software: [Notarizing macOS software before distribution](https://developer.apple.com/documentation/security/notarizing-macos-software-before-distribution).
@@ -354,8 +356,9 @@ The platform and dependency facts cited here were checked against primary projec
 ## 10. Open security decisions
 
 - Select and audit the Rust TLS trust integration, including how platform roots and per-connection custom CAs are represented without creating a global bypass.
-- ADR-0012 adopts no SSH implementation. Reconsider exact `russh` or another
-  candidate only after every host-key, auth, no-direct, cleanup, advisory,
+- ADR-0012/0015 adopt no SSH implementation and reject exact `russh 0.62.4`.
+  Reconsider a new exact source such as upstream-reported `0.62.5+` or another
+  candidate only after every host-key, auth, no-direct, cleanup, multi-source advisory,
   Keychain/FFI, distribution, minimum-host and soak re-entry gate passes; rerun
   the full matrix if Universal 2 is later approved.
 - Decide whether high-assurance certificate/public-key pinning is a Pro policy feature or an all-edition safety feature; security controls must not be paywalled if their absence makes a connection unsafe.
@@ -369,4 +372,8 @@ The platform and dependency facts cited here were checked against primary projec
   Data Protection Keychain CRUD/attributes, ACL/access-group migration,
   helper, secret-surface and minimum-host/soak evidence before implementation;
   missing entitlement can never activate a plaintext fallback.
+- ADR-0015 records no approved dependency. Obtain independent exact
+  engineering/security/legal review, select identities for deferred future
+  candidates and generate a reproducible product/release SBOM before any
+  manifest change; the M0 SPDX file is an evaluation inventory only.
 - Define the privacy jurisdiction, controller/contact and retention policy before collecting any opt-in crash or telemetry data.

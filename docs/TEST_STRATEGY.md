@@ -2,7 +2,7 @@
 
 Status: Proposed quality contract
 
-Last updated: 2026-07-30
+Last updated: 2026-08-01
 
 Owners: Quality Engineering with feature, Database Core, macOS and Security owners
 
@@ -17,8 +17,11 @@ artifacts preserve exact evidence in the
 and [DF-M0-003 editor report](reports/DF-M0-003-textkit-editor-evidence.md),
 plus the
 [DF-M0-004 grid report](reports/DF-M0-004-appkit-grid-evidence.md),
-[DF-M0-005 SSH report](reports/DF-M0-005-ssh-tunnel-evidence.md) and
-[DF-M0-006 distribution report](reports/DF-M0-006-distribution-evidence.md).
+[DF-M0-005 SSH report](reports/DF-M0-005-ssh-tunnel-evidence.md),
+[DF-M0-006 distribution report](reports/DF-M0-006-distribution-evidence.md),
+[DF-M0-007 persistence/Keychain report](reports/DF-M0-007-persistence-keychain-evidence.md)
+and the
+[DF-M0-008 dependency dossier](reports/DF-M0-008-dependency-adoption-dossiers.md).
 Their source commits remain auditable after disposal. None establishes a
 production capability: the PostgreSQL stack is deferred, and the TextKit 2
 candidate still lacks input-to-frame, M1/16 GiB, real keyboard/VoiceOver,
@@ -29,6 +32,10 @@ for the ADR-0011 replacement. The commands and suites below remain future
 production gates unless an exact command is recorded as run. DF-M0-006 adds
 local arm64/ad-hoc signing and offline update-signature evidence, but Developer
 ID, notarization, clean-Mac Gatekeeper and real updater behavior remain open.
+DF-M0-008 adds a prototype SPDX inventory and multi-source policy evidence,
+not a production/release SBOM. It rejects exact `russh 0.62.4` after the
+official repository published an affected range that the current RustSec/Cargo
+dry run had not yet surfaced.
 
 ## 2. Quality principles
 
@@ -239,7 +246,9 @@ The threat IDs in [SECURITY_THREAT_MODEL.md](SECURITY_THREAT_MODEL.md) map to te
 - native-tool command/argument/environment injection and malicious filenames;
 - secure temporary permissions, atomic write and error cleanup;
 - update feed/artifact tamper, downgrade/replay/channel/signature/helper identity;
-- dependency advisory/license/SBOM/provenance and secret scanning;
+- dependency registry/yank, RustSec/ecosystem, official repository/vendor/OS
+  advisory, license/SBOM/provenance and secret scanning; source disagreement
+  resolves fail-closed;
 - plugin loading absent in MVP; future unsigned/unauthorized capability requests denied;
 - telemetry/crash fresh install sends no data; opt-out immediately stops future sends.
 
@@ -324,8 +333,11 @@ PR selection uses a dependency-aware test map but always runs safety classifier,
 Before implementation, each backlog item must be assigned stable test IDs.
 The current planning backlog records required test categories in prose.
 DF-M0-001 through DF-M0-007 record separate durable spike evidence and ADR
-dispositions; incomplete candidate rows remain unsupported rather than being
-collapsed into a task-level pass.
+dispositions. DF-M0-008 records the non-adoption inventory, immutable graph
+indexes, SPDX prototype and planned policy dry run; its human legal/security/
+engineering review and release-SBOM gates remain incomplete. Incomplete
+candidate rows remain unsupported rather than being collapsed into a
+task-level pass.
 Each capability must link to conformance tests, each threat to controls/tests
 and each performance budget to benchmark jobs before its milestone gate.
 Release evidence records commit, toolchains, dependency lock/SBOM, fixture

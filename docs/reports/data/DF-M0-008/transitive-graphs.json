@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "task": "DF-M0-008",
+  "evidence_date": "2026-08-01",
+  "purpose": "Index immutable full-graph evidence without copying disposed spike lockfiles into the current tree.",
+  "graphs": [
+    {
+      "id": "postgres-driver-lock",
+      "ecosystem": "cargo",
+      "source_commit": "150ef5b200b8713d03592d91589d8ae54f8146c8",
+      "source_tree": "6ec35aaffabb503ee70faa6ba1714b209e940075",
+      "lockfile_git_path": "spikes/postgres-driver/Cargo.lock",
+      "lockfile_sha256": "dd2322ad327267c9c91b0954012aa9775657d3755fd34d25206a7888f00744aa",
+      "package_records": 124,
+      "external_registry_records": 123,
+      "git_source_records": 0,
+      "target_tree_unique_nodes_reported_by_spike": 90,
+      "direct_dependencies": [
+        {"name": "futures-util", "version": "0.3.33"},
+        {"name": "rustls", "version": "0.23.43"},
+        {"name": "serde_json", "version": "1.0.151"},
+        {"name": "tokio", "version": "1.53.1"},
+        {"name": "tokio-postgres", "version": "0.7.18"},
+        {"name": "tokio-postgres-rustls", "version": "0.14.0"},
+        {"name": "uuid", "version": "1.24.0"}
+      ],
+      "duplicate_version_warnings": [
+        {"name": "const-oid", "versions": ["0.9.6", "0.10.2"]},
+        {"name": "getrandom", "versions": ["0.2.17", "0.4.3"]},
+        {"name": "syn", "versions": ["2.0.119", "3.0.3"]}
+      ],
+      "reconstruction_command": "git show 150ef5b200b8713d03592d91589d8ae54f8146c8:spikes/postgres-driver/Cargo.lock",
+      "completeness": "The immutable lockfile blob is the canonical full transitive list; this index records counts, direct roots, source policy, and digest."
+    },
+    {
+      "id": "russh-lock",
+      "ecosystem": "cargo",
+      "source_commit": "875dd468221ad1c6c3c35b34a83c0af48ae3f9ad",
+      "source_tree": "88c8419d8082aa48ad9cafe9505c2fe1283ab300",
+      "lockfile_git_path": "spikes/ssh-tunnel/Cargo.lock",
+      "lockfile_sha256": "634d476eca69b75645841611fe88ad6a2620c365477296bcb0f5b6fba19a2514",
+      "package_records": 179,
+      "external_registry_records": 177,
+      "git_source_records": 0,
+      "russh_normal_third_party_package_versions": 131,
+      "workspace_direct_dependencies": [
+        {"name": "serde", "version": "1.0.229"},
+        {"name": "serde_json", "version": "1.0.151"}
+      ],
+      "russh_probe_direct_dependencies": [
+        {"name": "data-encoding", "version": "2.11.0"},
+        {"name": "hmac", "version": "0.13.0"},
+        {"name": "libc", "version": "0.2.189"},
+        {"name": "log", "version": "0.4.33"},
+        {"name": "russh", "version": "0.62.4", "features": ["aws-lc-rs"]},
+        {"name": "sha1", "version": "0.11.0"},
+        {"name": "tokio", "version": "1.53.1"},
+        {"name": "zeroize", "version": "1.9.0"}
+      ],
+      "excluded_by_minimal_features": ["rsa", "flate2/compression"],
+      "fresh_advisory_blind_spot": {
+        "github_advisory": "GHSA-m65r-rprj-r5rg",
+        "affects_locked_russh": "<= 0.62.4",
+        "rustsec_and_cargo_deny_reported_it_on_2026_08_01": false
+      },
+      "reconstruction_command": "git show 875dd468221ad1c6c3c35b34a83c0af48ae3f9ad:spikes/ssh-tunnel/Cargo.lock",
+      "completeness": "The immutable lockfile blob is the canonical full transitive list; the exact graph is rejected because an upstream repository advisory now affects its russh root."
+    },
+    {
+      "id": "grdb-package-resolved",
+      "ecosystem": "swift-package-manager",
+      "source_commit": "638886064b563aa3f472191c8edbf365a86d3feb",
+      "source_tree": "e4c339ba312e55e9d620b1185155b3fef13ee6e3",
+      "resolved_file_git_path": "spikes/persistence-keychain/Package.resolved",
+      "resolved_file_sha256": "f9630fe714cc974caf85c09ac201d4fbc07761dfe2002dd4405b1abe10ce51f9",
+      "pins": [
+        {
+          "identity": "grdb.swift",
+          "location": "https://github.com/groue/GRDB.swift.git",
+          "version": "7.11.1",
+          "revision": "b83108d10f42680d78f23fe4d4d80fc88dab3212"
+        }
+      ],
+      "grdb_normal_swift_package_dependencies": 0,
+      "platform_library": "system SQLite",
+      "reconstruction_command": "git show 638886064b563aa3f472191c8edbf365a86d3feb:spikes/persistence-keychain/Package.resolved",
+      "completeness": "Complete for the disposed Swift package resolution; it is not a production app graph."
+    },
+    {
+      "id": "sparkle-release-artifact",
+      "ecosystem": "macos-framework-release",
+      "version": "2.9.4",
+      "tag_commit": "b6496a74a087257ef5e6da1c5b29a447a60f5bd7",
+      "release_asset_sha256": "ce89daf967db1e1893ed3ebd67575ed82d3902563e3191ca92aaec9164fbdef9",
+      "nested_code_count_observed": 4,
+      "framework_architectures": ["x86_64", "arm64"],
+      "full_embedded_product_graph_recorded": false,
+      "completeness": "The upstream release artifact was inspected, but no DataForge framework/XPC embedding graph exists."
+    }
+  ],
+  "candidates_without_exact_graphs": [
+    {
+      "candidate_id": "mysql-async",
+      "reason": "No exact version or feature set selected."
+    },
+    {
+      "candidate_id": "rusqlite",
+      "reason": "No exact version or system-versus-bundled SQLite choice selected."
+    },
+    {
+      "candidate_id": "system-openssh",
+      "reason": "OS project/build provenance replaces a package graph; the tested build is rejected."
+    },
+    {
+      "candidate_id": "ssh2-libssh2",
+      "reason": "Exact static source was rejected before dependency resolution/build; component checksums and vendored commit are retained."
+    },
+    {
+      "candidate_id": "tree-sitter",
+      "reason": "No exact runtime or grammar set selected."
+    },
+    {
+      "candidate_id": "sqlx",
+      "reason": "No exact version or minimal per-adapter feature set selected."
+    },
+    {
+      "candidate_id": "sentry-cocoa",
+      "reason": "No exact SDK artifact or service configuration selected."
+    }
+  ],
+  "production_release_graph_available": false,
+  "reason_no_release_graph": "The repository has no separately authorized production source tree or manifest."
+}

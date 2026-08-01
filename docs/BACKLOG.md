@@ -3,7 +3,7 @@
 Status: Production backlog remains planning-only; DF-M0-001 through DF-M0-006
 have durable disposed spike records; no production item is implemented
 
-Last updated: 2026-07-30
+Last updated: 2026-08-01
 
 Priorities: P0 safety/architecture blocker, P1 milestone-critical, P2 important, P3 later. Complexity: S/M/L/XL. Each item is independently reviewable; any scope discovered to be larger must be split before implementation.
 
@@ -197,6 +197,9 @@ local-listener echo and comprehensive cleanup remain unsupported. Production
 SSH is disabled until every ADR re-entry gate passes.
 The disposable source remains auditable at `875dd46` and was removed in
 separate disposal commit `0b80f7e`.
+ADR-0015 later supersedes only the conditional exact-version statement:
+official `GHSA-m65r-rprj-r5rg` affects `russh 0.62.4`, so that exact source is
+now rejected; a newer source must rerun the complete gate.
 
 ### DF-M0-006
 
@@ -314,6 +317,21 @@ source is auditable at `6388860` and was removed in separate disposal commit
 **Out of scope:** General dependency upgrades and product licensing decision.
 
 **Definition of done:** Dossiers reviewed by engineering/security/legal; ADR/backlog updated with exact decisions.
+
+**M0 engineering disposition (2026-08-01):** The
+[DF-M0-008 dossier](reports/DF-M0-008-dependency-adoption-dossiers.md),
+[dependency policy](DEPENDENCY_POLICY.md), prototype SPDX inventory and
+[ADR-0015](adr/0015-m0-dependency-disposition.md) record
+`0 approve / 10 defer / 3 reject`; production dependency adoption remains
+false. Fresh official `GHSA-m65r-rprj-r5rg` affects exact `russh 0.62.4`, so
+ADR-0015 rejects that exact source in addition to the previously rejected
+tested system OpenSSH/native `-J` and `ssh2`/libssh2 source. The candidate
+coverage, immutable lock/checksum reconstruction and planned policy dry run
+are recorded, but the dry run correctly blocks: exact legal/notices reviews,
+several unselected identities, product manifests/size/release SBOM and
+independent engineering/security/legal approvals are absent. Consequently the
+task Definition of Done is **not met**; the artifact is ready for external
+review and no dependency was added.
 
 ### DF-M0-009
 

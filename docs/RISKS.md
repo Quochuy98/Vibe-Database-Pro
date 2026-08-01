@@ -2,7 +2,7 @@
 
 Status: Initial planning register
 
-Last updated: 2026-07-30
+Last updated: 2026-08-01
 
 Scoring: Probability (L/M/H), impact (L/M/H/Critical). Any Critical impact with non-low probability is release-blocking until mitigated or explicitly rejected.
 
@@ -30,7 +30,7 @@ Scoring: Probability (L/M/H), impact (L/M/H/Critical). Any Critical impact with 
 | R-18 | UI performance/regressions from SwiftUI/AppKit split | M | High | Instruments, frame/RSS/editor/grid/accessibility and retained-object budgets | Narrow AppKit bridges, MainActor state, incremental work; ADR-0011 bounded custom grid renderer with row-and-column virtualization | Replace/defer a failing component; never lower frame or accessibility gates | macOS UI owner |
 | R-19 | ER graph layout is slow or unreadable at scale | H | Medium | 500/5,000-table layout/pan/zoom benchmarks and usability tests | Level of detail, incremental/worker layout, manual pinning, hide/filter | Limit visible scope; defer auto-layout/large export | Modeling owner |
 | R-20 | Destructive-operation safety is bypassed by parser gap or stale UI | M | Critical | Fuzz classifier, stale digest/target-switch/shortcut/production tests | Core revalidation, typed confirmation, unknown=block, audit | Emergency disable writes/feature flag; incident/reconciliation | Security + query owner |
-| R-21 | Supply-chain dependency/update compromise | M | Critical | `cargo audit/deny`, SBOM/provenance, signature/tamper/reproducible checks | Pin/lock, review advisories/licenses, offline release keys, signed updates | Revoke release/key, halt feed, ship verified rollback | Security + release |
+| R-21 | Supply-chain dependency/update compromise | M | Critical | Registry/yank, RustSec/ecosystem, official repository/vendor/OS advisory scans plus SBOM/provenance, signature/tamper/reproducible checks | Pin/lock, multi-source review, independent license approval, offline release keys, signed updates | Reject/disable exact source, revoke release/key, halt feed, ship verified rollback | Security + release |
 | R-22 | Adapter contract becomes lowest-common denominator or leaks driver types | M | High | Architecture review, fake adapters, phase conformance and API diff | Small capability ports; normalized+lossless descriptors; ADR for change | Split port or defer engine; no UI workaround | Principal architect |
 | R-23 | Local history/diagnostics leak secrets or sensitive SQL/data | M | High | Seeded canary scans of SQLite/log/crash/export/clipboard/temp; upstream driver log-source review | Redaction schema before sinks, opt-in network, retention/delete controls; disable/redact driver SQL/parameter/notice logs | Purge artifacts, rotate affected credentials, disable diagnostics | Security/privacy owner |
 | R-24 | Query parser/grammar dependency license or quality is unsuitable | M | High | Grammar fuzz/coverage, license/maintenance review, malformed SQL corpus | Prototype only; permissive grammar candidates; parser fallback is not safety parser | Use highlighting-only mode and adapter parser; defer advanced completion | Editor/core owner |
@@ -38,7 +38,7 @@ Scoring: Probability (L/M/H), impact (L/M/H/Critical). Any Critical impact with 
 | R-26 | Community/Pro split creates unsafe feature gating or licensing uncertainty | M | High | Legal/product review, entitlement and offline-license threat tests | Safety controls common to all tiers; license seam not in DB path | Ship one tier; defer commercial packaging | Product + legal |
 | R-27 | Observability/telemetry violates user privacy or regulation | M | High | Payload preview, consent/opt-out network tests, privacy review | Off by default; allowlisted fields; deletion and retention policy | Disable upload; local diagnostics only | Privacy owner |
 | R-28 | Automation retries duplicate writes or applies stale targets | M | Critical | Checkpoint/crash/overlap/idempotency/target-drift tests | Immutable job digest; no write retry by default; explicit resume/verification | Stop job, mark unknown, require manual reconciliation | Automation + DB owner |
-| R-29 | Security fixes in a candidate dependency or OS-provided component are not noticed | M | High | Scheduled RustSec/GitHub/vendor/Apple source and OS/project-build scans plus SBOM diff | Pin exact package floors; allowlist verified platform builds/backports; owner/expiry for exceptions; update playbook | Disable affected capability and release/update to a verified build | Dependency owner |
+| R-29 | Security fixes in a candidate dependency or OS-provided component are not noticed | M | High | Scheduled registry, RustSec, official repository/vendor/Apple source and OS/project-build scans plus SBOM diff; DF-M0-008 specifically tests source disagreement | Pin exact floors; apply the strongest current applicable finding; allowlist verified platform builds/backports; owner/expiry for exceptions | Reject/disable affected exact source and release/update only after a new full dossier | Dependency owner |
 | R-30 | Product identity unintentionally copies a commercial product | L | High | Design/IP review, asset/source/copy provenance checks | Original name/artwork/copy/interaction; no reverse engineering/private API | Remove/rewrite asset/feature; legal review before release | Design + legal |
 | R-31 | Test infrastructure accidentally targets production/shared staging | L | Critical | Destructive guard, hostname/schema marker, CI secret scope, audit | Disposable containers/isolated schema and hard abort guards | Revoke credentials/stop run; incident review; quarantine fixture | QA + security |
 | R-32 | Future plugin becomes an arbitrary code/secret escape | M | Critical | Plugin threat-model/XPC capability prototype and signature tests | No plugins MVP; signed out-of-process, permissioned, crash-isolated API | Remove plugin support; revoke plugin keys/capabilities | Platform security |
@@ -62,8 +62,9 @@ No risk is silently accepted. An accepted exception records rationale, residual 
 ## 4. Unknowns requiring spikes
 
 1. Exact PostgreSQL/MySQL/MariaDB/SQLite driver versions, licenses, cancellation and TLS behavior.
-2. SSH residual gates after ADR-0012: exact current advisory floor, complete
-   agent/auth subset, connector-level no-direct trap, local-listener echo,
+2. SSH residual gates after ADR-0012/0015: evaluate a new exact source such as
+   upstream-reported patched `russh 0.62.5+`; exact `0.62.4` is rejected;
+   complete agent/auth subset, connector-level no-direct trap, local-listener echo,
    deterministic cleanup, Keychain/FFI/distribution integration and long soak.
 3. TextKit 2 large-file and dialect parser strategy.
 4. Bounded custom native grid renderer performance, input behavior and unified
@@ -100,9 +101,11 @@ open.
 
 DF-M0-005 resolves the initial three-candidate comparison but does not close
 R-07, R-15 or R-29. [ADR-0012](adr/0012-m0-ssh-disposition.md) rejects the
-tested system OpenSSH/native `-J` and exact `ssh2`/libssh2 source, and retains
-exact `russh 0.62.4` only conditionally. Seven frozen rows remain unsupported,
-so production SSH stays disabled while direct TLS remains eligible.
+tested system OpenSSH/native `-J` and exact `ssh2`/libssh2 source. DF-M0-008
+then found a fresh official advisory affecting exact `russh 0.62.4`, so
+[ADR-0015](adr/0015-m0-dependency-disposition.md) rejects that exact source as
+well. Seven frozen rows remain unsupported; production SSH stays disabled
+while direct TLS remains eligible.
 
 DF-M0-006 narrows unknown 6 and R-21/R-25/R-33 but closes none of them.
 [ADR-0013](adr/0013-m0-distribution-disposition.md) retains direct distribution
@@ -120,6 +123,14 @@ evidence. Actual Data Protection Keychain CRUD/attributes, full XCTest,
 Team/access-group/helper behavior, production-schema/soak, realistic journal
 and incremental product-size evidence remain open. Exact GRDB `7.11.1` is
 conditional and production persistence stays disabled.
+
+DF-M0-008 narrows R-04/R-21/R-25/R-29 but closes none of them. The
+[dependency dossier](reports/DF-M0-008-dependency-adoption-dossiers.md) and
+[policy](DEPENDENCY_POLICY.md) record `0 approve / 10 defer / 3 reject` and
+demonstrate a scanner blind spot: the frozen SSH lock passed RustSec/Cargo
+policy while an official repository advisory affected its root. Exact legal
+reviews, several candidate identities, production product-size/release-SBOM
+evidence and independent reviewers remain external blockers.
 
 ## 5. Risk acceptance format
 
@@ -140,6 +151,7 @@ Revisit trigger:
 The repository is planning-only; no implementation risk is being claimed as
 mitigated by code. The strongest current evidence is the architecture/safety/
 test plan, disposed spike records and primary-source dependency/platform
-review. DF-M0-005 narrows candidate choices but leaves SSH disabled. Future
-implementation requests must close their remaining M0 gates rather than build
-broad feature surfaces.
+review. DF-M0-008 now supplies the canonical non-adoption inventory and keeps
+every production dependency gate closed; SSH is disabled and exact
+`russh 0.62.4` is rejected. Future implementation requests must close their
+remaining M0 gates rather than build broad feature surfaces.

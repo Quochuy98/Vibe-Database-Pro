@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "task": "DF-M0-008",
+  "evidence_date": "2026-08-01",
+  "policy_version": "planned-dependency-policy-v1",
+  "mode": "dry-run against disposed spike graphs and candidate inventory; no production manifest",
+  "overall_result": "block",
+  "production_dependency_adoption_allowed": false,
+  "df_m0_008_definition_of_done_met": false,
+  "disposition_summary": {
+    "approve": 0,
+    "defer": 10,
+    "reject": 3,
+    "total": 13
+  },
+  "rules": [
+    {
+      "id": "DP-IDENTITY-01",
+      "rule": "A shippable candidate has an exact version or immutable revision, canonical source, checksum, minimal feature set, and lock graph.",
+      "failure_action": "defer"
+    },
+    {
+      "id": "DP-LICENSE-01",
+      "rule": "Exact license files, notices, redistribution obligations, service terms, and commercial-use compatibility receive independent legal approval.",
+      "failure_action": "defer or reject; never self-approve"
+    },
+    {
+      "id": "DP-ADVISORY-01",
+      "rule": "Check registry, RustSec, repository advisories, OS/vendor sources, and relevant transitive advisories; any current affected exact source blocks adoption.",
+      "failure_action": "reject exact source or disable capability"
+    },
+    {
+      "id": "DP-SOURCE-01",
+      "rule": "Registry and source origins are allowlisted; mutable Git branches, unclear binaries, private APIs, and unknown provenance are blocked.",
+      "failure_action": "reject"
+    },
+    {
+      "id": "DP-PLATFORM-01",
+      "rule": "Minimum/current macOS, Apple Silicon, toolchain/MSRV, signatures, entitlements, and product binary-size delta are measured for the exact integration.",
+      "failure_action": "defer"
+    },
+    {
+      "id": "DP-RUNTIME-01",
+      "rule": "The candidate passes feature-specific correctness, cancellation, bounded-resource, credential, logging, hostile-input, failure, and cleanup gates.",
+      "failure_action": "defer or reject"
+    },
+    {
+      "id": "DP-SBOM-01",
+      "rule": "A release SBOM is generated reproducibly from the locked production build and reconciles with the embedded artifact graph.",
+      "failure_action": "block release"
+    },
+    {
+      "id": "DP-OWNER-01",
+      "rule": "Every candidate has engineering/security/legal owners, review date, advisory response SLA, replacement plan, and re-review trigger.",
+      "failure_action": "defer"
+    }
+  ],
+  "checks": [
+    {
+      "id": "candidate-coverage",
+      "status": "pass",
+      "evidence": "candidate-dispositions.json contains 13 unique IDs and 13 dispositions."
+    },
+    {
+      "id": "disposition-counts",
+      "status": "pass",
+      "evidence": "0 approve / 10 defer / 3 reject; no candidate is silently treated as adopted."
+    },
+    {
+      "id": "immutable-historical-locks",
+      "status": "pass",
+      "evidence": "PostgreSQL Cargo.lock SHA-256 dd2322ad...44aa and SSH Cargo.lock SHA-256 634d476e...2514 reproduce from named Git commits; Package.resolved SHA-256 f9630fe7...51f9 reproduces from DF-M0-007."
+    },
+    {
+      "id": "registry-checksums-and-yank",
+      "status": "pass_for_queried_exact_crates",
+      "evidence": "Official crates.io records match all queried exact checksums and report them non-yanked on 2026-08-01."
+    },
+    {
+      "id": "cargo-audit-postgres-lock",
+      "status": "pass",
+      "command": "cargo audit --file =(git show 150ef5b200b8713d03592d91589d8ae54f8146c8:spikes/postgres-driver/Cargo.lock) --deny warnings",
+      "evidence": "cargo-audit 0.22.2, RustSec database 685d32fd681b540aa64019820639613c5a4fd922, 124 dependency records, exit 0."
+    },
+    {
+      "id": "cargo-audit-ssh-lock",
+      "status": "pass_with_known_external_blind_spot",
+      "command": "cargo audit --file =(git show 875dd468221ad1c6c3c35b34a83c0af48ae3f9ad:spikes/ssh-tunnel/Cargo.lock) --deny warnings",
+      "evidence": "Exit 0 for 179 dependency records, but official GitHub advisory GHSA-m65r-rprj-r5rg affects the locked russh 0.62.4. Multi-source policy therefore blocks it."
+    },
+    {
+      "id": "cargo-deny-postgres-lock",
+      "status": "pass_with_warnings",
+      "command": "cargo deny --manifest-path <historical-postgres-tree>/Cargo.toml check advisories licenses bans sources",
+      "evidence": "All four checks pass; duplicate warnings remain for const-oid, getrandom, and syn."
+    },
+    {
+      "id": "cargo-deny-ssh-lock",
+      "status": "pass_with_known_external_blind_spot",
+      "command": "cargo deny --manifest-path <historical-ssh-tree>/Cargo.toml check advisories licenses bans sources",
+      "evidence": "All four checks pass, but the fresh repository advisory is not present in this source."
+    },
+    {
+      "id": "upstream-repository-advisories",
+      "status": "block",
+      "evidence": "Eugeny/russh reports 15 advisories; GHSA-m65r-rprj-r5rg published 2026-07-31 affects <=0.62.4 and reports 0.62.5 patched. Exact 0.62.4 is rejected."
+    },
+    {
+      "id": "sparkle-advisory-range",
+      "status": "pass_for_declared_ranges_only",
+      "evidence": "Two official medium advisories declare <=2.9.1; exact 2.9.4 is outside those ranges, but integration and legal gates remain deferred."
+    },
+    {
+      "id": "grdb-advisory-snapshot",
+      "status": "pass_as_point_in_time_query_only",
+      "evidence": "The official repository advisory endpoint returned an empty array; this is not proof of absence of vulnerabilities."
+    },
+    {
+      "id": "exact-license-and-notice-review",
+      "status": "block",
+      "evidence": "No qualified legal reviewer has approved exact files/notices, AWS-LC or bundled-framework obligations, service terms, or final product licensing."
+    },
+    {
+      "id": "exact-identity-all-candidates",
+      "status": "block",
+      "evidence": "mysql_async, rusqlite, tree-sitter grammars/runtime, SQLx, and Sentry Cocoa do not have selected exact versions/graphs; they remain deferred."
+    },
+    {
+      "id": "product-arm64-and-size",
+      "status": "block",
+      "evidence": "Spike arm64 measurements exist for selected stacks, but no separately authorized production artifact exists for true incremental product deltas."
+    },
+    {
+      "id": "prototype-spdx-structure",
+      "status": "pass",
+      "evidence": "sbom.spdx.json has SPDX-2.3 required document/package fields, unique SPDX IDs, valid internal relationship references, and explicitly models EVALUATES rather than adoption."
+    },
+    {
+      "id": "release-sbom-reproducibility",
+      "status": "unsupported",
+      "evidence": "There is no production manifest, lock, or release artifact. The prototype candidate inventory cannot establish a release SBOM."
+    },
+    {
+      "id": "independent-review",
+      "status": "block",
+      "evidence": "Engineering evidence is prepared, but independent engineering, security, and legal approvals have not been supplied."
+    }
+  ],
+  "blocking_reasons": [
+    "Exact russh 0.62.4 is affected by a fresh official upstream advisory.",
+    "Five candidate groups lack exact version/source/checksum/graph evidence.",
+    "Several technically measured candidates still fail runtime/integration re-entry gates.",
+    "No independent legal, security, or engineering approval exists.",
+    "No production manifest or artifact exists for release SBOM and true product-size checks."
+  ],
+  "safe_outcome": "Keep every production dependency and affected capability disabled. Reject exact unsafe sources, preserve deferred alternatives behind ports/capability gates, and rerun the full policy for any new exact version."
+}

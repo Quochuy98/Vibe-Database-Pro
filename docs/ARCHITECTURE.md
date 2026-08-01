@@ -2,7 +2,7 @@
 
 Status: Proposed planning baseline
 
-Last reviewed: 2026-07-30
+Last reviewed: 2026-08-01
 
 Decision authority: accepted ADRs in [`docs/adr`](adr/README.md)
 
@@ -326,7 +326,7 @@ This compact register complements the accepted ADR set. “Revisit” is a gate,
 | 7 | Bridge | C ABI; UniFFI; CXX | Versioned C ABI with opaque handles and Swift facade | Boilerplate, ownership tests | UniFFI proves equal control with less risk |
 | 8 | Persistence | SwiftData/Core Data; SQLite direct; GRDB | SQLite through Swift persistence port; exact GRDB `7.11.1` conditional by ADR-0014 | Full-Xcode, size/legal and production-schema gates remain | Adoption review fails or helper sharing dominates |
 | 9 | Secrets | SQLite encryption; `UserDefaults`; Keychain | Security.framework Keychain; metadata stores reference only; actual signed-app integration gated by ADR-0014 | Team/entitlement/background access policy complexity | Never downgrade; revisit access class only |
-| 10 | SSH | system OpenSSH; `russh`; libssh2 | **Defer capability by ADR-0012.** Exact `russh 0.62.4` remains conditional planning input; the tested system OpenSSH/native `-J` and exact `ssh2`/libssh2 candidates are rejected | Seven frozen russh rows unsupported; security/advisory, auth, cleanup and distribution gates remain | Reconsider only when every ADR-0012 re-entry gate passes; otherwise ship without SSH |
+| 10 | SSH | system OpenSSH; `russh`; libssh2 | **Keep capability disabled by ADR-0012/0015.** Exact `russh 0.62.4`, tested system OpenSSH/native `-J` and exact `ssh2`/libssh2 are rejected | Fresh GHSA affects 0.62.4; seven frozen rows and auth/cleanup/distribution gates remain | Evaluate a new exact version such as 0.62.5+ only by rerunning every current gate; otherwise ship without SSH |
 | 11 | TLS | driver default; rustls; platform TLS | Adapter TLS with platform roots and per-connection custom CA, fail closed | Cross-driver consistency | Trust-store/certificate spike fails |
 | 12 | Distribution | Direct; Mac App Store | Direct Developer ID remains the first-channel plan after ADR-0013; production release stays closed pending credentialed notarization/Gatekeeper evidence | Greater self-managed update/security burden; local ad-hoc evidence has no publisher anchor | MAS-specific product demand funds a separate build, or the full direct lane fails |
 | 13 | Auto-update | Sparkle 2; manual; custom | Exact Sparkle `2.9.4` is conditional only after DF-M0-006; manual verified delivery is the fail-closed fallback | Framework/XPC entitlements, real install/rollback, key rotation, legal and Developer ID integration remain open | Exact candidate fails security/legal/integration, or a better reviewed option appears |
@@ -340,7 +340,7 @@ This compact register complements the accepted ADR set. “Revisit” is a gate,
 
 ## 16. Dependency candidates and adoption gate
 
-This is a preliminary evaluation updated 2026-07-30, not dependency approval
+This is a preliminary evaluation updated 2026-08-01, not dependency approval
 or legal advice. Reported MIT/Apache/ISC licenses are generally permissive for
 commercial distribution, but exact license files, notices and transitive
 obligations still require legal review. Versions are deliberately not pinned
@@ -356,7 +356,7 @@ the same source/project-build/advisory gate even when absent from Cargo/SBOM.
 | [`mysql_async`](https://github.com/blackbeam/mysql_async) | MIT/Apache-2.0; preliminarily permissive | Active release visible in 2026; advisory scan and maintainer/bus-factor review required | Rust/Tokio plus selected rustls/crypto/compression transitives; prove arm64, auth plugins and size | Cancel/session safety and MariaDB divergence are high risk; alternative driver/native client or defer engine |
 | [`rusqlite`](https://github.com/rusqlite/rusqlite) | MIT; preliminarily permissive | Active 2026 releases; advisory scan covers crate and SQLite C library | Uses `libsqlite3-sys`/SQLite C API; select system versus bundled SQLite, license notices, arm64 symbols and unsafe boundary | Synchronous driver requires bounded blocking lane; fallback is direct SQLite API/another reviewed wrapper |
 | [rustls ecosystem](https://github.com/rustls/rustls) | Apache-2.0/MIT/ISC across components; verify each file | Active; cryptography/webpki advisories are release-blocking and patched floors must be pinned | Crypto provider/root-store features alter native/code-size/transitive obligations; prove platform roots, custom CA and arm64 | Trust integration inconsistencies may force platform TLS or adapter-specific alternative |
-| [`russh`](https://github.com/Eugeny/russh) | Apache-2.0; preliminarily permissive; AWS-LC notices/legal review open | Exact evidence floor is `0.62.4` on 2026-07-30; 14 upstream advisories were reviewed because RustSec alone omitted the three July 2026 entries | Minimal arm64 graph excludes RSA/compression but has 131 third-party package/version pairs; probe is 5,912,168 bytes, not a product delta | **Conditional only by ADR-0012:** password and seven frozen rows unsupported; no dependency approval |
+| [`russh`](https://github.com/Eugeny/russh) | Apache-2.0; AWS-LC notices/legal review open | Official upstream exposed 15 advisories on 2026-08-01; fresh `GHSA-m65r-rprj-r5rg` affects exact `0.62.4` and reports `0.62.5` patched | Minimal arm64 0.62.4 graph excludes RSA/compression but has 131 third-party package/version pairs; probe is 5,912,168 bytes, not a product delta | **Reject exact 0.62.4 by ADR-0015.** A new exact version inherits no approval and must rerun every ADR-0012 gate |
 | macOS system OpenSSH | Apple/OpenSSH permissive source posture requires final notice/legal review; executable is OS-provided | Tested `OpenSSH-354.120.2`/10.2p1 is below the source-reviewed OpenSSH 10.4 client-security floor; Apple owns updates | Zero bundled executable bytes, but external-process, typed-error, lifecycle and OS-build gates apply | Tested build and native `ProxyJump/-J` rejected; no vetted fallback |
 | [`ssh2`/libssh2](https://github.com/rust-lang/ssh2-rs) | Rust crates MIT/Apache-2.0; vendored libssh2 notices require review | Exact `ssh2 0.9.6`/`libssh2-sys 0.3.2` fork omits current fixes including CVE-2026-7598 and CVE-2026-66032–66035 | Rejected before build/runtime; binary delta intentionally unavailable; synchronous lifecycle/cancellation design unproven | Reject exact source; do not maintain an internal security fork |
 | [GRDB](https://github.com/groue/GRDB.swift) | Exact `7.11.1` MIT file hashed; final notices/legal approval open | Published 2026-06-18; upstream advisory API empty at DF-M0-007 evidence time; repeat at adoption/release | Swift 6.1+/Xcode 16.3+; uses system SQLite and has zero normal Swift package dependencies; arm64 standalone probe delta 5,780,048 bytes is not a product delta | **Conditional by ADR-0014:** migration/recovery evidence positive; full XCTest, signed Keychain, realistic size/performance and legal gates remain |
@@ -364,6 +364,14 @@ the same source/project-build/advisory gate even when absent from Cargo/SBOM.
 | [SQLx](https://github.com/launchbadge/sqlx) | MIT/Apache-2.0; preliminarily permissive | Active and supports PostgreSQL/MySQL/MariaDB/SQLite streaming; prior protocol advisories show the need for pinned patched versions | Features can pull multiple drivers/TLS/macros/SQLite C; arm64 and binary-size impact may be larger | Evaluated alternative, not selected as a generic `Any` driver; reconsider per-adapter only if it wins conformance |
 | [Sparkle 2](https://github.com/sparkle-project/Sparkle) | Exact `2.9.4` license file is MIT with bundled third-party notices; legal approval open | DF-M0-006 matched tag/asset and found two published medium advisories whose declared affected ranges end at `2.9.1`; repeat every release | Universal framework/tools include arm64 and valid upstream signatures; extracted framework is about 3.13 MB, but embedding/XPC entitlements/notarization were not run | **Conditional by ADR-0013:** offline Ed25519 tool smokes pass, while real install, pre-extraction configuration, rollback and key rotation remain gated; fallback is manual verified delivery |
 | [Sentry Cocoa](https://github.com/getsentry/sentry-cocoa) | MIT SDK; service terms/privacy are separate | Active 2026 releases; SDK/vendor/security/privacy review required | SPM/XCFramework and networking/crash-capture transitives affect size and payload; arm64 support still verified in artifact | Optional only after consent/payload/legal gate; fallback is local diagnostics/no upload |
+
+The consolidated [DF-M0-008 dossier](reports/DF-M0-008-dependency-adoption-dossiers.md)
+and [ADR-0015](adr/0015-m0-dependency-disposition.md) record
+`0 approve / 10 defer / 3 reject`. The accompanying SPDX document is a
+non-adoption candidate inventory, not a release SBOM. Production manifests
+remain empty; independent engineering/security/legal review and exact
+integration evidence are still required by
+[DEPENDENCY_POLICY.md](DEPENDENCY_POLICY.md).
 
 Build/test tools (`swiftformat`, `swiftlint`, `cargo-audit`, `cargo-deny`, SBOM/provenance tooling and CI actions) receive the same exact-source/license/advisory/pinning review even when they do not ship in the app. Container images and official database utilities also require digest, license, signature/provenance and redistribution review.
 
@@ -399,13 +407,15 @@ accessibility table. Renderer-neutral bounded-state findings remain planning
 input only; the custom native replacement must earn new performance and
 accessibility evidence.
 
-The SSH row now has a defer/reject disposition in
-[ADR-0012](adr/0012-m0-ssh-disposition.md) and the
+The SSH row now has a reject/defer history in
+[ADR-0012](adr/0012-m0-ssh-disposition.md),
+[ADR-0015](adr/0015-m0-dependency-disposition.md) and the
 [DF-M0-005 evidence report](reports/DF-M0-005-ssh-tunnel-evidence.md). Exact
-`russh 0.62.4` supplies positive bounded trust, key and typed-hop planning
-evidence but its complete matrix is false. The tested system OpenSSH/native
-`-J` and exact `ssh2`/libssh2 source are rejected. Production SSH remains
-disabled and does not block a direct PostgreSQL/TLS slice.
+`russh 0.62.4` supplied positive bounded trust, key and typed-hop planning
+evidence but is now rejected because a fresh official advisory affects that
+exact version. Upstream-reported `0.62.5` is unevaluated. The tested system
+OpenSSH/native `-J` and exact `ssh2`/libssh2 source remain rejected. Production
+SSH remains disabled and does not block a direct PostgreSQL/TLS slice.
 
 The distribution row now has a partial/defer disposition in
 [ADR-0013](adr/0013-m0-distribution-disposition.md), the
