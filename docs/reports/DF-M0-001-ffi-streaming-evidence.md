@@ -124,11 +124,16 @@ The final convenience invocation was:
 
 It completed with exit status 0.
 
+The authoritative runner contains the C11 command above but no C++17 header
+inclusion command. An earlier disposable README described broader C/C++
+coverage; this durable report therefore makes no C++17 compilation claim.
+C++ consumption remains a production re-entry check.
+
 ## 4. Correctness, lifecycle and security results
 
 | Evidence | Result |
 | --- | --- |
-| C ABI | C11 and C++17 header compilation passed; C, Rust and Swift agree on every record size/alignment and selected/all field offsets |
+| C ABI | C11 header/shim compilation passed; C, Rust and Swift agree on every record size/alignment and selected/all field offsets; C++17 inclusion was not run |
 | Rust native suite | 13 passed, 0 failed; debug and release runs passed |
 | Swift integration | 8 XCTest cases passed, 0 failed in release configuration |
 | Typed million-row run | 1,000,000 rows, 1,000 chunks, deterministic typed digest `16282154771318798373` |
@@ -200,6 +205,13 @@ The following failures are retained rather than rewritten as passes:
   signal 11 before any XCTest began.
 - A bare Command Line Tools Swift test cannot import XCTest on this machine;
   the passing Swift evidence uses full Xcode explicitly.
+- Post-run review found that malformed-record tests changed `struct_size` inside
+  a fully allocated record. They did not provide an allocation shorter than an
+  inflated advertised size, so the spike cannot establish readable-tail memory
+  safety from `struct_size`. ADR-0008 now requires an independently supplied
+  readable length plus min/max/checked-arithmetic validation (or a separately
+  reviewed fixed-per-version record with no advertised tail). Historical source
+  and measurements remain unchanged.
 - External `swiftformat`, `swiftlint`, `cargo-audit` and `cargo-deny` are not
   installed. The spike has no third-party Rust dependency, but production CI
   still needs these policy gates.
@@ -248,15 +260,18 @@ runs before release.
 | Slow consumer backpressures producer | Met by one-outstanding-chunk pull/ACK state and `NEEDS_ACK` evidence |
 | ABI mismatch rejects | Met |
 | Cancel at lifecycle/race states | Met for the synchronous fake producer; real driver cancellation remains DF-M0-002 |
-| Malformed lengths/stale handles/panic/allocation/canary | Met for the spike contract |
+| Malformed record length/allocation safety | **Partial:** advertised-short fields in full allocations returned controlled errors; shorter allocations with inflated `struct_size` were not tested and require the revised ADR-0008 contract |
+| Stale handles/panic/allocation/canary | Met for the bounded spike cases recorded above |
 | Copies/RSS/latency recorded | Met with explicit limitations above |
 | Sanitizer/ownership/concurrency/property evidence | Met through Rust ASan/TSan, targeted Miri, native property/race and Swift integration; Swift sanitizer host limitation remains recorded |
 | Durable report before prototype deletion | Met by this file |
 
-Recommendation: retain the ADR-0008 planning contract—versioned fixed-width C
-records, caller-owned destination buffers, opaque generation handles, one
-outstanding pull/ACK chunk, hard row/byte caps, stateful cancellation and panic
-containment. Do not copy the spike into production. The disposable prototype
+Recommendation: retain the revised ADR-0008 planning contract—versioned
+fixed-width C records with an independently validated readable length (or a
+separately reviewed fixed-per-version no-tail shape), caller-owned destination
+buffers, opaque generation handles, one outstanding pull/ACK chunk, hard
+row/byte caps, stateful cancellation and panic containment. Do not copy the
+spike into production. The disposable prototype
 has been removed; this report, ADR and evidence source commit remain. A new
 review and production implementation must re-establish Swift sanitizer,
 executor, real-driver cancellation and app-level performance evidence.

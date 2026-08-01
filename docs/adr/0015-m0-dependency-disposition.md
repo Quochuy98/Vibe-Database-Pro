@@ -31,10 +31,11 @@ disposition even where technical spike evidence is positive.
 ## New evidence after ADR-0012
 
 On 2026-08-01, the official `russh` repository exposed 15 advisories. The newly
-published `GHSA-m65r-rprj-r5rg` declares `russh <=0.62.4` affected and reports
-`0.62.5` as patched. The frozen SSH lock still passed `cargo audit` and
-`cargo deny` because that repository advisory had not appeared in their data
-path.
+published repository advisory
+[`GHSA-m65r-rprj-r5rg`](https://github.com/Eugeny/russh/security/advisories/GHSA-m65r-rprj-r5rg)
+declares `russh <=0.62.4` affected and reports `0.62.5` as patched. The frozen
+SSH lock still passed `cargo audit` and `cargo deny` because that repository
+advisory had not appeared in their data path.
 
 This is not a reason to ignore scanners; it is evidence that the adoption gate
 must combine registry, RustSec/ecosystem, official repository, vendor and OS

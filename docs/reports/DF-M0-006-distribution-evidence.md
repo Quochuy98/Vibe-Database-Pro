@@ -48,10 +48,15 @@ This report separates three evidence boundaries:
   pass the integration/adoption gate. Manual delivery still requires
   Developer ID, notarization, stapling and Gatekeeper evidence.
 
-The frozen matrix is `13 pass / 6 partial / 4 unsupported / 0 fail` across 23
+The frozen matrix is `13 pass / 7 partial / 3 unsupported / 0 fail` across 23
 rows. `complete_release_gate_passed=false`,
 `production_distribution_enabled=false`, and `updater_adopted=false` are the
 only valid task-level conclusions.
+
+Post-run review on 2026-08-01 corrected only the two summary counts: the
+historical runner had hard-coded `6 partial / 4 unsupported`, while its 23
+authoritative scenario rows contain `7 partial / 3 unsupported`. No scenario
+status, measurement or fail-closed task flag changed.
 
 ## 3. Evidence identity and environment
 
@@ -318,7 +323,7 @@ dump, personal path or database data.
 | [`codesign-summary.txt`](data/DF-M0-006/codesign-summary.txt) | Local DR/runtime/tamper and expected trust failures | `5e6504decf7d644b2c4e1fcdee394d899466c58f7e6984baf691832144b80a36` |
 | [`environment.json`](data/DF-M0-006/environment.json) | Sanitized host/tool/signing availability | `c96bd2f23d4a796d28f4267107c6baa606288575c60dbc76711743213b8bb9a3` |
 | [`runner-completion.txt`](data/DF-M0-006/runner-completion.txt) | Outer secret scan and cleanup marker | `71a17b0c6b36f87fd6d0ab37d5be1f80c31965dc7159bd273e26def60093ca1d` |
-| [`runtime.json`](data/DF-M0-006/runtime.json) | Complete 23-row matrix with partial/unsupported semantics | `5313cbcd18a3338dafb6e1301ab81d85984741998b7b937f39e43ddb8949c95e` |
+| [`runtime.json`](data/DF-M0-006/runtime.json) | Complete 23-row matrix with partial/unsupported semantics | `1aad2ac6d0f5be64948c516b1bc1ef9dc7ee1415d458ede7d5703e7782e4299c` |
 | [`sbom.spdx.json`](data/DF-M0-006/sbom.spdx.json) | Provisional SPDX 2.3 package/provenance record | `a783415a67134a65ffc33d7d5927e1d3d3d3c91b0bd8066140cf4bee381de1a2` |
 | [`sparkle-candidate.json`](data/DF-M0-006/sparkle-candidate.json) | Exact release, license, advisory, architecture and integration gaps | `5731e97e496ae7c25900f5f7bb4d40a6b5e3041c6cd00266c4bc734313040edc` |
 

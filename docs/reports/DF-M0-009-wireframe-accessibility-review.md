@@ -59,8 +59,15 @@ pixel specification:
    `Unsupported — no implementation adopted`, and current direct test/connect
    paths omit SSH phases and host-key errors, consistent with ADR-0012/0015.
 2. TLS/CA terminology is expanded; database authentication method and
-   Keychain storage are separate, with unstored secrets limited to a short
-   in-memory lease.
+   Keychain storage are separate. For an unstored secret, the interactive
+   `ConnectionAttempt` service solely owns one non-renewable lease whose
+   provisional deadline is the earlier of the action timeout and 60 seconds.
+   Success, cancellation request, authentication failure, terminal error,
+   connection close or deadline revokes it; retry acquires a new lease. Cleanup
+   denies later access, releases owned references and overwrites lease-owned
+   mutable buffers where practical, while Swift and driver/runtime copies remain
+   a best-effort lifetime boundary rather than a zeroization claim. Security
+   review and fake-clock/trigger/race/use-after-revoke/canary tests remain open.
 3. `Stop` is renamed `Cancel Query`; `requested`/`confirmed`/
    `connectionClosed`/`unsupported` cancellation outcomes are separate from
    execution outcomes, and only confirmation permits `Cancelled`.
@@ -97,7 +104,7 @@ the corresponding executable M1/M2 evidence gates.
 | ID | Sev. | Finding / decision | Owner | Revisit trigger |
 | --- | --- | --- | --- | --- |
 | UX-001 | High | Initial SSH controls/phases contradicted current capability; artifact now shows unsupported state and direct paths omit SSH/host-key results | Connections + Security | A future SSH ADR adopts an exact implementation |
-| UX-002 | Medium | TLS/CA labels and auth-vs-Keychain storage semantics were ambiguous; contract now separates them and bounds unstored secret lifetime | Content design + Accessibility | Before M1/M2 connection copy/API freeze |
+| UX-002 | Medium | TLS/CA labels and auth-vs-Keychain storage semantics were ambiguous; contract now separates them and defines provisional owner/deadline/revocation/best-effort cleanup for an unstored secret | Connections + Security + Content design + Accessibility | Before M1/M2 connection copy/API freeze |
 | UX-003 | Medium | Cancellation wording conflated cancellation and execution outcomes; `Cancel Query` now uses the canonical separate taxonomy | Query UX + Database Core | M2 cancellation state review |
 | UX-004 | High | `rows [200]` confused page/fetch/hard limit; initial-fetch and loaded/limit actions now separated | Query UX + Performance | Before M2 result streaming UI |
 | UX-005 | High | Modal/error/async/collapse/reverse focus lifecycle was incomplete; shared table added, executable proof open | macOS UI + Accessibility | Before M1 shell state/API acceptance |
@@ -219,6 +226,9 @@ Accessibility/VoiceOver, Database Safety or Security reviewers.
 - No color, contrast, typography, clipping, localization bundle, RTL layout or
   native control rendering exists.
 - No frame/launch/cancel timing is claimed from ASCII.
+- No executable credential-lease owner, 60-second/action deadline, revocation,
+  cleanup or seeded-canary behavior exists; those remain provisional Security
+  and owning-milestone gates aligned with DF-M0-007's best-effort memory result.
 - No Product, macOS interaction design, Accessibility/VoiceOver, Database
   Safety or Security sign-off exists.
 
@@ -226,7 +236,7 @@ Accessibility/VoiceOver, Database Safety or Security reviewers.
 
 | Artifact | Purpose | SHA-256 |
 | --- | --- | --- |
-| [`review-matrix.json`](data/DF-M0-009/review-matrix.json) | Five wireframes, shared contract, 12 findings, owners, triggers and tests | `255c962d7177602c45fd9992186021dbcf210fffea64a9409dcea0337e399d37` |
+| [`review-matrix.json`](data/DF-M0-009/review-matrix.json) | Five wireframes, shared contract, 12 findings, owners, triggers and tests | `35d316bc2faf21270f52789426b9ee45c92b4ed9c7898bbe39b034a2b1dafbc4` |
 
 ## 13. Primary references
 

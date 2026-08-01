@@ -207,12 +207,20 @@
   ],
   "summary": {
     "pass": 13,
-    "partial": 6,
-    "unsupported": 4,
+    "partial": 7,
+    "unsupported": 3,
     "fail": 0,
     "total": 23,
     "complete_release_gate_passed": false,
     "production_distribution_enabled": false,
     "updater_adopted": false
+  },
+  "post_run_correction": {
+    "recorded_on": "2026-08-01",
+    "reason": "The historical runner hard-coded 6 partial / 4 unsupported, but the authoritative 23 scenario records contain 7 partial / 3 unsupported.",
+    "corrected_fields": ["summary.partial", "summary.unsupported"],
+    "scenario_records_changed": false,
+    "measurements_changed": false,
+    "task_level_fail_closed_flags_changed": false
   }
 }

@@ -11,8 +11,9 @@
   },
   "advisories": [],
   "package_graph": {
-    "normal_external_dependencies": 1,
-    "grdb_normal_dependencies": 0,
+    "probe_package_normal_external_dependencies": 1,
+    "probe_package_external_dependency_names": ["GRDB"],
+    "grdb_transitive_normal_dependencies": 0,
     "system_library": "SQLite",
     "system_sqlite_version": "3.51.0"
   },

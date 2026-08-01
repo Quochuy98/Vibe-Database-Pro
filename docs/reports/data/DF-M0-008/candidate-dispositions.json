@@ -254,7 +254,7 @@
         "normal_third_party_package_versions": 131,
         "git_sources": 0
       },
-      "replacement": "Evaluate exact russh 0.62.5 or later, or another SSH architecture, only by rerunning every ADR-0012 gate; otherwise ship without SSH.",
+      "replacement": "Evaluate separately pinned exact russh 0.62.5, a different exact immutable candidate, or another SSH architecture only by rerunning every ADR-0012 gate; otherwise ship without SSH.",
       "blockers": [
         "Fresh upstream advisory GHSA-m65r-rprj-r5rg explicitly includes 0.62.4.",
         "Seven frozen runtime rows, password policy, agent failure modes, connector trap, cleanup, Keychain/FFI, distribution, minimum-host, and soak evidence remain incomplete.",

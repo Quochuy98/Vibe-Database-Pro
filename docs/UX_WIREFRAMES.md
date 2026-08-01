@@ -101,10 +101,21 @@ originating disconnected draft; background restoration never steals focus.
 ```
 
 Only capabilities declared by the adapter reveal fields. Authentication method
-and credential storage are separate concepts. With Keychain storage off, a
-secret receives only a short in-memory lease for the current test/connect
-action; Save profile persists non-secret metadata only and never puts the
-secret in a draft, history, log or ordinary profile model.
+and credential storage are separate concepts. With Keychain storage off, the
+interactive `ConnectionAttempt` application service is the sole lease owner;
+the UI hands off and clears its secret-field state when Test/Connect starts.
+The provisional hard deadline is the earlier of the action timeout and 60
+seconds after acquisition. A lease cannot renew within that attempt, and retry
+requires a new attempt and lease. The owner revokes it at the earliest of
+successful authentication/session establishment, cancellation request,
+authentication failure, terminal error, connection close or deadline. Access
+after revocation is denied. Cleanup overwrites buffers owned by the lease where
+practical and releases its references/copies; Swift `String`/`Data`, driver and
+runtime copies permit only best-effort cleanup, not guaranteed zeroization.
+The 60-second ceiling is a planning value pending Security review and fake-clock,
+all-trigger, race, use-after-revoke and seeded-canary tests. Save profile
+persists non-secret metadata only and never puts the secret in a draft, history,
+log or ordinary profile model.
 
 `Test connection` reports only configured layers and has a visible Cancel
 action. In the current direct-only contract it reports TLS, database

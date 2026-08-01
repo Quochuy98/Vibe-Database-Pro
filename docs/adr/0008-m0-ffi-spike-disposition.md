@@ -31,9 +31,11 @@ machine (macOS 26.5.2, 24 GiB), with Rust 1.97.1, nightly 1.99.0 and Xcode
   includes independent reference-model property cases and same-handle
   cancel/next/release races.
 - Swift release integration passed 8 XCTest cases, including ABI/layout,
-  malformed input, row/byte caps, pull/ack, cancellation, panic/allocation
-  faults, secret-like destination canary, typed row parsing and registry
-  cleanup.
+  advertised-short fields inside fully allocated records, row/byte caps,
+  pull/ack, cancellation, panic/allocation faults, secret-like destination
+  canary, typed row parsing and registry cleanup. It did not allocate a record
+  shorter than its inflated `struct_size`; the production contract below closes
+  that post-run review gap.
 - `xcodebuild` generated SwiftPM scheme build and arm64 test passed.
 - The one-million-row run produced 1,000 chunks and deterministic digest
   `16282154771318798373`.
@@ -54,8 +56,15 @@ was used.
 
 For the next production design review, retain the following planning contract:
 
-1. Use fixed-width records beginning with `struct_size` and `abi_version`;
-   reject short/incompatible records before copying the advertised tail.
+1. Use versioned fixed-width records beginning with `struct_size` and
+   `abi_version`, and pass the readable allocation length independently of the
+   embedded `struct_size`. Treat neither a non-null pointer nor caller-supplied
+   `struct_size` as proof that tail memory is readable. Before reading or
+   copying, validate pointer/length pairing, minimum and maximum readable
+   lengths, supported minimum and maximum record sizes, and every offset/length
+   calculation with checked arithmetic. A future alternative may use one fixed
+   record per ABI version with no advertised tail, but it requires equivalent
+   mismatch tests.
 2. Use opaque `uint64_t` handles with slot generations and a bounded registry
    (128 streams in the spike hypothesis); stale generations cannot access a
    reused slot.

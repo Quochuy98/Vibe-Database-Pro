@@ -206,7 +206,7 @@
       "copyrightText": "NOASSERTION",
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [
-        {"referenceCategory": "PACKAGE-MANAGER", "referenceType": "purl", "referenceLocator": "pkg:swift/groue/GRDB.swift@7.11.1"}
+        {"referenceCategory": "PACKAGE-MANAGER", "referenceType": "purl", "referenceLocator": "pkg:swift/github.com/groue/GRDB.swift@7.11.1"}
       ],
       "comment": "DF-M0-008 disposition: defer; source archive checksum is from DF-M0-007, not a production resolution."
     },
@@ -246,7 +246,7 @@
       "copyrightText": "NOASSERTION",
       "primaryPackagePurpose": "LIBRARY",
       "externalRefs": [
-        {"referenceCategory": "PACKAGE-MANAGER", "referenceType": "purl", "referenceLocator": "pkg:swift/sparkle-project/Sparkle@2.9.4"}
+        {"referenceCategory": "PACKAGE-MANAGER", "referenceType": "purl", "referenceLocator": "pkg:swift/github.com/sparkle-project/Sparkle@2.9.4"}
       ],
       "comment": "DF-M0-008 disposition: defer. Bundled third-party notices and product integration remain unreviewed."
     },

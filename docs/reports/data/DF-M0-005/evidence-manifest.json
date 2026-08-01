@@ -89,6 +89,16 @@
     "unit_tests": {"pass": 9, "fail": 0},
     "cargo_audit": {"status": "pass", "lock_dependencies_scanned": 179},
     "cargo_deny": {"advisories": "pass", "bans": "pass", "licenses": "pass", "sources": "pass"},
+    "authoritative_repository_advisory_post_run": {
+      "recorded_on": "2026-08-01",
+      "source": "https://github.com/Eugeny/russh/security/advisories/GHSA-m65r-rprj-r5rg",
+      "ghsa_id": "GHSA-m65r-rprj-r5rg",
+      "affected_versions": "<=0.62.4",
+      "patched_version_reported": "0.62.5",
+      "scanner_data_path_observation": "The frozen cargo-audit and cargo-deny runs passed before this repository-scoped advisory was present in their data path; a single clean scanner cannot override it.",
+      "current_disposition": "reject exact russh 0.62.4; SSH remains disabled",
+      "historical_measurements_changed": false
+    },
     "minimal_feature_graph": "pass; RSA and flate2 absent",
     "release_sensitive_format_string_scan": "pass; debug binary negative control contained the primary targeted literal",
     "runtime_matrix": {"pass": 12, "fail": 0, "unsupported": 7, "complete_matrix_passed": false},

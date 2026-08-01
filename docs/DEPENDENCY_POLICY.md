@@ -88,7 +88,9 @@ provenance for a rejected source is not a resolved dependency graph.
 
 DF-M0-008 demonstrates why the multi-source rule is mandatory: `cargo audit`
 and `cargo deny` passed the frozen SSH lock on 2026-08-01, while the official
-`russh` repository had just published `GHSA-m65r-rprj-r5rg` affecting the
+`russh` repository had just published
+[`GHSA-m65r-rprj-r5rg`](https://github.com/Eugeny/russh/security/advisories/GHSA-m65r-rprj-r5rg)
+affecting the
 locked `0.62.4`. Exact `0.62.4` is therefore rejected.
 
 ## 6. Platform, performance and integration rules
@@ -118,7 +120,7 @@ locked `0.62.4`. Exact `0.62.4` is therefore rejected.
 | Swift/Rust FFI executable | Reviewed versioned C ABI scaffold and fake adapter | Ownership, ABI mismatch, panic containment, pull/ack backpressure, cancellation races, leak/sanitizer and 1M-row bounded-memory tests | FFI owner |
 | SQL editor runtime | Full Xcode and reviewed TextKit 2 prototype/replacement | True input-to-frame latency, keyboard/IME, VoiceOver, large-file, incremental parser and cancellation measurements | Editor + Accessibility |
 | Result grid runtime | Reviewed bounded custom renderer, deterministic 1M/10M and 500-column fixtures | Row/column virtualization, retained objects/RSS/frame time, keyboard/VoiceOver, theme and pending-edit identity tests | Grid + Accessibility + Performance |
-| SSH | A new exact candidate such as `russh 0.62.5+`; current SSH remains disabled | Rerun every ADR-0012 trust/auth/no-shell/no-direct/malicious-rekey/agent/cleanup/Keychain/FFI/signing/minimum-host/1,000-cycle/8-hour gate | Security + Connections |
+| SSH | Separately pinned exact `russh 0.62.5`, or a different exact immutable candidate; current SSH remains disabled | Rerun every ADR-0012 trust/auth/no-shell/no-direct/malicious-rekey/agent/cleanup/Keychain/FFI/signing/minimum-host/1,000-cycle/8-hour gate | Security + Connections |
 | Distribution | Apple Developer membership, protected Developer ID and notary credentials, full Xcode, clean test Macs and approved updater candidate | Archive/export, nested DR/Team/signatures, Hardened Runtime, notarize/staple/Gatekeeper, tamper/downgrade/replay/install/rollback/key-rotation tests | Release Security |
 | Signed Keychain | Signed Team/bundle/entitlement test app and full XCTest | Actual Data Protection Keychain CRUD/attributes/duplicate/missing/lock/deny/cancel/access-group migration/helper tests; prove no fallback | Keychain Security |
 | Product performance budget | M1/16 GiB/macOS 14 minimum runner plus current runner, release build and named realistic fixtures | Record p50/p95/max/RSS/energy/retained-object results, variance and regression threshold; update provisional budgets only through review | Performance owner |

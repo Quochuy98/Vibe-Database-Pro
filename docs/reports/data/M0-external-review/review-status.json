@@ -12,7 +12,17 @@
     "df_m0_009_report": "docs/reports/DF-M0-009-wireframe-accessibility-review.md"
   },
   "planning_preflight": {
-    "scope_commit": "42bbdf54384895d862594daef3324de22689cce9",
+    "scope_commit": "329e9dd2e3f98c00d8f71d56f1288331da179553",
+    "scope_kind": "composite structural planning baseline",
+    "scope_sources": {
+      "common_base": "d6287531898b3ad641805eeb8a4a3ced8631f3bb",
+      "df_m0_008_pinned_commit": "a5948a7bf9a46fbe1e01d93dc2f21a862a865a63",
+      "df_m0_009_pinned_commit": "42bbdf54384895d862594daef3324de22689cce9",
+      "pinned_commits_are_siblings": true,
+      "scope_commit_contains_df_m0_008_pinned_commit_by_ancestry": false,
+      "scope_commit_contains_pinned_df_m0_008_report_and_data_content": true,
+      "composition_note": "The packet commit descends from the DF-M0-009 sibling and incorporates the pinned DF-M0-008 report/data content; it is not represented as a merge of the DF-M0-008 commit."
+    },
     "required_files": {
       "expected": 24,
       "present": 24,
@@ -53,7 +63,13 @@
       "missing_or_duplicate": 0,
       "passed": true
     },
-    "claim_limit": "Structural and traceability preflight only; no external acceptance or executable behavior is proven."
+    "explicit_exclusions": [
+      "DF-M0-008 definition-of-done or external-review closure",
+      "DF-M0-009 definition-of-done or external-review closure",
+      "production dependency, UI, database or release authority",
+      "executable behavior"
+    ],
+    "claim_limit": "Structural and traceability preflight only; sibling-source task completion is deliberately excluded and no external acceptance or executable behavior is proven."
   },
   "review_invariants": [
     "The evidence author, an agent, a scanner, or a risk owner cannot fill an independent reviewer slot on its own behalf.",
@@ -230,7 +246,7 @@
           "review_date": null,
           "required_evidence": [
             "Confirm SSH remains unavailable and direct test/connect paths omit SSH phases and host-key results.",
-            "Confirm database authentication method is separate from Keychain storage and an unstored secret has only a bounded in-memory lease.",
+            "Confirm database authentication method is separate from Keychain storage and review the provisional unstored-secret contract: sole ConnectionAttempt owner, non-renewable deadline at the earlier of action timeout or 60 seconds, all terminal/cancel/close revocation triggers, denied post-revocation access, and explicitly best-effort cleanup rather than guaranteed zeroization.",
             "Review same-path keyboard/pointer safeguards, no color-only warning, no insecure bypass, and no secret exposure in help/error/announcement text."
           ]
         }

@@ -34,6 +34,35 @@
     "Database safety",
     "Security"
   ],
+  "unstored_secret_lease_contract": {
+    "status": "provisional_pending_security_review_and_executable_evidence",
+    "scope": "interactive Test/Connect attempt only",
+    "sole_owner": "ConnectionAttempt application service",
+    "ui_secret_state_cleared_on_handoff": true,
+    "maximum_lifetime_seconds": 60,
+    "deadline": "earlier of the action timeout and acquisition plus 60 seconds",
+    "renewable_within_attempt": false,
+    "retry_requires_new_attempt_and_lease": true,
+    "revocation_triggers": [
+      "successful authentication/session establishment",
+      "cancellation request",
+      "authentication failure",
+      "terminal error",
+      "connection close",
+      "deadline"
+    ],
+    "post_revocation_access": "denied",
+    "cleanup": "Release all lease-owned references and copies; overwrite lease-owned mutable buffers where practical.",
+    "guaranteed_zeroization": false,
+    "copy_limitation": "Swift String/Data plus driver/runtime copies provide only best-effort lifetime cleanup; no guaranteed zeroization is claimed.",
+    "required_tests": [
+      "fake-clock deadline",
+      "every revocation trigger",
+      "cancellation and terminal-state races",
+      "no use after revoke",
+      "seeded-canary scan across logs, diagnostics and retained state"
+    ]
+  },
   "shared_contract_review": [
     {
       "id": "SH-01",
@@ -110,7 +139,7 @@
       "status": "conditional",
       "accepted": [
         "Fields are capability-driven.",
-        "Authentication method and Keychain storage choice are distinct; unstored secrets receive a short in-memory lease and do not enter drafts.",
+        "Authentication method and Keychain storage choice are distinct; unstored secrets use the provisional sole-owner, 60-second/action-deadline, revocation and best-effort-cleanup contract and do not enter drafts.",
         "Current direct mode reports TLS/hostname failures; SSH/host-key phases remain absent until an exact capability is adopted and configured.",
         "Production selection uses persistent text and the keyboard path cannot bypass confirmation."
       ],
@@ -120,7 +149,7 @@
         "Unsupported SSH controls absent or disabled with an explicit explanation.",
         "Authentication method and credential-storage controls have separate programmatic labels, help and error associations.",
         "Direct test connection omits SSH/host-key phases; any future adopted and configured SSH mode adds only its truthful phases.",
-        "Test connection phases and cancellation announce without exposing or persisting an unstored credential.",
+        "Test connection phases and cancellation announce without exposing or persisting an unstored credential; fake-clock and trigger/race tests prove lease revocation and denied use after revoke.",
         "Production selection reaches the same confirmation by mouse and keyboard."
       ]
     },
@@ -203,9 +232,9 @@
       "severity": "medium",
       "area": "terminology and labels",
       "finding": "Abbreviations such as TLS/CA lacked expanded labels, and the initial Authentication [Keychain] control confused database authentication method with credential storage.",
-      "required_change": "Use expanded transport labels; separate authentication method from Keychain storage; state that an unstored secret is leased only for the current action and never persisted; bind field errors and consequence/help text.",
+      "required_change": "Use expanded transport labels; separate authentication method from Keychain storage; bind field errors and consequence/help text; for an unstored secret define one ConnectionAttempt owner, the earlier-of-action-timeout-or-60-second deadline, no renewal, all cancel/success/failure/error/close/deadline revocation triggers, denied use after revoke, and best-effort cleanup without a guaranteed-zeroization claim.",
       "artifact_resolution_status": "applied at wireframe-contract level; executable label/error/storage behavior remains owning M1/M2 evidence",
-      "owner_role": "Content design + Accessibility",
+      "owner_role": "Connections + Security + Content design + Accessibility",
       "revisit_trigger": "Before M1-002/M1-004 UI copy is frozen."
     },
     {

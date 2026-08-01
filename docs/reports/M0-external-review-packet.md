@@ -50,6 +50,14 @@ against `MASTER_PROMPT.md` sections 15–21:
 This preflight proves document structure and traceability, not external
 acceptance or executable behavior.
 
+The machine-readable preflight is scoped to composite packet commit
+`329e9dd2e3f98c00d8f71d56f1288331da179553`. The pinned DF-M0-008 commit
+`a5948a7…a63` and DF-M0-009 commit `42bbdf5…5e9` are sibling commits over common
+base `d628753…f3bb`; the former is not an ancestor of the latter. The packet
+commit contains the pinned DF-M0-008 report/data content, but does not portray
+that content relationship as Git ancestry. Counts above deliberately exclude
+DF-M0-008/009 completion, external review closure and executable behavior.
+
 ## 4. DF-M0-008 review lanes
 
 ### Independent engineering — `M0R-DEP-ENG`
@@ -141,4 +149,4 @@ M1/M2 production UI and overall M0 exit remain blocked by their existing gates.
 
 | Artifact | Purpose | SHA-256 |
 | --- | --- | --- |
-| [`review-status.json`](data/M0-external-review/review-status.json) | Eight pending independent review slots, evidence questions, authority limits and closure rules | `36a84957d6639571f39c49e5fdace3e4cc059b60613ee0b1a3769513656e676e` |
+| [`review-status.json`](data/M0-external-review/review-status.json) | Eight pending independent review slots, evidence questions, authority limits and closure rules | `846083965b9596396be3d262464bbbd86c5d5cada70206f88d130454ac3de6ae` |

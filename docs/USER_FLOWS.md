@@ -48,13 +48,13 @@ keyboard, VoiceOver, appearance or layout pass.
 1. Choose adapter; the form renders only declared configuration/auth capabilities.
 2. Enter non-secret endpoint/database/options, environment and optional read-only policy.
 3. Choose database authentication method separately from credential storage.
-   Enter secret fields; with Keychain storage off, the secret is leased only
-   for the current test/connect action and never enters profile drafts,
-   diagnostics, history or logs.
+   Enter secret fields; with Keychain storage off, use the bounded
+   owner/deadline/revocation/best-effort-cleanup contract in WF-02. The secret
+   never enters profile drafts, diagnostics, history or logs.
 4. Configure TLS (validation on) and optional custom CA/client identity. Show
    SSH/jump-host/known-host controls only after an SSH capability is adopted;
    ADR-0012/0015 currently keep them unavailable.
-5. “Test” validates form, acquires a short credential lease and establishes
+5. “Test” validates form, acquires one credential lease for that attempt and establishes
    only configured transport/session layers with timeout/cancel, then closes
    everything. The current direct mode establishes TLS/database only; a tunnel
    exists only after an SSH implementation is adopted and configured.

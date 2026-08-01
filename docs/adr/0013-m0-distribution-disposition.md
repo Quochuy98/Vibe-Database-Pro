@@ -54,8 +54,10 @@ fake-key overlap were only local models. Sparkle framework/XPC embedding,
 pre-extraction host configuration, download, install, relaunch, interruption,
 rollback and Developer ID/update-key rotation did not run.
 
-The frozen summary is `13 pass / 6 partial / 4 unsupported / 0 fail`, with the
+The frozen summary is `13 pass / 7 partial / 3 unsupported / 0 fail`, with the
 complete release gate, distribution capability and updater adoption all false.
+Post-run review corrected only those two aggregate counts from the authoritative
+23 scenario rows; no scenario status, measurement or fail-closed flag changed.
 
 ## Decision
 

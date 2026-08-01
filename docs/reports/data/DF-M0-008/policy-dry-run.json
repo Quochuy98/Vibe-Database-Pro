@@ -79,25 +79,71 @@
     {
       "id": "cargo-audit-postgres-lock",
       "status": "pass",
-      "command": "cargo audit --file =(git show 150ef5b200b8713d03592d91589d8ae54f8146c8:spikes/postgres-driver/Cargo.lock) --deny warnings",
+      "shell": "POSIX sh",
+      "execution_contract": "Run reproduction_steps sequentially in the same shell; scan_command depends on the preceding materialization step and is not standalone.",
+      "tool_version": "cargo-audit 0.22.2",
+      "advisory_database_commit": "685d32fd681b540aa64019820639613c5a4fd922",
+      "historical_commit": "150ef5b200b8713d03592d91589d8ae54f8146c8",
+      "reproduction_steps": [
+        "tmp_dir=$(mktemp -d)",
+        "git show 150ef5b200b8713d03592d91589d8ae54f8146c8:spikes/postgres-driver/Cargo.lock > \"$tmp_dir/Cargo.lock\"",
+        "cargo audit --file \"$tmp_dir/Cargo.lock\" --deny warnings",
+        "rm -rf \"$tmp_dir\""
+      ],
+      "scan_command": "cargo audit --file \"$tmp_dir/Cargo.lock\" --deny warnings",
       "evidence": "cargo-audit 0.22.2, RustSec database 685d32fd681b540aa64019820639613c5a4fd922, 124 dependency records, exit 0."
     },
     {
       "id": "cargo-audit-ssh-lock",
       "status": "pass_with_known_external_blind_spot",
-      "command": "cargo audit --file =(git show 875dd468221ad1c6c3c35b34a83c0af48ae3f9ad:spikes/ssh-tunnel/Cargo.lock) --deny warnings",
+      "shell": "POSIX sh",
+      "execution_contract": "Run reproduction_steps sequentially in the same shell; scan_command depends on the preceding materialization step and is not standalone.",
+      "tool_version": "cargo-audit 0.22.2",
+      "advisory_database_commit": "685d32fd681b540aa64019820639613c5a4fd922",
+      "historical_commit": "875dd468221ad1c6c3c35b34a83c0af48ae3f9ad",
+      "reproduction_steps": [
+        "tmp_dir=$(mktemp -d)",
+        "git show 875dd468221ad1c6c3c35b34a83c0af48ae3f9ad:spikes/ssh-tunnel/Cargo.lock > \"$tmp_dir/Cargo.lock\"",
+        "cargo audit --file \"$tmp_dir/Cargo.lock\" --deny warnings",
+        "rm -rf \"$tmp_dir\""
+      ],
+      "scan_command": "cargo audit --file \"$tmp_dir/Cargo.lock\" --deny warnings",
       "evidence": "Exit 0 for 179 dependency records, but official GitHub advisory GHSA-m65r-rprj-r5rg affects the locked russh 0.62.4. Multi-source policy therefore blocks it."
     },
     {
       "id": "cargo-deny-postgres-lock",
       "status": "pass_with_warnings",
-      "command": "cargo deny --manifest-path <historical-postgres-tree>/Cargo.toml check advisories licenses bans sources",
+      "shell": "POSIX sh",
+      "execution_contract": "Run reproduction_steps sequentially in the same shell; scan_command depends on the preceding worktree step and is not standalone.",
+      "tool_version": "cargo-deny 0.20.2",
+      "advisory_database_commit": "685d32fd681b540aa64019820639613c5a4fd922",
+      "historical_commit": "150ef5b200b8713d03592d91589d8ae54f8146c8",
+      "reproduction_steps": [
+        "tmp_dir=$(mktemp -d)",
+        "git worktree add --detach \"$tmp_dir/tree\" 150ef5b200b8713d03592d91589d8ae54f8146c8",
+        "(cd \"$tmp_dir/tree/spikes/postgres-driver\" && cargo deny check advisories licenses bans sources)",
+        "git worktree remove --force \"$tmp_dir/tree\"",
+        "rm -rf \"$tmp_dir\""
+      ],
+      "scan_command": "(cd \"$tmp_dir/tree/spikes/postgres-driver\" && cargo deny check advisories licenses bans sources)",
       "evidence": "All four checks pass; duplicate warnings remain for const-oid, getrandom, and syn."
     },
     {
       "id": "cargo-deny-ssh-lock",
       "status": "pass_with_known_external_blind_spot",
-      "command": "cargo deny --manifest-path <historical-ssh-tree>/Cargo.toml check advisories licenses bans sources",
+      "shell": "POSIX sh",
+      "execution_contract": "Run reproduction_steps sequentially in the same shell; scan_command depends on the preceding worktree step and is not standalone.",
+      "tool_version": "cargo-deny 0.20.2",
+      "advisory_database_commit": "685d32fd681b540aa64019820639613c5a4fd922",
+      "historical_commit": "875dd468221ad1c6c3c35b34a83c0af48ae3f9ad",
+      "reproduction_steps": [
+        "tmp_dir=$(mktemp -d)",
+        "git worktree add --detach \"$tmp_dir/tree\" 875dd468221ad1c6c3c35b34a83c0af48ae3f9ad",
+        "(cd \"$tmp_dir/tree/spikes/ssh-tunnel\" && cargo deny check advisories licenses bans sources)",
+        "git worktree remove --force \"$tmp_dir/tree\"",
+        "rm -rf \"$tmp_dir\""
+      ],
+      "scan_command": "(cd \"$tmp_dir/tree/spikes/ssh-tunnel\" && cargo deny check advisories licenses bans sources)",
       "evidence": "All four checks pass, but the fresh repository advisory is not present in this source."
     },
     {

@@ -5,7 +5,7 @@
     "frozenColumnCount" : 0,
     "keyboardFirstResponderSmoke" : true,
     "manualVoiceOverEstablished" : false,
-    "note" : "Automated metadata detects that the ignored frozen projection is missing from the primary table's accessibility columns. Manual VoiceOver remains required.",
+    "note" : "This fixture has no frozen projection. Automated metadata smoke reports one logical table; manual VoiceOver remains unestablished and required.",
     "oneLogicalTableMetadataSmoke" : true,
     "rowCount" : 10000000,
     "stableHeaders" : true

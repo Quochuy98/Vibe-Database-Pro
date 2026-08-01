@@ -64,7 +64,9 @@ The design bounds:
 
 - documents at 110 MiB, replacement payloads at 4 KiB and affected native
   ranges at 4,096 UTF-16 units;
-- analysis input at 65,536 UTF-16 units and output at 1,024 keyword spans;
+- analysis input with a 65,536 UTF-16-unit hard cap and output at 1,024 keyword
+  spans; the recorded visible-analysis runs used a 32,768-unit snapshot within
+  that cap;
 - find input at 115 Mi UTF-16 units, needles at 1,024 units and chunks at
   4 Mi UTF-16 units (hard configuration maximum 16 Mi);
 - undo history at 100 levels, with UTF-8 byte accounting across native grouped
@@ -201,14 +203,14 @@ not a performance-budget pass.
 
 | Fixture / metric | Median | p95 | Worst | Outcome |
 | --- | ---: | ---: | ---: | --- |
-| 10 MiB visible analysis | 0.285 | 4.490 | 4.490 | 32,768-unit snapshot; output cap reached |
+| 10 MiB visible analysis | 0.285 | 4.490 | 4.490 | 32,768-unit measured snapshot within 65,536-unit hard cap; output cap reached |
 | 10 MiB highlight + local layout | 4.365 | 4.478 | 4.478 | 1,024 spans applied |
 | 10 MiB find middle | 7.837 | 8.024 | 8.024 | Exact UTF-16 location |
 | 10 MiB find near end | 9.648 | 10.826 | 10.826 | Exact UTF-16 location |
 | 10 MiB find absent | 9.977 | 14.735 | 14.735 | Correctly absent |
 | 10 MiB undo | 0.355 | 0.373 | 0.373 | UTF-16 and UTF-8 restored |
 | 10 MiB redo | 0.346 | 0.364 | 0.364 | UTF-16 and UTF-8 restored |
-| 100 MiB visible analysis | 0.290 | 4.355 | 4.355 | 32,768-unit snapshot; output cap reached |
+| 100 MiB visible analysis | 0.290 | 4.355 | 4.355 | 32,768-unit measured snapshot within 65,536-unit hard cap; output cap reached |
 | 100 MiB highlight + local layout | 4.206 | 4.252 | 4.252 | 1,024 spans applied |
 | 100 MiB find middle | 45.575 | 46.051 | 46.051 | Exact UTF-16 location |
 | 100 MiB find near end | 96.659 | 97.823 | 97.823 | Exact UTF-16 location |

@@ -241,11 +241,15 @@ cache ownership alone.
 | Whole-process maximum RSS | 1,941,127,168 (1.81 GiB) | Separate `/usr/bin/time` diagnostic |
 | `/usr/bin/time` peak memory footprint | 2,252,261,848 (2.10 GiB) | End-of-process diagnostic, separate from runner peak |
 
-The raw `cellReuseWithinTwoTimesVisibleBudget` boolean checks whether additional
-views were created after the reset relative to the already available view
-graph. It is a scroll-churn diagnostic, not a two-dimensional viewport bound.
-Its `true` value does not offset 17,000 available views for 374 geometrically
-visible cells; the 45.45× expansion is the renderer feasibility result.
+The raw `cellReuseWithinTwoTimesVisibleBudget` boolean is computed as
+`peakAvailableCellViews > 0 && createdCellViews <= peakAvailableCellViews * 2`.
+It checks creation after the cold-layout reset relative to the already
+available view graph: BF-02 evaluates `756 <= 1,512` and BF-03 evaluates
+`17,000 <= 34,000`. It is a steady-scroll allocation-churn diagnostic, not a
+two-dimensional viewport bound. `peakGeometricallyVisibleCells` is used only
+for `horizontalViewExpansionRatio`. The recorded `true` value therefore does
+not offset 17,000 available views for 374 geometrically visible cells; the
+45.45× expansion is the renderer feasibility result.
 
 ### 7.2 Layout, theme and horizontal-scroll proxies
 
@@ -449,10 +453,15 @@ sanitized, machine-readable JSON rather than summarized away:
 - [`BF-02 10M raw evidence`](data/DF-M0-004/bf02-10000000.json)
 - [`BF-03 raw evidence`](data/DF-M0-004/bf03-100000.json)
 
+On 2026-08-01, review corrected only the explanatory accessibility note in the
+two BF-02 files to match their no-frozen-column fields. Numeric measurements,
+booleans, fixture identity and conclusions are unchanged; the byte/hash table
+below identifies the corrected durable files.
+
 | File | Bytes | SHA-256 |
 | --- | ---: | --- |
-| `bf02-1000000.json` | 420,153 | `9aa8908ecf376734ed7cae5a681684538a0ef45e666b255be6fea4e4ab4cf041` |
-| `bf02-10000000.json` | 419,976 | `1166c44e5e4252cccf4b185512133921ebc1e0335e4b6fd0333215e397a12d77` |
+| `bf02-1000000.json` | 420,141 | `3112cc541c9d6a33ca0a95082388b5ed015b8792744e6a9e37c279d678e59a58` |
+| `bf02-10000000.json` | 419,964 | `a0ef2bb33cf1de066cebf50c21c2df55d68417e352d2c56e312810133fb4d010` |
 | `bf03-100000.json` | 146,754 | `7e941c722d18f32cbf3b8563ab6521151d1394d62febcc5292a011e3f60e328e` |
 
 The JSON contains synthetic counts, timings, fixture hashes and coarse host

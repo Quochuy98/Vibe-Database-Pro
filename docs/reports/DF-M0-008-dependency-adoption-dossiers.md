@@ -53,7 +53,8 @@ Machine-readable summary: `0 approve / 10 defer / 3 reject`.
 The three rejected exact candidates are:
 
 - `russh 0.62.4`, because official upstream advisory
-  `GHSA-m65r-rprj-r5rg`, published after the DF-M0-005 evidence run, now
+  [`GHSA-m65r-rprj-r5rg`](https://github.com/Eugeny/russh/security/advisories/GHSA-m65r-rprj-r5rg),
+  published after the DF-M0-005 evidence run, now
   declares `<=0.62.4` affected;
 - Apple `OpenSSH-354.120.2`/OpenSSH 10.2p1 and native `ProxyJump/-J`, for the
   already recorded security-floor and shell-execution findings; and
@@ -245,19 +246,21 @@ safe outcome; it does not block the independent DF-M0-009 wireframe review.
 
 | Artifact | Purpose | SHA-256 |
 | --- | --- | --- |
-| [`candidate-dispositions.json`](data/DF-M0-008/candidate-dispositions.json) | 13 candidate dispositions, owners, blockers and re-entry paths | `81e4a725b53f9954ac5346e0df19d512e87c536553e97238ce1f543d2ec23f38` |
+| [`candidate-dispositions.json`](data/DF-M0-008/candidate-dispositions.json) | 13 candidate dispositions, owners, blockers and re-entry paths | `c53ddaa76eb07a9aa89c612d34a749a04e847d59f65ab59c826ec6ee1ae403bc` |
 | [`transitive-graphs.json`](data/DF-M0-008/transitive-graphs.json) | Immutable lock/resolution identities and graph gaps | `ec84c5f930fca3aa68a7eb7f106571190820a964f6eb6df325a9a175dc75cec3` |
 | [`upstream-refresh.json`](data/DF-M0-008/upstream-refresh.json) | Official registry/release/advisory refresh and scanner blind spot | `d10ab61dd7f3e137f1ddface1d39f7aff8b52918b6e0f408e34addea4aaf71f7` |
-| [`sbom.spdx.json`](data/DF-M0-008/sbom.spdx.json) | SPDX 2.3 non-adoption candidate inventory | `5e9815673052cbcedb997a8c910fbb7a6276166b844a4960ce0a42c5407d9a1c` |
-| [`policy-dry-run.json`](data/DF-M0-008/policy-dry-run.json) | Planned gate rules, commands, results and blocking reasons | `fcddc8cc068d6a808225e99dff617ee63945482c138af8f5e215da306e59993d` |
+| [`sbom.spdx.json`](data/DF-M0-008/sbom.spdx.json) | SPDX 2.3 non-adoption candidate inventory | `b8aa9b7513a1b607520426e1718f33c0a10b6bafdc3ec178a086ece1c480b337` |
+| [`policy-dry-run.json`](data/DF-M0-008/policy-dry-run.json) | Planned gate rules, reproducible command sequences, results and blocking reasons | `1a9af6b1c45d931ede57c2762b23af503103ab3700bf8279176b0ba438f5661a` |
 
 ## 10. Primary references
 
 - [crates.io API](https://crates.io/data-access)
 - [RustSec advisory database](https://github.com/RustSec/advisory-db)
+- [`russh` advisory `GHSA-m65r-rprj-r5rg`](https://github.com/Eugeny/russh/security/advisories/GHSA-m65r-rprj-r5rg)
 - [`russh` upstream advisories](https://github.com/Eugeny/russh/security/advisories)
 - [Sparkle upstream advisories](https://github.com/sparkle-project/Sparkle/security/advisories)
 - [GRDB upstream advisories](https://github.com/groue/GRDB.swift/security/advisories)
+- [Swift package URL type definition](https://github.com/package-url/purl-spec/blob/main/types/swift-definition.json)
 - [SPDX 2.3 specification](https://spdx.github.io/spdx-spec/v2.3/)
 - [GitHub dependency review](https://docs.github.com/en/code-security/supply-chain-security/understanding-your-software-supply-chain/about-dependency-review)
 - [Apple open source releases](https://opensource.apple.com/releases/)

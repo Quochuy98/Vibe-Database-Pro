@@ -1,12 +1,14 @@
 # DF-M0-005 SSH tunnel and host-trust evidence
 
 Status: Evidence and disposal complete; no SSH implementation or dependency
-adopted; `russh 0.62.4` retained only as a conditional planning candidate
+adopted; exact `russh 0.62.4` rejected by the current ADR-0015 disposition
 
 > Historical disposition notice: the conditional `russh 0.62.4` conclusion in
 > this evidence record is superseded by
 > [ADR-0015](../adr/0015-m0-dependency-disposition.md), which rejects that exact
-> source after official advisory `GHSA-m65r-rprj-r5rg`. The measurements below
+> source after official advisory
+> [`GHSA-m65r-rprj-r5rg`](https://github.com/Eugeny/russh/security/advisories/GHSA-m65r-rprj-r5rg).
+> The measurements below
 > remain historical spike evidence; they are not current adoption authority.
 
 Evidence date: 2026-07-30
@@ -43,7 +45,7 @@ No candidate is adopted for production:
 
 | Candidate | Exact evidence identity | Disposition |
 | --- | --- | --- |
-| `russh` | `0.62.4`, checksum `b8b67b5a…064f`, `default-features = false`, only `aws-lc-rs` | Retain as a conditional planning candidate around the Ed25519 key core; agent evidence is partial and no production auth subset is enabled |
+| `russh` | `0.62.4`, checksum `b8b67b5a…064f`, `default-features = false`, only `aws-lc-rs` | **Reject exact source by current ADR-0015.** Historical Ed25519/trust measurements remain evidence only; they grant no candidate or adoption status |
 | macOS system OpenSSH | Apple `OpenSSH-354.120.2`, `OpenSSH_10.2p1`, macOS 26.5.2 build 25F84 | Reject the tested build and reject native `ProxyJump/-J` |
 | `ssh2`/libssh2 | `ssh2 0.9.6`, `libssh2-sys 0.3.2`, vendored fork commit `090f23d…f47a` | Reject before build/runtime because the exact vendored source omits current security fixes |
 
@@ -155,6 +157,7 @@ The evidence runner additionally exercised:
 | Unit tests | Pass: 9 total; 1 OpenSSH + 8 russh; 0 failures |
 | `cargo audit` | Pass; 179 locked packages scanned against the fetched RustSec database |
 | `cargo deny check` | Advisories, bans, licenses and sources all pass |
+| Post-run official repository advisory | **Block exact 0.62.4:** `GHSA-m65r-rprj-r5rg` declares `<=0.62.4` affected and reports `0.62.5` patched; current ADR-0015 rejects the tested source |
 | Minimal russh graph | Pass; neither `rsa` nor `flate2` is present |
 | Release sensitive-format scan | Pass for targeted upstream Debug/Trace strings; the debug binary supplied a positive scanner control |
 | arm64 release build | Pass |
@@ -165,8 +168,10 @@ The evidence runner additionally exercised:
 | Leak smoke | Exit 0; zero leaked nodes/bytes reported for one additional complete runtime-matrix process |
 
 The current upstream russh GitHub advisory list was reviewed separately because
-RustSec did not expose all three July 2026 advisories on the evidence date.
-Therefore a clean `cargo audit` is necessary but not sufficient evidence.
+RustSec did not expose all repository advisories through the scanner data path.
+The 2026-08-01 post-run correction records the exact official advisory in the
+machine-readable manifest without changing historical measurements. Therefore
+a clean `cargo audit` is necessary but not sufficient evidence.
 The exact tools were `cargo-audit 0.22.2`, `cargo-deny 0.20.2`, RustSec DB
 commit `7c7ccac53056b87f69ac677f15ea2d9a98a6f8e2`, and Apple `leaks` project
 `SamplingTools-64575.39.1`.
@@ -340,7 +345,7 @@ security fork simply to keep this option eligible.
 | MI-01…MI-03 | Partial targeted smoke; three inputs rejected, but the frozen hostile-input/resource gate is not fully met |
 | SC-01 secret surface | Candidate row unsupported; outer runner canary scan and atomic completion marker pass |
 | LC-01 lifecycle | Partial smoke; 25 direct connect/close cycles and one process snapshot do not meet the frozen lifecycle/leak gate |
-| DP-01 dependency adoption | Not met; exact russh retained conditionally, other candidates rejected |
+| DP-01 dependency adoption | Not met; current ADR-0015 rejects exact russh 0.62.4 and the other tested candidates remain rejected |
 | Candidate adoption | Not met; production SSH remains disabled |
 | Spike disposal | Met; source removed in separate disposal commit `0b80f7e155391a5e7d072bc944623d55fceed24b` |
 
@@ -417,7 +422,7 @@ message, connection string, environment dump, personal path or customer data.
 | [`russh-runtime.json`](data/DF-M0-005/russh-runtime.json) | Complete 19-row record with explicit incomplete-gate semantics | `253197545b2f018d13b7d4c69d79890a51f047b354da362f9ea76ca80cbdd92f` |
 | [`openssh-static.json`](data/DF-M0-005/openssh-static.json) | Tested local build observations plus labeled source-review conclusions | `5212931b975e7c1288625433b71b3e59371a405163e20b2435f8cbe5bfcb9978` |
 | [`libssh2-static.json`](data/DF-M0-005/libssh2-static.json) | Exact crates/fork and missing-fix rejection | `b82601a5a9458b17e4bb42cf881c65538c14b293809b319ebce21a2756a6b7e7` |
-| [`russh-advisory-snapshot.json`](data/DF-M0-005/russh-advisory-snapshot.json) | Current upstream advisory floors | `32bb0f19114e619d049da87ebdda1a267511afe6b1025d3e4576128f6e408472` |
+| [`russh-advisory-snapshot.json`](data/DF-M0-005/russh-advisory-snapshot.json) | Evidence-date upstream advisory floors, preserved before the later blocking GHSA appeared | `32bb0f19114e619d049da87ebdda1a267511afe6b1025d3e4576128f6e408472` |
 | [`build-metrics.txt`](data/DF-M0-005/build-metrics.txt) | arm64 and logical-byte metrics | `5a219b57969fb745a27b60dc5b49d9ba34f089d5b979edd8aef5ec32fd65658d` |
 | [`leak-smoke.txt`](data/DF-M0-005/leak-smoke.txt) | Short `leaks --atExit` summary and scope warning | `6db09a6f127f60c870b63fa061c601edb09583f3b3e73806c81aa9bb3eb9c337` |
 | [`runner-completion.txt`](data/DF-M0-005/runner-completion.txt) | Atomic outer canary-scan/cleanup completion marker | `43a7b8c7a13afdbfbe7619bfe58de663d9d35240f92031614abf9d6449de97e0` |
@@ -425,6 +430,7 @@ message, connection string, environment dump, personal path or customer data.
 ## 13. Primary references
 
 - [`russh 0.62.4` release](https://github.com/Eugeny/russh/releases/tag/v0.62.4)
+- [`GHSA-m65r-rprj-r5rg`](https://github.com/Eugeny/russh/security/advisories/GHSA-m65r-rprj-r5rg)
 - [russh upstream security advisories](https://github.com/Eugeny/russh/security/advisories)
 - [russh exact source tag](https://github.com/Eugeny/russh/tree/v0.62.4)
 - [Apple OpenSSH `OpenSSH-354.120.2` source](https://github.com/apple-oss-distributions/OpenSSH/tree/OpenSSH-354.120.2)

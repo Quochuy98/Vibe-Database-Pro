@@ -65,10 +65,13 @@ future budget change requires new evidence; the spike must not select a more
 favorable interpretation after seeing a result.
 
 - Run a visible, unoccluded window on a display fixed at 60.00 Hz. Record the
-  viewport, scaling, display connection and any mirroring. The `≥55 fps p95`
-  gate means a p95 presented-frame interval of at most `1000 / 55 = 18.18 ms`.
-  No more than 1% of presented intervals may exceed 33.33 ms, and two such
-  intervals may not be consecutive.
+  viewport, scaling, display connection and any mirroring. Within each measured
+  scroll run, the individual Core Animation presented-frame intervals are the
+  frame-level population. That population must have p95 at most
+  `1000 / 55 = 18.18 ms`; no more than 1% of its intervals may exceed
+  33.33 ms, and two such intervals may not be consecutive. Publish the raw
+  intervals and these three checks for every run rather than deriving them from
+  ten run-level summary values.
 - A Core Animation/display presentation instrument is the evidence source for
   a presented-frame claim. Display-link callbacks, scroll-step duration,
   `layoutSubtreeIfNeeded`, drawing callbacks and signposts are useful diagnostic
@@ -116,10 +119,15 @@ favorable interpretation after seeing a result.
   remain distinct from `cancelRequested`. This proves only the grid-side
   contract, not driver, network or FFI cancellation.
 - Latency and frame scenarios use one unreported warm-up followed by 10
-  measured samples. Publish every raw sample, median, nearest-rank p95
-  (`sorted[ceil(0.95 * n) - 1]`) and worst. With 10 samples, p95 is the maximum.
-  A coefficient of variation over 10% triggers environment diagnosis and a
-  rerun rather than averaging the instability away.
+  measured runs. A latency run contributes one duration sample. A scroll/frame
+  run contributes all raw frame intervals plus one run-level summary containing
+  its frame p95, over-33.33 ms fraction and consecutive-interval result. Publish
+  every run-level sample, median, nearest-rank p95
+  (`sorted[ceil(0.95 * n) - 1]`) and worst; with 10 run-level samples, p95 is the
+  maximum. This across-run percentile is additional variance evidence and does
+  not replace any within-run frame-level percentile or threshold check. A
+  coefficient of variation over 10% triggers environment diagnosis and a rerun
+  rather than averaging the instability away.
 
 DF-M0-004 records its disposition in
 [ADR-0011](adr/0011-m0-grid-disposition.md) and the

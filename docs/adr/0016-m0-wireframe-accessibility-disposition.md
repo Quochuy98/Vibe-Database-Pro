@@ -68,9 +68,16 @@ control behavior. The matrix has 0 Critical, 5 High, 6 Medium and 1 Low item.
    test/connect paths omit SSH phases and host-key errors; UI cannot make a
    conditional layout look available.
 4. **Separate authentication from credential storage.** Database auth method
-   is adapter capability; Keychain is storage. With storage off, a secret has
-   only a short in-memory lease and never enters a profile, draft, history or
-   log.
+   is adapter capability; Keychain is storage. With storage off, the interactive
+   `ConnectionAttempt` service solely owns one non-renewable lease. Its
+   provisional deadline is the earlier of the action timeout and 60 seconds;
+   success, cancellation request, authentication failure, terminal error,
+   connection close or deadline revokes it. Retry creates a new lease. Cleanup
+   denies later access, releases every owned reference and overwrites
+   lease-owned mutable buffers where practical, while explicitly treating Swift
+   and driver/runtime copies as best-effort rather than guaranteed zeroization.
+   The secret never enters a profile, draft, history or log, and production
+   implementation remains gated on Security review and lifecycle/canary tests.
 5. **Freeze cancellation and result-limit terminology at intent level.** Use
    `Cancel Query`; report `requested`/`confirmed`/`connectionClosed`/
    `unsupported` cancellation separately from execution outcome, and allow

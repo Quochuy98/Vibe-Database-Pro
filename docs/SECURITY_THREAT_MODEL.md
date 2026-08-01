@@ -358,7 +358,7 @@ The platform and dependency facts cited here were checked against primary projec
 
 - Select and audit the Rust TLS trust integration, including how platform roots and per-connection custom CAs are represented without creating a global bypass.
 - ADR-0012/0015 adopt no SSH implementation and reject exact `russh 0.62.4`.
-  Reconsider a new exact source such as upstream-reported `0.62.5+` or another
+  Reconsider separately pinned exact `russh 0.62.5` or another exact immutable
   candidate only after every host-key, auth, no-direct, cleanup, multi-source advisory,
   Keychain/FFI, distribution, minimum-host and soak re-entry gate passes; rerun
   the full matrix if Universal 2 is later approved.

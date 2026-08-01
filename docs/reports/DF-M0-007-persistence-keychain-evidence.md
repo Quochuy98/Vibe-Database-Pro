@@ -230,7 +230,7 @@ best-effort boundary.
 | Source archive SHA-256 | `015b476733e6c34f567ef78071d2ac3b92b6249805496966856f3c7f03080e05` |
 | License file SHA-256 | `9853f9dce81365fcc1d9b46004633354450164b8d17904e92e80c444545f7e87` |
 | Preliminary license posture | MIT; application notices and final legal review still required |
-| Upstream advisories API | Empty array at evidence time; point-in-time only |
+| Upstream advisories API | Empty array at evidence time; point-in-time only; endpoint/API version, reported evidence date, commit context and the missing exact query date/timestamp are recorded in the companion provenance artifact |
 | Normal package graph | Root → GRDB; GRDB has zero normal Swift package dependencies and uses system SQLite |
 | Requirements | Swift 6.1+, Xcode 16.3+, upstream macOS 10.15+/SQLite 3.20+; spike target macOS 14 |
 | Release arm64 probe | 5,830,696 bytes |
@@ -241,6 +241,13 @@ The binary value is the complete standalone probe delta, not an incremental
 shipping-app estimate: it includes the spike's migration, evidence and
 Keychain code as well as GRDB. A product-size measurement must compare an
 otherwise identical production scaffold with and without the exact candidate.
+
+Post-run review on 2026-08-01 preserved the immutable empty advisory array and
+added a companion provenance record instead of changing its consumer-visible
+shape. The same review renamed two ambiguous derived package-graph fields:
+the probe package has one normal external dependency named GRDB, while GRDB
+itself has zero transitive normal Swift package dependencies. Values,
+measurements and the deferred adoption disposition did not change.
 
 Replacement remains possible behind the Swift persistence port, but moving to
 the SQLite C API or another wrapper requires migration/query rewrites and a
@@ -254,8 +261,9 @@ dependency approval or legal advice.
 | [`environment.json`](data/DF-M0-007/environment.json) | Source, host, toolchain and non-enumerating signing inventory | `42d4e0134b26592973cf1989f57d1df2b03ecfc2cbeb93e5fd982a8d0bd97d7c` |
 | [`runtime.json`](data/DF-M0-007/runtime.json) | Frozen scenario matrix, measurements and closed gates | `ca7ff64474de203b614e33140280cf935201b784bae7afa49b0ea3fe8cfd69b6` |
 | [`schema.json`](data/DF-M0-007/schema.json) | Exact table/column/index/foreign-key allowlist | `3880544bac5904299dd9b7873797a1ebe4ce0bdf1f18ade0bb821f0fe179ed9a` |
-| [`grdb-candidate.json`](data/DF-M0-007/grdb-candidate.json) | Exact candidate provenance, requirements and binary evidence | `db07330ebd0382d0feb430196d8ea3e3967436ce1a857c0f7e579dc6025e960e` |
+| [`grdb-candidate.json`](data/DF-M0-007/grdb-candidate.json) | Exact candidate provenance, requirements and binary evidence | `4792806c02b185215f7e8ca3e97078c98d066c58811f15cd0e2ce1dfd73dba46` |
 | [`grdb-advisories.json`](data/DF-M0-007/grdb-advisories.json) | Sanitized upstream repository advisory snapshot | `37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570` |
+| [`grdb-advisory-query.json`](data/DF-M0-007/grdb-advisory-query.json) | Post-run companion with endpoint, API version, evidence/commit context, missing exact query time, raw-result identity and interpretation limit | `d2eeb3a84fb13237f547caa7d5ce6c794c26dc26389c80fef45811abf40dfb6b` |
 | [`package-graph.json`](data/DF-M0-007/package-graph.json) | Sanitized Swift package graph | `1c182cd35252c59e4ef3a7932f46b9bb2665c4849f720b3f1c377f907c2cb5c7` |
 | [`runner-completion.txt`](data/DF-M0-007/runner-completion.txt) | Outer canary/cleanup and closed-gate marker | `9dac97059c6560f385cdeb5669e1b4e7ae4a4bc703b41c6daf143188ea28173f` |
 

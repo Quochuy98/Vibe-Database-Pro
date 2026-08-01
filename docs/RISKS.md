@@ -63,7 +63,8 @@ No risk is silently accepted. An accepted exception records rationale, residual 
 
 1. Exact PostgreSQL/MySQL/MariaDB/SQLite driver versions, licenses, cancellation and TLS behavior.
 2. SSH residual gates after ADR-0012/0015: evaluate a new exact source such as
-   upstream-reported patched `russh 0.62.5+`; exact `0.62.4` is rejected;
+   separately pinned exact `russh 0.62.5` or another exact immutable candidate;
+   exact `0.62.4` is rejected;
    complete agent/auth subset, connector-level no-direct trap, local-listener echo,
    deterministic cleanup, Keychain/FFI/distribution integration and long soak.
 3. TextKit 2 large-file and dialect parser strategy.
