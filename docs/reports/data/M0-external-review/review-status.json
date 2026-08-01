@@ -11,11 +11,11 @@
     "df_m0_009_commit": "42bbdf54384895d862594daef3324de22689cce9",
     "df_m0_009_report": "docs/reports/DF-M0-009-wireframe-accessibility-review.md",
     "review_corrections_branch": "codex/m0-external-review-packet",
-    "review_corrections_commit": "731403c15bd47f74b3fa9393d4c6a5af16474c45",
-    "review_corrections_scope": "Post-review clarification/corrections to FFI, performance, grid metadata, SSH/dependency provenance, distribution counts, GRDB provenance, SPDX PURLs, exact RustSec scanner binding, credential-lease cancellation ordering, SQLite file/backup/restore controls and packet preflight; no production authority."
+    "review_corrections_commit": "2fb7d0618f2535a47d8899416cdf7e6aa42744d0",
+    "review_corrections_scope": "Post-review clarification/corrections to FFI, performance, grid metadata, SSH/dependency provenance, distribution counts, GRDB provenance, SPDX PURLs, exact RustSec scanner binding, credential-lease cancellation ordering, SQLite file/backup/restore controls, dependency-policy commands, eight-role roadmap alignment and packet preflight; no production authority."
   },
   "planning_preflight": {
-    "scope_commit": "731403c15bd47f74b3fa9393d4c6a5af16474c45",
+    "scope_commit": "2fb7d0618f2535a47d8899416cdf7e6aa42744d0",
     "scope_kind": "composite structural planning baseline",
     "scope_sources": {
       "common_base": "d6287531898b3ad641805eeb8a4a3ced8631f3bb",
