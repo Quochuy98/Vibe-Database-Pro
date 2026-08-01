@@ -4,7 +4,7 @@ Status: Planning baseline
 
 Version: 0.1
 
-Last updated: 2026-07-29
+Last updated: 2026-08-01
 
 Owners: Product, macOS, Database Core, Security, Quality Engineering
 
@@ -27,11 +27,23 @@ Phase labels have one meaning throughout the planning set:
 
 ### 1.1 Repository assessment at planning start
 
-The repository began at commit `6af6b9e` with only `AGENTS.md`, `MASTER_PROMPT.md`, and a short planning-pack `README.md`. It had no `docs/` tree, source code, Xcode/Cargo manifest, dependency lockfile, test target, CI configuration, formatter/linter configuration, asset, entitlement, database fixture, or build artifact. The only untracked item was a local `.DS_Store`; `.gitignore` now excludes macOS metadata, secret-bearing `.env` files, local diagnostics, and future Swift/Rust build output.
+The repository began at commit `6af6b9e` with only `AGENTS.md`,
+`MASTER_PROMPT.md`, and a short planning-pack `README.md`. The planning
+baseline then added the `docs/` tree and safeguards. It still has no production
+app/module implementation. The separately authorized DF-M0-001 feasibility
+spike was executed and then removed; its exact disposable source remains at
+evidence commit `ce33ff1` and its durable result is recorded in
+[ADR-0008](adr/0008-m0-ffi-spike-disposition.md). `.gitignore` excludes macOS
+metadata, secret-bearing `.env` files, local diagnostics and build output.
 
 Files read before planning changes: `AGENTS.md` (all 787 lines), `MASTER_PROMPT.md` (all 1,416 lines), and `README.md`. There was no `docs/` directory or nearer `AGENTS.md` to apply. Survey commands included `git status --short --branch`, `git remote -v`, `git log --oneline --decorate`, `git ls-files`, `find`, `rg --files`, `rg` heading/requirement searches, `wc -l`, and bounded `sed` reads. Current platform/dependency recommendations were checked against primary Apple/project documentation and are date-stamped; they must be revalidated at adoption/release.
 
-The decisive constraint is that this task is planning-only: it may create specifications, ADRs, risk analysis and bounded spike proposals, but cannot implement a production feature. Consequently, no build/test command can exist yet; [TEST_STRATEGY.md](TEST_STRATEGY.md) defines the future commands and evidence gates rather than claiming a build.
+The decisive constraint remains that production work is gated: this task may
+create specifications, ADRs, risk analysis and bounded disposable spikes, but
+cannot claim a production feature. Historical DF-M0-001 commands and results
+are retained in its durable report and evidence commit;
+[TEST_STRATEGY.md](TEST_STRATEGY.md) continues to define future production
+commands and gates separately from the recorded M0 experiment.
 
 ## 2. Product vision
 
@@ -150,9 +162,10 @@ Unless an epic says otherwise, all UI requirements include loading, empty, failu
 
 **Test strategy:** Unit tests for state migration; UI tests for window/tab restoration, crash recovery, keyboard focus, Light/Dark Mode, VoiceOver identifiers, and corrupt-state recovery.
 
-### EP-02 — Connections, credentials, TLS, and SSH
+### EP-02 — Connections, credentials, TLS, and conditional SSH
 
-**Phase / complexity:** MVP core; Post-MVP presets/auth expansion / XL
+**Phase / complexity:** MVP direct TLS core; SSH deferred until a future
+candidate passes ADR-0012; Post-MVP presets/auth expansion / XL
 
 **User story:** As an operator, I want reusable secure connections with clear environment and read-only controls so that I can connect without exposing secrets or confusing production with development.
 
@@ -162,8 +175,16 @@ Unless an epic says otherwise, all UI requirements include loading, empty, failu
 - Configure connect/read timeout, keep-alive, bounded pooling, controlled reconnect, read-only mode, and development/staging/production labels.
 - Import/export non-sensitive metadata; secrets excluded by default and represented only by unresolved secret requirements.
 - Keychain-backed authentication modes declared by each adapter.
+- With Keychain storage off, one non-renewable per-attempt credential lease is
+  owned by a serialized `ConnectionAttempt`: accepted cancel revokes before
+  driver forwarding, success/cancel/close/error races have one monotonic
+  attempt outcome, late success after cancel is never exposed and only explicit
+  driver confirmation permits `Cancelled`.
 - TLS with system trust, custom CA, optional client certificate, hostname validation, and per-connection exceptional policy only when explicitly designed and warned.
-- SSH password/private key/agent modes, known-host policy, host-key change handling, jump host model, clean tunnel lifecycle, and no direct fallback.
+- If a future ADR enables SSH: expose only its adopted password/key/agent
+  subset, bounded known-host policy, per-hop host-key handling, clean tunnel
+  lifecycle and connector-level no-direct fallback. ADR-0012/0015 currently
+  keep the capability unavailable.
 - Cloud presets may populate non-secret fields but cannot bypass validation or capability checks.
 
 **Non-functional requirements:** Connection establishment is cancellable and off-main-thread; pool and reconnect policies are bounded; logs are structured and redacted.
@@ -174,9 +195,17 @@ Unless an epic says otherwise, all UI requirements include loading, empty, failu
 
 **Technical risks:** Driver-specific auth/TLS behavior, SSH jump chains, Keychain access from background processes, reconnection transaction ambiguity.
 
-**Acceptance criteria:** Metadata persists without secrets; a saved secret round-trips through Keychain; invalid certificates and changed host keys fail closed; a failed tunnel never attempts direct connection; production/read-only status is visible and enforced.
+**Acceptance criteria:** Metadata persists without secrets; a saved secret
+round-trips through Keychain; invalid certificates fail closed; production/
+read-only status is visible and enforced. If SSH is enabled later, changed
+host keys fail closed and a failed tunnel produces zero direct attempts.
 
-**Test strategy:** Unit configuration validation; fake-secret redaction tests; disposable-engine TLS integration; SSH test server cases; cancellation, timeout, reconnect, Keychain denial, export leakage, and UI safety tests.
+**Test strategy:** Unit configuration validation; fake-secret redaction tests;
+disposable-engine TLS integration; fake-clock all-order credential-lease race,
+late-session close, stale callback, repeated cancel, unsupported/timeout and
+denied-use-after-revoke tests; cancellation, reconnect, Keychain denial, export
+leakage and UI safety tests. Add the complete ADR-0012 SSH matrix only for an
+enabled SSH capability.
 
 ### EP-03 — Database object explorer
 

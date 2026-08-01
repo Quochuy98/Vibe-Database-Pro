@@ -4,7 +4,7 @@ Status: Proposed baseline for Milestone 0
 
 Owner: Security Engineering
 
-Last reviewed: 2026-07-29
+Last reviewed: 2026-08-01
 
 ## 1. Scope and assumptions
 
@@ -22,7 +22,8 @@ SwiftUI/AppKit UI
 Supporting boundaries:
     macOS Keychain          secrets
     local SQLite/GRDB       non-sensitive metadata only
-    SSH/TLS                 transport boundaries
+    TLS                     direct database transport boundary
+    SSH                     optional tunnel/host-trust boundary; disabled until adopted
     user-selected files     import/export/backup/restore
     signed update service   Direct distribution only
     opt-in diagnostics      explicit preview before upload
@@ -69,6 +70,8 @@ Secrets are modeled as handles across layers. A Swift `SecretReference` may iden
 - **Authorized user:** may intentionally execute powerful operations; mistakes and misunderstood scope are part of the threat model.
 - **Local unprivileged attacker:** has access to the same account, clipboard history, logs, temp locations or process observation opportunities.
 - **Malicious or compromised database server:** controls protocol frames, metadata, errors, certificates and result sizes.
+- **Malicious or compromised SSH server/agent:** controls SSH frames, rekey,
+  host identity, auth responses, agent messages and tunnel timing.
 - **Network attacker:** can intercept, delay, replay, redirect or modify traffic but does not initially hold trusted signing keys.
 - **Malicious file author:** supplies crafted import, workspace, backup or restore input.
 - **Compromised dependency/build/update operator:** can attempt to inject code or replace release artifacts.
@@ -85,7 +88,8 @@ Secrets are modeled as handles across layers. A Swift `SecretReference` may iden
 | App -> Keychain | Secret values and lookup metadata | Least-accessible item class that meets UX, scoped service/account keys, status checking, deletion |
 | App -> local SQLite/files | Workspace, history, imports, exports, temporary data | No secrets, permissions, canonical paths, atomic write, size/depth limits, user approval |
 | App -> native database tool/helper | Executable and arguments, environment, file descriptors | Trusted bundled/user-selected executable, argv API without a shell, minimal environment, signed helper |
-| App -> SSH/TLS endpoint | Server identity, CA/host key, tunnel traffic | Chain/hostname validation, known-host policy, no silent fallback |
+| Adapter -> TLS/database endpoint | Certificate chain, hostname, custom CA, database frames | Chain/hostname validation, per-connection CA scope, protocol bounds and no global bypass |
+| Tunnel provider -> SSH server/agent/process | Per-hop host key, auth challenge, agent response, tunnel bytes and process lifecycle | Bounded known-host/auth policy, no shell, no direct fallback, deadlines and explicit resource ownership |
 | App -> updater | Appcast, archive, release notes | HTTPS plus signed metadata/archive, Developer ID verification, notarization, version monotonicity |
 | App -> diagnostics service | Redacted events, crash/minidump, system metadata | Opt-in, local preview, allowlist schema, retention notice, deletion control |
 | Main app -> future plugin | Messages and granted resources | Out-of-process isolation, signed package, versioned RPC, per-capability authorization |
@@ -100,8 +104,8 @@ Each threat has an owner who must turn the controls and verification items into 
 - **Actors:** local attacker, malicious dependency/plugin, compromised diagnostics operator.
 - **Trust boundaries:** UI/application service, Keychain, Swift/Rust ABI, process memory, export/diagnostics.
 - **Abuse path:** a broadly serializable connection model persists a password; a debug description or memory dump includes a secret; an overly broad Keychain access group lets another component retrieve it.
-- **Controls:** store only opaque `SecretReference` values outside Keychain; narrow Keychain access groups; fetch on demand; never make secret types `Codable`, printable or equatable by value; minimize copies and lifetime; clear paste fields and temporary buffers where feasible; exports omit secrets by construction; helpers receive one-use secret material through a protected IPC channel, never argv/environment.
-- **Verification:** unit tests reject secret fields in persisted/export schemas; canary-secret scans cover logs, crash fixtures, diagnostics bundles and snapshots; entitlement inspection verifies access groups; memory-lifetime review covers FFI and helpers; delete/rotate flows have integration tests.
+- **Controls:** store only opaque `SecretReference` values outside Keychain; narrow Keychain access groups; fetch on demand; never make secret types `Codable`, printable or equatable by value; minimize copies and lifetime; clear paste fields and temporary buffers where feasible; exports omit secrets by construction; helpers receive one-use secret material through a protected IPC channel, never argv/environment. One serialized `ConnectionAttempt` owns each unstored-secret lease: cancellation revokes local access before driver forwarding, revocation never claims remote stop, a cancel-first late session is closed and no terminal callback can reacquire or reuse that lease.
+- **Verification:** unit tests reject secret fields in persisted/export schemas; canary-secret scans cover logs, crash fixtures, diagnostics bundles and snapshots; entitlement inspection verifies access groups; memory-lifetime review covers FFI and helpers; delete/rotate flows have integration tests. Fake-clock permutations prove cancel/auth/close/error/unsupported/deadline ordering, revoke-before-forward, late-session close, repeated cancel, stale attempt-ID rejection and denied use after revoke. DF-M0-007 supplies unsigned-CLI fail-closed/no-fallback and metadata-negative evidence only; it does not replace signed-app Keychain integration.
 - **Residual risk:** a compromised user account or process with equivalent rights may access live secrets; memory clearing is best effort with managed/runtime copies. Document this limit and prefer short-lived tokens where supported.
 
 ### T02 — Malicious database server
@@ -250,7 +254,7 @@ Each threat has an owner who must turn the controls and verification items into 
 - **Actors:** compromised web/CDN/CI account, stolen signing key, malicious maintainer.
 - **Trust boundaries:** release CI, signing/notarization, appcast/CDN, updater helper.
 - **Abuse path:** attacker serves a replaced archive/feed, replays a vulnerable version, steals an update key or modifies release notes to redirect users.
-- **Controls:** direct builds use Developer ID signing, Hardened Runtime and notarization; updater candidate is Sparkle 2 after dependency review, with HTTPS, EdDSA-signed archive, signed feed when operationally ready, pre-extraction verification, version/channel monotonicity and staged rollout; store Developer ID and EdDSA keys separately from hosting and ordinary CI; two-person release approval; verify final stapled artifact hash; Mac App Store builds use only Store updates. Sparkle's current security guidance recommends Developer ID signing plus EdDSA archive signatures in its [official documentation](https://sparkle-project.org/documentation/).
+- **Controls:** direct builds use Developer ID signing, Hardened Runtime and notarization; exact Sparkle `2.9.4` is only a conditional candidate after ADR-0013, with HTTPS, Ed25519-signed archive, signed feed, pre-extraction verification, version/channel monotonicity and staged rollout still required; store Developer ID and Ed25519 keys separately from hosting and ordinary CI; two-person release approval; verify final stapled artifact hash; Mac App Store builds use only Store updates. Sparkle's current security guidance recommends Developer ID signing plus Ed25519 archive signatures in its [official documentation](https://sparkle-project.org/documentation/).
 - **Verification:** tampered feed/archive, wrong key, expired/revoked signature, replay/downgrade, interrupted install and key-rotation drills; verify code signature, notarization ticket and updater signature on a clean Mac.
 - **Residual risk:** compromise of multiple signing identities or an authorized malicious release can still succeed. Maintain revocation and emergency communication runbooks plus an offline recovery key plan.
 
@@ -260,9 +264,38 @@ Each threat has an owner who must turn the controls and verification items into 
 - **Actors:** compromised dependency/registry, contributor account, CI action or build worker.
 - **Trust boundaries:** GitHub pull request, package registries, toolchains, CI, release storage.
 - **Abuse path:** dependency confusion/typosquat, mutable CI action, malicious transitive update, stolen maintainer token or unreproducible build inserts code.
-- **Controls:** lock all Swift/Rust dependencies; allowlist registries/sources; review license, maintainership, advisories, macOS/arm64 support and transitive graph before adoption; pin CI actions to immutable commits; least-privilege short-lived CI credentials; protected branches and two-person review for dependencies/release files; advisory scanning; secret scanning; generate an SPDX SBOM; attest provenance where the repository plan supports it; archive checksums, build logs and notarization ID; documented replacement/kill-switch owner.
-- **Verification:** dependency-diff gate, scheduled advisory scan, SBOM completeness check, clean-room release rebuild comparison where feasible, provenance verification and compromised-token tabletop. GitHub documents [dependency review](https://docs.github.com/en/code-security/concepts/supply-chain-security/dependency-review) and [artifact attestations](https://docs.github.com/en/actions/how-tos/secure-your-work/use-artifact-attestations/use-artifact-attestations); the SBOM format must conform to the selected published [SPDX specification](https://spdx.dev/specifications/).
+- **Controls:** follow [`DEPENDENCY_POLICY.md`](DEPENDENCY_POLICY.md); lock all Swift/Rust dependencies; allowlist registries/sources; review exact licenses, maintainership, registry/RustSec/repository/vendor/OS advisories, macOS/arm64 support and transitive graph before adoption; pin CI actions to immutable commits; use least-privilege short-lived CI credentials, protected branches and two-person review for dependency/release files; scan secrets; generate an SPDX SBOM; attest provenance where supported; archive checksums/build/notarization evidence; retain a replacement/kill-switch owner. Conflicting sources resolve to the strongest current applicable finding.
+- **Verification:** dependency-diff and multi-source advisory gates, exact license review, SBOM completeness/reproducibility, clean-room release rebuild comparison where feasible, provenance verification and compromised-token tabletop. DF-M0-008 proves why one scanner is insufficient: official `GHSA-m65r-rprj-r5rg` affects locked `russh 0.62.4` although the current Cargo/RustSec dry run passed. GitHub documents [dependency review](https://docs.github.com/en/code-security/concepts/supply-chain-security/dependency-review) and [artifact attestations](https://docs.github.com/en/actions/how-tos/secure-your-work/use-artifact-attestations/use-artifact-attestations); the SBOM format must conform to the selected published [SPDX specification](https://spdx.dev/specifications/).
 - **Residual risk:** signed and reviewed upstream code may still be malicious or vulnerable. Minimize dependencies, isolate high-risk parsers/drivers and preserve an emergency rollback/removal path.
+
+### T18 — Malicious SSH endpoint, agent or process integration
+
+- **Assets:** database/SSH credentials, tunneled query/result data, process
+  integrity, local sockets/files and app availability.
+- **Actors:** malicious SSH/bastion server, compromised agent, local attacker
+  controlling config/socket paths, vulnerable OS/dependency client.
+- **Trust boundaries:** tunnel application service, per-hop trust store,
+  Keychain/FFI secret lease, agent socket, SSH protocol parser, optional child
+  process and database adapter tunnel lease.
+- **Abuse path:** a server sends malformed/rekey frames to a vulnerable client;
+  an agent returns oversized/malicious identities or signatures; a jump value
+  becomes shell syntax; password/key material reaches argv/logs; a failed
+  tunnel leaves tasks/listeners/processes or retries the remote DB directly.
+- **Controls:** ADR-0012/0015 keep SSH disabled and reject exact `russh 0.62.4`.
+  A future candidate must pin a
+  current exact source, authenticate every hop, reject unsupported trust/auth
+  syntax, compile sensitive upstream logging out, use direct typed APIs/argv
+  without shell execution, give the adapter only a loopback `TunnelLease`, and
+  own every task/channel/socket/listener/process through terminal cleanup.
+- **Verification:** hostile rekey/banner/packet/agent fixtures; exact/hashed/
+  revoked/multi-port trust; key/agent/password canaries for the declared
+  subset; shell-descendant and connector-level zero-direct traps; cancellation
+  at each phase; post-cleanup resource counts; signed app/minimum-host/soak and
+  current advisory checks. Never exercise a known vulnerable platform client
+  against a malicious rekey fixture.
+- **Residual risk:** protocol/library zero-days and a compromised trusted
+  agent remain possible. Capability kill switch, rapid signed update and an
+  SSH-disabled fallback posture are required.
 
 ## 7. Privacy and diagnostics design
 
@@ -303,6 +336,8 @@ Prohibited fields are credentials, connection strings, usernames by default, raw
 | --- | --- | --- |
 | Architecture | Boundary review; capability and FFI contracts; data-flow update | Principal Architect |
 | Pull request | Threat-linked tests, secret scan, dependency/license diff, no unsafe logging | Feature owner + Security reviewer |
+| Dependency adoption | Exact identity/graph, multi-source advisories, license/notices, supported platform/product size, SPDX/reproducibility, replacement and independent sign-off | Dependency owner + Security + Legal |
+| UX safety/accessibility | Capability-truthful controls; same pointer/keyboard safeguard; textual production/read-only/transaction/consequence; safe focus/default; AX/manual VoiceOver | Product Design + Accessibility + Database Safety + Security |
 | Nightly | Parser/driver fuzz corpus, disposable TLS/SSH/database integration, leak scan | Security Engineering + QA |
 | Release candidate | Entitlement diff, declared architecture slice check (`arm64` for MVP), Hardened Runtime, signatures, notarization, SBOM, update tamper suite | Release Engineering |
 | Privacy release gate | Exact event/crash/diagnostics payload inspection and consent UI tests | Privacy owner |
@@ -312,7 +347,7 @@ Any failed credential, trust-validation, update-authenticity, wrong-row write or
 
 ## 9. External facts and review cadence
 
-The platform and dependency facts cited here were checked against primary project/platform documentation **as of 2026-07-29**. They are not promises about future Apple policy or dependency behavior:
+The platform and dependency facts cited here were checked against primary project/platform documentation **as of 2026-08-01**. They are not promises about future Apple policy or dependency behavior:
 
 - Apple requires App Sandbox for Mac App Store submission: [App Sandbox](https://developer.apple.com/documentation/security/app-sandbox).
 - Apple describes Developer ID, Hardened Runtime and notarization requirements for outside-Store software: [Notarizing macOS software before distribution](https://developer.apple.com/documentation/security/notarizing-macos-software-before-distribution).
@@ -322,7 +357,29 @@ The platform and dependency facts cited here were checked against primary projec
 ## 10. Open security decisions
 
 - Select and audit the Rust TLS trust integration, including how platform roots and per-connection custom CAs are represented without creating a global bypass.
-- Select an SSH implementation only after a host-key, agent, jump-host, cancellation and arm64 spike; rerun the full matrix if Universal 2 is later approved.
+- ADR-0012/0015 adopt no SSH implementation and reject exact `russh 0.62.4`.
+  Reconsider separately pinned exact `russh 0.62.5` or another exact immutable
+  candidate only after every host-key, auth, no-direct, cleanup, multi-source advisory,
+  Keychain/FFI, distribution, minimum-host and soak re-entry gate passes; rerun
+  the full matrix if Universal 2 is later approved.
 - Decide whether high-assurance certificate/public-key pinning is a Pro policy feature or an all-edition safety feature; security controls must not be paywalled if their absence makes a connection unsafe.
-- Validate that Sparkle 2 license, maintenance, signing workflow and helper entitlements meet release requirements before adoption; otherwise design a minimal signed-update service or use manual updates.
+- ADR-0013 keeps exact Sparkle `2.9.4` conditional. Validate its current
+  license/notices, maintenance, Developer ID/library validation, framework/XPC
+  entitlements, signed-feed/pre-extraction path, real install/rollback and key
+  rotation before adoption; otherwise use manual verified updates or evaluate
+  another updater.
+- ADR-0014 retains SQLite/Keychain separation and exact GRDB `7.11.1` only
+  conditionally. Require full-Xcode tests and signed Team/bundle/entitlement
+  Data Protection Keychain CRUD/attributes, ACL/access-group migration,
+  helper, secret-surface and minimum-host/soak evidence before implementation;
+  missing entitlement can never activate a plaintext fallback.
+- ADR-0015 records no approved dependency. Obtain independent exact
+  engineering/security/legal review, select identities for deferred future
+  candidates and generate a reproducible product/release SBOM before any
+  manifest change; the M0 SPDX file is an evaluation inventory only.
+- ADR-0016 conditionally retains five wireframes but authorizes no UI. Obtain
+  independent Product/Design/Accessibility/Database-Safety/Security
+  disposition and executable focus/keyboard/AX/manual VoiceOver/appearance/
+  resize/localization evidence in each owning M1/M2 flow before that flow can
+  call the artifact executable evidence.
 - Define the privacy jurisdiction, controller/contact and retention policy before collecting any opt-in crash or telemetry data.

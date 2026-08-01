@@ -47,17 +47,23 @@ Every card contains user story, functional requirements (FR), non-functional req
 
 **User story:** As an operator, I want labeled, read-only-aware connections with secure authentication so that production and credentials are protected.
 
-**FR:** Create/edit/delete/duplicate/group/color; test; connect/read timeouts; keepalive/pool; controlled reconnect; environment/read-only labels; import/export non-secret metadata; TLS/CA/client cert; SSH password/key/agent/jump host; cloud/auth presets by capability; Keychain.
+**FR:** Create/edit/delete/duplicate/group/color; test; connect/read timeouts;
+keepalive/pool; controlled reconnect; environment/read-only labels; import/
+export non-secret metadata; TLS/CA/client cert; SSH modes only after a future
+candidate/adoption ADR; cloud/auth presets by capability; Keychain.
 
 **NFR:** Typed validation/errors, no UI-built/logged URL, cancellation, bounded pool, channel capability differences.
 
-**Dependencies:** ADR-0005/6/7, Keychain, adapter ports, TLS/SSH spikes, persistence.
+**Dependencies:** ADR-0005/6/7/12, Keychain, adapter ports, TLS evidence,
+persistence; all ADR-0012 re-entry gates before exposing SSH.
 
 **Security:** Keychain-only, hostname/certificate and host-key validation, no shell/direct fallback, non-color production warning.
 
 **Risks:** SSH/TLS libraries, auth variants, Keychain helper access, reconnect outcome.
 
-**AC:** Bad auth/TLS/changed host key fails closed; tunnel cleans up; export has no secret; read-only blocks writes.
+**AC:** Bad auth/TLS fails closed; export has no secret; read-only blocks writes.
+If SSH is later enabled, changed host keys fail closed and every tunnel
+resource cleans up without a direct fallback.
 
 **Tests:** Keychain/leak, TLS/SSH adversarial, timeout/cancel/pool/reconnect, production/read-only UI.
 

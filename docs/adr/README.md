@@ -13,6 +13,16 @@ ADRs preserve why a material decision was made. They are immutable once supersed
 | [0005](0005-secret-storage.md) | macOS Keychain for all secrets | Accepted for planning |
 | [0006](0006-distribution-model.md) | Direct Developer ID distribution first | Accepted for planning |
 | [0007](0007-database-adapter-interface.md) | Capability-based, driver-per-adapter ports | Accepted for planning |
+| [0008](0008-m0-ffi-spike-disposition.md) | M0 C ABI spike evidence and caller-owned buffer refinement | Evidence recorded; implementation gated |
+| [0009](0009-m0-postgres-driver-disposition.md) | Defer exact PostgreSQL driver stack pending hard resource/security caps | Candidate deferred; production gated |
+| [0010](0010-m0-textkit-editor-disposition.md) | Conditionally retain TextKit 2 after the M0 editor spike | Planning candidate retained; production gated |
+| [0011](0011-m0-grid-disposition.md) | Reject full-grid `NSTableView`; evaluate a bounded custom native renderer | Replacement planning candidate selected; production gated |
+| [0012](0012-m0-ssh-disposition.md) | Defer SSH capability after the tunnel/host-trust spike | Superseded only for exact russh 0.62.4 retention by ADR-0015; production SSH disabled |
+| [0013](0013-m0-distribution-disposition.md) | Retain direct distribution planning after the M0 release-chain spike | Developer ID/updater implementation gated |
+| [0014](0014-m0-persistence-keychain-disposition.md) | Retain SQLite/Keychain separation after the M0 persistence spike | GRDB conditional; production persistence/Keychain gated |
+| [0015](0015-m0-dependency-disposition.md) | Keep dependency adoption closed; reject exact russh 0.62.4 after fresh advisory | Accepted for M0 planning by ADR-0017; 0 approved, production adoption disabled |
+| [0016](0016-m0-wireframe-accessibility-disposition.md) | Conditionally retain five M0 wireframes with a focus/accessibility/safety contract | Accepted for M0 planning by ADR-0017; production UI gated |
+| [0017](0017-m0-owner-review-waiver.md) | Waive independent external review as an M0 exit gate without fabricating approval | M0 planning exit accepted; production implementation/adoption/release still gated |
 
 ## ADR lifecycle
 

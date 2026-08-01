@@ -1,0 +1,305 @@
+{
+  "schema_version": 2,
+  "record": "M0-external-review",
+  "record_date": "2026-08-01",
+  "purpose": "Owner waiver and preserved review-lane record for DF-M0-008 and DF-M0-009; this record closes M0 planning but grants no production, dependency, legal, accessibility or release authority.",
+  "owner_decision": {
+    "decision": "waive_independent_external_review_as_m0_exit_gate",
+    "decision_date": "2026-08-01",
+    "authority": "direct repository product-owner instruction",
+    "adr": "docs/adr/0017-m0-owner-review-waiver.md",
+    "scope": "The eight documented review lanes are not required to close M0 planning.",
+    "review_results_fabricated": false,
+    "does_not_authorize": [
+      "production implementation",
+      "dependency adoption",
+      "legal or license approval",
+      "accessibility or security approval",
+      "database capability or release"
+    ]
+  },
+  "source_evidence": {
+    "df_m0_008_branch": "codex/m0-dependency-dossiers",
+    "df_m0_008_commit": "a5948a7bf9a46fbe1e01d93dc2f21a862a865a63",
+    "df_m0_008_report": "docs/reports/DF-M0-008-dependency-adoption-dossiers.md",
+    "df_m0_009_branch": "codex/m0-wireframe-review",
+    "df_m0_009_commit": "42bbdf54384895d862594daef3324de22689cce9",
+    "df_m0_009_report": "docs/reports/DF-M0-009-wireframe-accessibility-review.md",
+    "review_corrections_branch": "codex/m0-external-review-packet",
+    "review_corrections_commit": "2fb7d0618f2535a47d8899416cdf7e6aa42744d0",
+    "owner_waiver_commit": "d02b3e2b8fc1bdcef2d2b5a331acdc4aa8393d50",
+    "owner_waiver_commit_state": "pinned",
+    "owner_waiver_scope": "ADR-0017 plus synchronized roadmap, backlog, risk, source dossier/matrix overlays and fail-closed M0 status; no production source, dependency adoption or release authority.",
+    "review_corrections_scope": "Post-review clarification/corrections to FFI, performance, grid metadata, SSH/dependency provenance, distribution counts, GRDB provenance, SPDX PURLs, exact RustSec scanner binding, credential-lease cancellation ordering, SQLite file/backup/restore controls, dependency-policy commands, eight-role roadmap alignment and packet preflight; no production authority."
+  },
+  "planning_preflight": {
+    "scope_commit": "2fb7d0618f2535a47d8899416cdf7e6aa42744d0",
+    "scope_kind": "composite structural planning baseline",
+    "scope_sources": {
+      "common_base": "d6287531898b3ad641805eeb8a4a3ced8631f3bb",
+      "df_m0_008_pinned_commit": "a5948a7bf9a46fbe1e01d93dc2f21a862a865a63",
+      "df_m0_009_pinned_commit": "42bbdf54384895d862594daef3324de22689cce9",
+      "pinned_commits_are_siblings": true,
+      "scope_commit_contains_df_m0_008_pinned_commit_by_ancestry": false,
+      "scope_commit_contains_df_m0_008_corrected_lineage": true,
+      "scope_commit_is_byte_identical_to_pinned_df_m0_008_report_and_data": false,
+      "composition_note": "The correction commit descends from the DF-M0-009 sibling through the packet baseline and contains corrected descendants of the pinned DF-M0-008 report/data lineage. It is neither byte-identical to nor represented as a Git merge of the pinned DF-M0-008 commit."
+    },
+    "required_files": {
+      "expected": 24,
+      "present": 24,
+      "missing": 0,
+      "passed": true
+    },
+    "roadmap": {
+      "expected_milestones": 8,
+      "present_milestones": 8,
+      "required_sections_per_milestone": 10,
+      "missing_sections": 0,
+      "passed": true
+    },
+    "backlog": {
+      "items": 47,
+      "required_fields_per_item": 14,
+      "missing_fields": 0,
+      "duplicate_ids": 0,
+      "passed": true
+    },
+    "decision_register": {
+      "expected": 20,
+      "present": 20,
+      "missing_or_duplicate": 0,
+      "passed": true
+    },
+    "risk_register": {
+      "total_rows": 34,
+      "required_topics": 21,
+      "missing_required_topics": 0,
+      "required_columns": 8,
+      "malformed_rows": 0,
+      "passed": true
+    },
+    "feature_cards": {
+      "expected": 17,
+      "present": 17,
+      "missing_or_duplicate": 0,
+      "passed": true
+    },
+    "explicit_exclusions": [
+      "production dependency adoption or release approval",
+      "executable UI, accessibility, database or security behavior",
+      "production dependency, UI, database or release authority",
+      "executable behavior"
+    ],
+    "claim_limit": "Structural and traceability preflight only; ADR-0017 separately closes M0 planning by owner waiver, while no external acceptance or executable behavior is proven."
+  },
+  "review_invariants": [
+    "The eight lanes are waived for M0 rather than completed; the evidence author, an agent, a scanner, or a risk owner cannot fabricate a reviewer result.",
+    "Concur means the reviewer agrees with the current fail-closed or conditional record; it does not approve a production dependency, capability, implementation, release, license, or safety exception.",
+    "Any future changes_required or defer result records an owner and revisit trigger and cannot be converted into approval by the owner waiver.",
+    "Legal advice, private contact data, signatures, credentials, database data, and privileged analysis are not committed; only a non-privileged disposition summary and counsel-held reference may be recorded.",
+    "No review result can override a current advisory, missing exact identity, missing executable evidence, unsupported capability, database-safety invariant, or separate implementation-authorization gate."
+  ],
+  "tasks": [
+    {
+      "task": "DF-M0-008",
+      "scope": "Dependency adoption dossiers, candidate inventory, prototype SPDX, policy dry run, and current reject/defer outcomes.",
+      "definition_of_done_met": true,
+      "definition_of_done_scope": "M0 planning artifact only under ADR-0017 owner waiver",
+      "external_review_gate_required": false,
+      "production_dependency_adoption_allowed": false,
+      "documented_review_lanes": [
+        {
+          "review_id": "M0R-DEP-ENG",
+          "role": "Independent engineering",
+          "status": "not_requested_owner_waived",
+          "allowed_results": [
+            "concur",
+            "changes_required",
+            "defer"
+          ],
+          "result": null,
+          "reviewer_reference": null,
+          "review_date": null,
+          "required_evidence": [
+            "Confirm 13 unique candidate dispositions and the 0 approve / 10 defer / 3 reject summary.",
+            "Confirm five candidates lack exact identity while seven lack a full package graph; do not collapse those facts.",
+            "Reconstruct named historical locks/resolution and verify raw hashes, package counts, source policy, product-size gaps, and re-entry ownership.",
+            "Confirm the reviewed record does not add a manifest, inherit spike code, or claim product/runtime evidence."
+          ],
+          "scope_limit": "Concurrence accepts the engineering record only; every future exact source still needs its own adoption and integration change."
+        },
+        {
+          "review_id": "M0R-DEP-SEC",
+          "role": "Independent security",
+          "status": "not_requested_owner_waived",
+          "allowed_results": [
+            "concur",
+            "changes_required",
+            "defer"
+          ],
+          "result": null,
+          "reviewer_reference": null,
+          "review_date": null,
+          "required_evidence": [
+            "Verify multi-source advisory policy and the RustSec/repository blind spot for GHSA-m65r-rprj-r5rg.",
+            "Reconstruct cargo-audit 0.22.2 and cargo-deny 0.20.2 with the recorded RustSec repository checked out at 685d32fd681b540aa64019820639613c5a4fd922, verified by rev-parse and consumed through explicit database paths with fetch disabled/offline during each scan.",
+            "Confirm exact russh 0.62.4, the tested system OpenSSH/native -J path, and exact ssh2/libssh2 source remain rejected.",
+            "Review provenance, source allowlist, SBOM relationship reachability, advisory response ownership, disable path, and secret/logging gates.",
+            "Confirm a clean scanner or task-level review cannot override an authoritative affected range or missing runtime evidence."
+          ],
+          "scope_limit": "Concurrence is not a security approval for any deferred candidate, SSH capability, updater, telemetry SDK, or release artifact."
+        },
+        {
+          "review_id": "M0R-DEP-LEGAL",
+          "role": "Qualified legal",
+          "status": "not_requested_owner_waived",
+          "allowed_results": [
+            "concur",
+            "changes_required",
+            "defer"
+          ],
+          "result": null,
+          "reviewer_reference": null,
+          "review_date": null,
+          "required_evidence": [
+            "Review exact license files, copyright and bundled/transitive notices for selected identities; record unresolved identities as defer.",
+            "Review commercial redistribution and attribution posture for native, cryptographic, framework, updater, SDK/service, and OS-provided components.",
+            "Keep final DataForge license, Community/Pro terms, privacy/DPA terms, and legal advice outside any fabricated engineering conclusion.",
+            "Record only a non-privileged result summary and a counsel-controlled reference when appropriate."
+          ],
+          "scope_limit": "Concurrence with dossier structure is not final product-license text or blanket approval of unselected/future versions."
+        }
+      ],
+      "closure_rules": [
+        "ADR-0017 waives all three review lanes as an M0 exit prerequisite without supplying a result.",
+        "Every candidate remains governed by its explicit blocker, owner and revisit trigger.",
+        "Candidate-level identities, notices, advisories, runtime evidence, and dispositions are updated without converting unknown facts to approve.",
+        "The task planning definition of done is true under the owner waiver; production adoption remains false until candidate-level evidence and normal adoption authority pass."
+      ]
+    },
+    {
+      "task": "DF-M0-009",
+      "scope": "Five low-fidelity wireframes, shared focus/accessibility/safety contract, 12 tracked actions, and M1/M2 verification ownership.",
+      "definition_of_done_met": true,
+      "definition_of_done_scope": "M0 planning artifact only under ADR-0017 owner waiver",
+      "external_review_gate_required": false,
+      "m1_ui_implementation_allowed_by_this_review": false,
+      "m2_ui_implementation_allowed_by_this_review": false,
+      "documented_review_lanes": [
+        {
+          "review_id": "M0R-UX-PRODUCT",
+          "role": "Product",
+          "status": "not_requested_owner_waived",
+          "allowed_results": [
+            "concur",
+            "changes_required",
+            "defer"
+          ],
+          "result": null,
+          "reviewer_reference": null,
+          "review_date": null,
+          "required_evidence": [
+            "Disposition hierarchy, terminology, consequences, unavailable capability language, and all 12 actions.",
+            "Confirm current direct connection, production/read-only context, result-limit language, and unknown-outcome behavior match product intent.",
+            "Confirm static review and owning M1/M2 executable gates remain separate."
+          ]
+        },
+        {
+          "review_id": "M0R-UX-DESIGN",
+          "role": "macOS interaction design",
+          "status": "not_requested_owner_waived",
+          "allowed_results": [
+            "concur",
+            "changes_required",
+            "defer"
+          ],
+          "result": null,
+          "reviewer_reference": null,
+          "review_date": null,
+          "required_evidence": [
+            "Review information hierarchy, native control intent, focus/default behavior, pane collapse, resizing, and localization reflow.",
+            "Confirm the artifact remains low fidelity, original, and not a pixel copy of another product.",
+            "Assign any unresolved visual/interaction decision an owner and executable revisit trigger."
+          ]
+        },
+        {
+          "review_id": "M0R-UX-ACCESSIBILITY",
+          "role": "Accessibility/VoiceOver",
+          "status": "not_requested_owner_waived",
+          "allowed_results": [
+            "concur",
+            "changes_required",
+            "defer"
+          ],
+          "result": null,
+          "reviewer_reference": null,
+          "review_date": null,
+          "required_evidence": [
+            "Review forward/reverse focus, modal entry/return, errors, announcements, keyboard parity, logical grid/editor semantics, and manual VoiceOver plan.",
+            "Review Light/Dark, Increase Contrast, Differentiate Without Color, Reduce Motion, larger text, and non-color safety traits.",
+            "Confirm metadata/static review is not represented as executable Accessibility Inspector or VoiceOver evidence."
+          ]
+        },
+        {
+          "review_id": "M0R-UX-DB-SAFETY",
+          "role": "Database Safety",
+          "status": "not_requested_owner_waived",
+          "allowed_results": [
+            "concur",
+            "changes_required",
+            "defer"
+          ],
+          "result": null,
+          "reviewer_reference": null,
+          "review_date": null,
+          "required_evidence": [
+            "Review production/read-only target truth, destructive consequence, canonical preview digest binding, typed confirmation, and stale revalidation.",
+            "Review transaction/pending-edit close, unknown outcome, no auto-commit/retry, and non-dangerous defaults.",
+            "Confirm cancellation outcome is separate from execution outcome and connectionClosed never implies server stop or rollback."
+          ]
+        },
+        {
+          "review_id": "M0R-UX-SECURITY",
+          "role": "Security",
+          "status": "not_requested_owner_waived",
+          "allowed_results": [
+            "concur",
+            "changes_required",
+            "defer"
+          ],
+          "result": null,
+          "reviewer_reference": null,
+          "review_date": null,
+          "required_evidence": [
+            "Confirm SSH remains unavailable and direct test/connect paths omit SSH phases and host-key results.",
+            "Confirm database authentication method is separate from Keychain storage and review the provisional unstored-secret contract: sole ConnectionAttempt owner, non-renewable deadline at the earlier of action timeout or 60 seconds, all terminal/cancel/close revocation triggers, denied post-revocation access, and explicitly best-effort cleanup rather than guaranteed zeroization.",
+            "Review serialized cancellation ordering and race outcomes: requested/revoke/visible Cancelling/driver-forward order, success-before-cancel, stale late success and forced close, confirmed-only Cancelled, connectionClosed/typed-error/unsupported/deadline outcomes, idempotent repeated cancel and stale attempt-ID rejection.",
+            "Review same-path keyboard/pointer safeguards, no color-only warning, no insecure bypass, and no secret exposure in help/error/announcement text."
+          ]
+        }
+      ],
+      "closure_rules": [
+        "ADR-0017 waives all five review lanes as an M0 exit prerequisite without supplying a result.",
+        "All 12 actions retain their dispositions, owners and executable revisit triggers.",
+        "The owner waiver makes no runtime claim and cannot close an executable action.",
+        "Static planning closure does not authorize production UI; M1 and M2 require separate implementation requests and executable owning-milestone evidence."
+      ]
+    }
+  ],
+  "summary": {
+    "documented_review_lanes": 8,
+    "required_review_slots": 0,
+    "completed_review_slots": 0,
+    "pending_review_slots": 0,
+    "waived_review_slots": 8,
+    "external_review_complete": false,
+    "external_review_required_for_m0_exit": false,
+    "owner_waiver_recorded": true,
+    "df_m0_008_definition_of_done_met": true,
+    "df_m0_009_definition_of_done_met": true,
+    "m0_exit_authorized_by_this_record": true,
+    "production_implementation_authorized_by_this_record": false
+  },
+  "safe_next_step": "Obtain a separate explicit production implementation request for DF-M1-001. Until then do not create production source or manifests; continue to block dependency adoption, SSH and release on their candidate-level evidence."
+}

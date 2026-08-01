@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "task": "DF-M0-008",
+  "checked_at": "2026-08-01T11:16:03+07:00",
+  "policy": "Official registry, repository API, immutable Git evidence, and RustSec are separate inputs; a clean result from one source cannot override a finding from another.",
+  "crate_versions": [
+    {
+      "name": "tokio",
+      "version": "1.53.1",
+      "checksum_sha256": "202caea871b69668250d242070849eb495be178ed697a3e98aebce5bc81a0bed",
+      "yanked": false,
+      "license": "MIT",
+      "rust_version": "1.71",
+      "published_at": "2026-07-20T17:06:09Z"
+    },
+    {
+      "name": "tokio-postgres",
+      "version": "0.7.18",
+      "checksum_sha256": "a528f7d280f6d5b9cd149635c8705b0dd049754bc67d81d31fa25169a93809d3",
+      "yanked": false,
+      "license": "MIT OR Apache-2.0",
+      "rust_version": "1.85",
+      "published_at": "2026-06-12T15:39:21Z"
+    },
+    {
+      "name": "tokio-postgres-rustls",
+      "version": "0.14.0",
+      "checksum_sha256": "4c2ad44aa0ae96db89c4742212ed41645b2f597311ff6e1945542a4d9fadc2fb",
+      "yanked": false,
+      "license": "MIT",
+      "rust_version": null,
+      "published_at": "2026-05-21T12:17:59Z"
+    },
+    {
+      "name": "rustls",
+      "version": "0.23.43",
+      "checksum_sha256": "0283386ce02abc0151e1761d08802dfe86c173b0b494af5cbc086574e453da06",
+      "yanked": false,
+      "license": "Apache-2.0 OR ISC OR MIT",
+      "rust_version": "1.71",
+      "published_at": "2026-07-29T16:14:13Z"
+    },
+    {
+      "name": "russh",
+      "version": "0.62.4",
+      "checksum_sha256": "b8b67b5a0d8068c89dcbe9d95df986af7a851d1f3c604525274c37468e60464f",
+      "yanked": false,
+      "license": "Apache-2.0",
+      "rust_version": "1.85",
+      "published_at": "2026-07-22T19:18:33Z",
+      "advisory_status": "affected by GHSA-m65r-rprj-r5rg"
+    },
+    {
+      "name": "russh",
+      "version": "0.62.5",
+      "checksum_sha256": "da7c230e0ed9cbeb92fbad6c8848985d6df2a1464c0dc247a021abd666e9005e",
+      "yanked": false,
+      "license": "Apache-2.0",
+      "rust_version": "1.85",
+      "published_at": "2026-07-31T20:09:35Z",
+      "advisory_status": "reported patched version; not evaluated or approved"
+    },
+    {
+      "name": "ssh2",
+      "version": "0.9.6",
+      "checksum_sha256": "c95eb3c09e378543395a3fa9796f897861862466ee331d59140ade4ea0dcfdfc",
+      "yanked": false,
+      "license": "MIT OR Apache-2.0",
+      "rust_version": null,
+      "published_at": "2026-06-30T19:36:56Z"
+    },
+    {
+      "name": "libssh2-sys",
+      "version": "0.3.2",
+      "checksum_sha256": "c04141a07bb0c0bc461cb657808764de571702a59bc5c726c400ac9a7625e3ab",
+      "yanked": false,
+      "license": "MIT OR Apache-2.0",
+      "rust_version": null,
+      "published_at": "2026-06-30T19:34:05Z"
+    }
+  ],
+  "repository_release_checks": [
+    {
+      "repository": "tokio-rs/tokio",
+      "latest_release": "tokio-1.53.1",
+      "published_at": "2026-07-20T17:06:31Z"
+    },
+    {
+      "repository": "sfackler/rust-postgres",
+      "latest_release": "postgres-v0.19.14",
+      "published_at": "2026-06-12T15:43:01Z",
+      "note": "The evaluated async crate remains tokio-postgres 0.7.18 from the same release set."
+    },
+    {
+      "repository": "rustls/rustls",
+      "latest_release": "v/0.23.43",
+      "published_at": "2026-07-29T16:13:50Z"
+    },
+    {
+      "repository": "Eugeny/russh",
+      "latest_release": "v0.62.5",
+      "published_at": "2026-07-31T20:15:30Z"
+    },
+    {
+      "repository": "sparkle-project/Sparkle",
+      "latest_release": "2.9.4",
+      "published_at": "2026-07-03T03:42:15Z"
+    },
+    {
+      "repository": "groue/GRDB.swift",
+      "latest_release": "v7.11.1",
+      "published_at": "2026-06-18T12:15:08Z"
+    }
+  ],
+  "repository_advisory_checks": [
+    {
+      "repository": "Eugeny/russh",
+      "advisory_count": 15,
+      "new_blocker": {
+        "ghsa_id": "GHSA-m65r-rprj-r5rg",
+        "severity": "medium",
+        "cvss_score": 6.5,
+        "published_at": "2026-07-31T20:13:03Z",
+        "vulnerable_version_range": "<= 0.62.4",
+        "patched_versions": "0.62.5",
+        "summary": "Authenticated peers can reach channel-scoped server callbacks without an established channel.",
+        "effect_on_dossier": "Reject exact russh 0.62.4; do not infer approval for 0.62.5."
+      }
+    },
+    {
+      "repository": "sparkle-project/Sparkle",
+      "advisory_count": 2,
+      "advisories": [
+        {"ghsa_id": "GHSA-hg88-v3cw-3qrh", "severity": "medium", "vulnerable_version_range": "<= 2.9.1"},
+        {"ghsa_id": "GHSA-g3hp-f6mg-559v", "severity": "medium", "vulnerable_version_range": "<= 2.9.1"}
+      ],
+      "exact_2_9_4_in_declared_ranges": false
+    },
+    {
+      "repository": "groue/GRDB.swift",
+      "advisory_count": 0,
+      "snapshot_only": true
+    }
+  ],
+  "scanner_results": {
+    "cargo_audit_version": "0.22.2",
+    "cargo_deny_version": "0.20.2",
+    "rustsec_database_commit": "685d32fd681b540aa64019820639613c5a4fd922",
+    "rustsec_database_commit_date": "2026-07-31T18:37:42+02:00",
+    "rustsec_advisory_count": 1177,
+    "postgres_lock_cargo_audit": "pass",
+    "ssh_lock_cargo_audit": "pass",
+    "postgres_lock_cargo_deny": "advisories/licenses/bans/sources pass with three documented duplicate-version warnings",
+    "ssh_lock_cargo_deny": "advisories/licenses/bans/sources pass",
+    "important_blind_spot": "The fresh GitHub repository advisory affecting russh 0.62.4 was not present in the RustSec/cargo-deny results, so the multi-source policy blocks the candidate."
+  },
+  "response_sha256_at_check": [
+    {"url": "https://crates.io/api/v1/crates/tokio/1.53.1", "sha256": "6327bd3558187aa9c8751f0c47c643baccb5f7c0822e4ce7bc579673f857b2f5"},
+    {"url": "https://crates.io/api/v1/crates/tokio-postgres/0.7.18", "sha256": "359a3a3f0a48a4d38d56f1e54cb0c9b93cbf9db539718d1458fa54083f119956"},
+    {"url": "https://crates.io/api/v1/crates/tokio-postgres-rustls/0.14.0", "sha256": "1e16da5ab5befc7342ebdc4fe65d1bbd690097abb448cd7e9c03cc03642db8f6"},
+    {"url": "https://crates.io/api/v1/crates/rustls/0.23.43", "sha256": "e6b40f9348a1c2d2033cdd206fe6b7171a98d402e9065e09c4be6aa3f3797547"},
+    {"url": "https://crates.io/api/v1/crates/russh/0.62.4", "sha256": "a418d1dfc8bd2a7bd8814f37e4d911e086fdc1ba068bce847e70196a9bc6f5e0"},
+    {"url": "https://crates.io/api/v1/crates/russh/0.62.5", "sha256": "108c85aa5414d3b59ba2c0b51c4f6763c66b91a3c67826d11617b5cb55c63994"},
+    {"url": "https://crates.io/api/v1/crates/ssh2/0.9.6", "sha256": "8cb6884c15563dc277d3027576c27a3a58d8b546b74a2924b3c8ec9881bd5985"},
+    {"url": "https://crates.io/api/v1/crates/libssh2-sys/0.3.2", "sha256": "f89d5d034ae8f2c48bda29ccb0041af6b032ab8e6d3224a881a820773c1d11fd"},
+    {"url": "https://api.github.com/repos/Eugeny/russh/security-advisories?per_page=100", "sha256": "a1f13f1ae7d0b783f46758620426d2a555faf7e58f407bb892a2690c7412ffe8"},
+    {"url": "https://api.github.com/repos/Eugeny/russh/security-advisories/GHSA-m65r-rprj-r5rg", "sha256": "8136ea6445b9d59a47cab378f062e76bced5bb35aaccc5a0b13401cd29fa8e8f"},
+    {"url": "https://api.github.com/repos/sparkle-project/Sparkle/security-advisories?per_page=100", "sha256": "63119d83064d534a4d39ff02b42de00ef93c84e89dec50ab878da8b051848d3c"},
+    {"url": "https://api.github.com/repos/groue/GRDB.swift/security-advisories?per_page=100", "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"},
+    {"url": "https://api.github.com/repos/sparkle-project/Sparkle/releases/tags/2.9.4", "sha256": "253c6ca66202f69ceb43890b2bb087fc91884d95d6c15bd5f79c7a821d7b01af"},
+    {"url": "https://api.github.com/repos/groue/GRDB.swift/releases/tags/v7.11.1", "sha256": "89be339664b5d46c569500625f96fc5f17af88f2f11cc293e13b6ffff457666d"}
+  ],
+  "limitations": [
+    "Repository API response digests are point-in-time evidence and may change when upstream metadata changes; they are not reproducible release inputs.",
+    "No general web-search index result overrides an official registry/repository response.",
+    "A no-advisory result is not proof that a package has no vulnerability.",
+    "Unselected candidates were not assigned a convenient latest version merely to make the dossier look complete."
+  ]
+}

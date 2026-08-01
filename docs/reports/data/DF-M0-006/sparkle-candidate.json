@@ -1,0 +1,71 @@
+{
+  "candidate": "Sparkle",
+  "version": "2.9.4",
+  "tag_commit": "b6496a74a087257ef5e6da1c5b29a447a60f5bd7",
+  "published_at": "2026-07-03T03:42:15Z",
+  "release_asset": {
+    "name": "Sparkle-2.9.4.tar.xz",
+    "url": "https://github.com/sparkle-project/Sparkle/releases/download/2.9.4/Sparkle-2.9.4.tar.xz",
+    "sha256": "ce89daf967db1e1893ed3ebd67575ed82d3902563e3191ca92aaec9164fbdef9"
+  },
+  "license": {
+    "preliminary": "MIT with retained third-party notices; legal review required",
+    "license_file_sha256": "389a4e4e9a32f059775b13a06e25a591445ba229d2838d26dd3e7c0c45127cfe"
+  },
+  "binary_evidence": {
+    "framework_architectures": [
+      "x86_64",
+      "arm64"
+    ],
+    "sign_update_architectures": [
+      "x86_64",
+      "arm64"
+    ],
+    "extracted_framework_logical_bytes": 3133440,
+    "framework_binary_bytes": 977616,
+    "sign_update_bytes": 1378608,
+    "generate_keys_bytes": 1308528,
+    "generate_appcast_bytes": 2159968,
+    "discovered_nested_code_count": 4,
+    "strict_nested_signature_verification": true
+  },
+  "advisories": [
+    {
+      "ghsa_id": "GHSA-hg88-v3cw-3qrh",
+      "cve_id": "CVE-2026-47121",
+      "severity": "medium",
+      "published_at": "2026-05-19T03:47:16Z",
+      "updated_at": "2026-05-19T03:47:16Z",
+      "withdrawn_at": null,
+      "vulnerabilities": [
+        {
+          "package": "github.com/sparkle-project/Sparkle",
+          "vulnerable_version_range": "<= 2.9.1",
+          "patched_versions": ""
+        }
+      ]
+    },
+    {
+      "ghsa_id": "GHSA-g3hp-f6mg-559v",
+      "cve_id": "CVE-2026-47122",
+      "severity": "medium",
+      "published_at": "2026-05-19T03:48:48Z",
+      "updated_at": "2026-05-19T03:48:48Z",
+      "withdrawn_at": null,
+      "vulnerabilities": [
+        {
+          "package": "github.com/sparkle-project/Sparkle",
+          "vulnerable_version_range": "<= 2.9.1",
+          "patched_versions": ""
+        }
+      ]
+    }
+  ],
+  "integration": {
+    "framework_embedded": false,
+    "updater_install_run": false,
+    "signed_feed_tool_smoke": true,
+    "pre_extraction_host_configuration_run": false,
+    "adoption_approved": false
+  }
+}

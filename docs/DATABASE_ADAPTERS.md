@@ -2,7 +2,7 @@
 
 Status: Proposed
 
-Last updated: 2026-07-29
+Last updated: 2026-08-01
 
 Related: [Architecture](ARCHITECTURE.md), [Database safety](DATABASE_SAFETY.md), [ADR-0007](adr/0007-database-adapter-interface.md)
 
@@ -129,7 +129,8 @@ Common non-secret fields:
 - environment (`development`, `staging`, `production`, custom) and read-only policy;
 - connect/read/statement timeouts and row/byte limits;
 - TLS policy and references to user-selected CA/client-certificate material;
-- SSH policy and non-secret host/jump-host/key references;
+- optional SSH policy and non-secret host/jump-host/key references only after
+  a candidate is adopted; ADR-0012/0015 currently keep these unavailable;
 - pool ceiling, idle timeout, keepalive, and safe reconnect policy.
 
 Adapters transform typed options to driver configuration internally. Full connection strings are never logged. Export omits all secrets by default and warns before including any sensitive certificate/key material; production credentials cannot be exported.
@@ -140,7 +141,8 @@ Adapters transform typed options to driver configuration internally. Full connec
 - no write is automatically retried unless the operation supplies a proven idempotency model and the adapter can establish execution outcome;
 - an interrupted transaction is `unknown/lost`, never assumed rolled back until server semantics or reconnect evidence permits that conclusion;
 - pooled sessions are reset and validated before reuse; failure destroys the session;
-- tunnel failure closes the database transport and never falls back to direct connection.
+- if SSH is enabled, tunnel failure closes the database transport and never
+  falls back to a direct connection.
 
 ## 7. Query and stream model
 
@@ -252,7 +254,12 @@ Snapshot plus semantic integration tests cover Unicode identifiers, reserved wor
 
 ### 13.1 PostgreSQL — M2
 
-Candidate driver: `tokio-postgres`, subject to M0 adoption gate.
+Candidate driver: `tokio-postgres`, subject to M0 adoption gate. DF-M0-002
+completed its disposable matrix, but ADR-0009 defers the exact
+`tokio-postgres 0.7.18`/`tokio-postgres-rustls 0.14.0` stack because upstream
+backend frames are buffered without a product hard cap, request admission is
+unbounded, and logging/credential-memory controls require an explicit adapter
+policy. No production capability is approved from the spike.
 
 Prove SSL modes with hostname verification/custom CA/client certificate, cancel-token race handling, row streams/portals, arrays/enums/domains/composites/ranges/JSONB/large objects, notices, multiple result sets/script semantics, search path, transaction-aborted state, materialized views/extensions/routines, `EXPLAIN` safety, `COPY` streaming, and official `pg_dump`/`pg_restore` orchestration constraints.
 
@@ -299,7 +306,9 @@ Monitoring/kill/cancel actions check capability and server permission, show targ
 Every declared capability maps to tests. At minimum:
 
 - connect/disconnect/reconnect, invalid config, auth failure, TLS trust/hostname/client certificate;
-- SSH tunnel integration at the connection-service layer, changed host key, tunnel cleanup/no fallback;
+- when SSH is enabled, tunnel integration at the connection-service layer,
+  per-hop changed/revoked keys, connector-level no-direct trap and complete
+  tunnel cleanup;
 - read-only enforcement and production context;
 - query success, syntax/constraint/network errors, timeout, cancellation race, connection reuse/poisoning;
 - bounded million-row stream, slow consumer/backpressure, large cell/deferred BLOB, multiple result sets;

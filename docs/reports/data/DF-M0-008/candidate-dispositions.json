@@ -1,0 +1,546 @@
+{
+  "schema_version": 2,
+  "task": "DF-M0-008",
+  "evidence_date": "2026-08-01",
+  "scope": "planning candidate inventory; no production manifest or dependency adoption",
+  "review_status": "engineering evidence recorded; external review owner-waived for M0 by ADR-0017; candidate-level adoption authority remains absent",
+  "external_review_gate_required_for_m0_exit": false,
+  "production_dependency_adoption_allowed": false,
+  "df_m0_008_definition_of_done_met": true,
+  "definition_of_done_scope": "M0 planning artifact only under ADR-0017 owner waiver",
+  "summary": {
+    "candidate_count": 13,
+    "approve": 0,
+    "defer": 10,
+    "reject": 3
+  },
+  "disposition_semantics": {
+    "approve": "Exact source may be proposed for a production manifest only after every technical, security, legal, and product gate passes.",
+    "defer": "Candidate remains an evaluation input, but missing identity, evidence, review, or runtime gates prohibit adoption.",
+    "reject": "The exact evaluated source or platform build must not be adopted; a different exact version is a new candidate and requires a fresh dossier."
+  },
+  "candidates": [
+    {
+      "id": "tokio",
+      "name": "Tokio",
+      "role": "Rust asynchronous runtime",
+      "identity": {
+        "version": "1.53.1",
+        "source": "registry+https://github.com/rust-lang/crates.io-index",
+        "checksum_sha256": "202caea871b69668250d242070849eb495be178ed697a3e98aebce5bc81a0bed",
+        "yanked": false
+      },
+      "license": {
+        "declared": "MIT",
+        "legal_approval": false
+      },
+      "maintenance": {
+        "latest_checked_tag": "tokio-1.53.1",
+        "published_at": "2026-07-20T17:06:31Z",
+        "snapshot_only": true
+      },
+      "toolchain_platform": {
+        "upstream_rust_version": "1.71",
+        "effective_spike_msrv": "1.85",
+        "arm64_macos_build_observed": true,
+        "standalone_product_size_delta_bytes": null
+      },
+      "transitives": {
+        "evidence_graphs": ["postgres-driver-lock", "russh-lock"],
+        "feature_minimization_required": true
+      },
+      "replacement": "Another reviewed async runtime or a narrower executor; replacement is costly because drivers and cancellation ownership depend on runtime semantics.",
+      "blockers": [
+        "No production runtime supervision, bounded task admission, shutdown, or leak contract exists.",
+        "No production manifest, final notices, or independent legal/security review exists.",
+        "Binary-size contribution was not isolated from either spike stack."
+      ],
+      "disposition": "defer",
+      "owner_role": "Core runtime owner",
+      "disposition_date": "2026-08-01"
+    },
+    {
+      "id": "tokio-postgres-stack",
+      "name": "tokio-postgres stack",
+      "role": "PostgreSQL protocol driver and rustls connector",
+      "identity": {
+        "components": [
+          {
+            "name": "tokio-postgres",
+            "version": "0.7.18",
+            "checksum_sha256": "a528f7d280f6d5b9cd149635c8705b0dd049754bc67d81d31fa25169a93809d3",
+            "license": "MIT OR Apache-2.0",
+            "yanked": false
+          },
+          {
+            "name": "tokio-postgres-rustls",
+            "version": "0.14.0",
+            "checksum_sha256": "4c2ad44aa0ae96db89c4742212ed41645b2f597311ff6e1945542a4d9fadc2fb",
+            "license": "MIT",
+            "yanked": false
+          }
+        ],
+        "source": "registry+https://github.com/rust-lang/crates.io-index"
+      },
+      "license": {
+        "technical_policy_result": "pass on the frozen lock",
+        "legal_approval": false
+      },
+      "maintenance": {
+        "tokio_postgres_published_at": "2026-06-12T15:39:21Z",
+        "snapshot_only": true
+      },
+      "toolchain_platform": {
+        "effective_msrv": "1.85",
+        "arm64_macos_build_observed": true,
+        "stripped_stack_over_stub_bytes": 3431696,
+        "size_is_product_delta": false
+      },
+      "transitives": {
+        "lock_package_records": 124,
+        "external_registry_records": 123,
+        "git_sources": 0,
+        "duplicate_version_warnings": ["const-oid 0.9/0.10", "getrandom 0.2/0.4", "syn 2/3"]
+      },
+      "replacement": "A separately tested sqlx-postgres or libpq-based connector behind the adapter port; no alternative is presumed safe.",
+      "blockers": [
+        "The upstream codec buffers a complete backend frame before product admission limits apply.",
+        "Request admission uses an unbounded channel unless the adapter proves a pre-submission bound.",
+        "Upstream SQL, parameter, and notice logging needs an enforced deny/redaction policy.",
+        "Credential copies are not end-to-end zeroized and legal review is pending."
+      ],
+      "disposition": "defer",
+      "owner_role": "PostgreSQL adapter owner",
+      "disposition_date": "2026-08-01"
+    },
+    {
+      "id": "mysql-async",
+      "name": "mysql_async",
+      "role": "MySQL and MariaDB driver candidate",
+      "identity": {
+        "version": null,
+        "source": "https://github.com/blackbeam/mysql_async",
+        "checksum_sha256": null
+      },
+      "license": {
+        "candidate_level_posture": "MIT OR Apache-2.0 reported upstream; exact-version files and transitives not reviewed",
+        "legal_approval": false
+      },
+      "maintenance": {
+        "exact_snapshot_recorded": false
+      },
+      "toolchain_platform": {
+        "msrv": null,
+        "arm64_macos_build_observed": false,
+        "product_size_delta_bytes": null
+      },
+      "transitives": {
+        "full_graph_recorded": false
+      },
+      "replacement": "Another reviewed Rust driver, approved native client, or defer MySQL/MariaDB support.",
+      "blockers": [
+        "No exact version, checksum, feature set, lock graph, advisory snapshot, arm64 build, auth matrix, cancellation evidence, or size measurement exists.",
+        "MariaDB divergence and TLS/auth-plugin behavior remain untested.",
+        "Legal and maintenance-owner reviews are pending."
+      ],
+      "disposition": "defer",
+      "owner_role": "MySQL/MariaDB adapter owner",
+      "disposition_date": "2026-08-01"
+    },
+    {
+      "id": "rusqlite",
+      "name": "rusqlite",
+      "role": "Rust SQLite adapter candidate",
+      "identity": {
+        "version": null,
+        "source": "https://github.com/rusqlite/rusqlite",
+        "checksum_sha256": null
+      },
+      "license": {
+        "candidate_level_posture": "MIT reported upstream; exact-version files and SQLite linkage choice not reviewed",
+        "legal_approval": false
+      },
+      "maintenance": {
+        "exact_snapshot_recorded": false
+      },
+      "toolchain_platform": {
+        "msrv": null,
+        "arm64_macos_build_observed": false,
+        "product_size_delta_bytes": null
+      },
+      "transitives": {
+        "full_graph_recorded": false,
+        "system_or_bundled_sqlite_selected": false
+      },
+      "replacement": "System SQLite C API, a different reviewed wrapper, or keep SQLite engine support deferred.",
+      "blockers": [
+        "No exact crate/source/checksum or system-versus-bundled SQLite decision exists.",
+        "No unsafe-boundary audit, bounded blocking-lane test, arm64 build, advisory scan, or size measurement exists.",
+        "Legal review is pending."
+      ],
+      "disposition": "defer",
+      "owner_role": "SQLite adapter owner",
+      "disposition_date": "2026-08-01"
+    },
+    {
+      "id": "rustls",
+      "name": "rustls ecosystem",
+      "role": "TLS implementation candidate",
+      "identity": {
+        "version": "0.23.43",
+        "source": "registry+https://github.com/rust-lang/crates.io-index",
+        "checksum_sha256": "0283386ce02abc0151e1761d08802dfe86c173b0b494af5cbc086574e453da06",
+        "yanked": false
+      },
+      "license": {
+        "declared": "Apache-2.0 OR ISC OR MIT",
+        "legal_approval": false
+      },
+      "maintenance": {
+        "latest_checked_tag": "v/0.23.43",
+        "published_at": "2026-07-29T16:13:50Z",
+        "snapshot_only": true
+      },
+      "toolchain_platform": {
+        "upstream_rust_version": "1.71",
+        "effective_spike_msrv": "1.85",
+        "arm64_macos_build_observed": true,
+        "standalone_product_size_delta_bytes": null
+      },
+      "transitives": {
+        "crypto_provider_in_spike": "ring",
+        "root_store_and_crypto_feature_choice_is_product_decision": true
+      },
+      "replacement": "Platform TLS or another adapter-specific TLS stack after the same trust and hostile-server matrix.",
+      "blockers": [
+        "No reviewed platform-root bridge or per-connection custom-CA representation exists.",
+        "No cross-driver TLS conformance, release binary-size isolation, or final transitive notices review exists.",
+        "Exact production crypto provider and legal approval are pending."
+      ],
+      "disposition": "defer",
+      "owner_role": "Transport security owner",
+      "disposition_date": "2026-08-01"
+    },
+    {
+      "id": "russh",
+      "name": "russh",
+      "role": "In-process SSH candidate",
+      "identity": {
+        "version": "0.62.4",
+        "source": "registry+https://github.com/rust-lang/crates.io-index",
+        "checksum_sha256": "b8b67b5a0d8068c89dcbe9d95df986af7a851d1f3c604525274c37468e60464f",
+        "yanked": false,
+        "features": ["aws-lc-rs"]
+      },
+      "license": {
+        "declared": "Apache-2.0",
+        "aws_lc_notices_reviewed": false,
+        "legal_approval": false
+      },
+      "maintenance": {
+        "upstream_advisory_count_checked": 15,
+        "blocking_advisory": "GHSA-m65r-rprj-r5rg",
+        "vulnerable_range": "<= 0.62.4",
+        "patched_version_reported": "0.62.5",
+        "patched_version_evaluated": false
+      },
+      "toolchain_platform": {
+        "msrv": "1.85",
+        "arm64_macos_build_observed": true,
+        "probe_bytes": 5912168,
+        "size_is_product_delta": false
+      },
+      "transitives": {
+        "workspace_lock_records": 179,
+        "external_registry_records": 177,
+        "normal_third_party_package_versions": 131,
+        "git_sources": 0
+      },
+      "replacement": "Evaluate separately pinned exact russh 0.62.5, a different exact immutable candidate, or another SSH architecture only by rerunning every ADR-0012 gate; otherwise ship without SSH.",
+      "blockers": [
+        "Fresh upstream advisory GHSA-m65r-rprj-r5rg explicitly includes 0.62.4.",
+        "Seven frozen runtime rows, password policy, agent failure modes, connector trap, cleanup, Keychain/FFI, distribution, minimum-host, and soak evidence remain incomplete.",
+        "RustSec/cargo-deny did not surface the fresh repository advisory, proving that one scanner is insufficient."
+      ],
+      "disposition": "reject",
+      "owner_role": "Security and connection owner",
+      "disposition_date": "2026-08-01"
+    },
+    {
+      "id": "system-openssh",
+      "name": "macOS system OpenSSH",
+      "role": "OS-provided SSH subprocess candidate",
+      "identity": {
+        "apple_project": "OpenSSH-354.120.2",
+        "upstream_version": "OpenSSH_10.2p1",
+        "tested_os": "macOS 26.5.2 build 25F84",
+        "binary_sha256": "470f812f6e71ee4ca1b49c79f9c2982c054493e22502d4648bd010feb4b2a9b2"
+      },
+      "license": {
+        "posture": "OS-provided multi-file OpenSSH/Apple notices require final review",
+        "legal_approval": false
+      },
+      "maintenance": {
+        "update_owner": "Apple Software Update",
+        "tested_build_backport_proof": false
+      },
+      "toolchain_platform": {
+        "bundled_size_delta_bytes": 0,
+        "architectures_observed": ["x86_64", "arm64e"]
+      },
+      "transitives": {
+        "cargo_or_swift_graph_applicable": false,
+        "os_project_build_gate_required": true
+      },
+      "replacement": "A separately reviewed in-process implementation or a future Apple build with source/backport proof and a no-shell lifecycle design.",
+      "blockers": [
+        "The tested project build predates the source-reviewed OpenSSH 10.4 client rekey fix floor.",
+        "Native ProxyJump/-J constructs a shell-executed ProxyCommand and violates the no-shell invariant.",
+        "Typed errors, credential transport, process cleanup, sandbox, and no-direct fallback are unproven."
+      ],
+      "disposition": "reject",
+      "owner_role": "macOS platform security owner",
+      "disposition_date": "2026-08-01"
+    },
+    {
+      "id": "ssh2-libssh2",
+      "name": "ssh2/libssh2",
+      "role": "Rust binding and vendored C SSH candidate",
+      "identity": {
+        "components": [
+          {
+            "name": "ssh2",
+            "version": "0.9.6",
+            "checksum_sha256": "c95eb3c09e378543395a3fa9796f897861862466ee331d59140ade4ea0dcfdfc",
+            "yanked": false
+          },
+          {
+            "name": "libssh2-sys",
+            "version": "0.3.2",
+            "checksum_sha256": "c04141a07bb0c0bc461cb657808764de571702a59bc5c726c400ac9a7625e3ab",
+            "yanked": false
+          }
+        ],
+        "vendored_commit": "090f23d1852a0b62e081bd12c4d05adc1c4af47a"
+      },
+      "license": {
+        "declared": "MIT OR Apache-2.0 for Rust crates; vendored notices require review",
+        "legal_approval": false
+      },
+      "maintenance": {
+        "known_missing_fixes": ["CVE-2026-7598", "CVE-2026-66032", "CVE-2026-66033", "CVE-2026-66034", "CVE-2026-66035"]
+      },
+      "toolchain_platform": {
+        "arm64_macos_build_observed": false,
+        "product_size_delta_bytes": null
+      },
+      "transitives": {
+        "full_build_graph_recorded": false,
+        "rejected_before_runtime": true
+      },
+      "replacement": "A fresh upstream source carrying all current fixes or another SSH implementation; DataForge will not maintain a private security fork.",
+      "blockers": [
+        "The exact vendored source omits current upstream pre-authentication memory-safety fixes.",
+        "Fail-closed host verification is application-optional and synchronous cancellation/multi-hop lifecycle remain unproven."
+      ],
+      "disposition": "reject",
+      "owner_role": "Security and connection owner",
+      "disposition_date": "2026-08-01"
+    },
+    {
+      "id": "grdb",
+      "name": "GRDB",
+      "role": "Swift SQLite metadata persistence candidate",
+      "identity": {
+        "version": "7.11.1",
+        "revision": "b83108d10f42680d78f23fe4d4d80fc88dab3212",
+        "source_archive_sha256": "015b476733e6c34f567ef78071d2ac3b92b6249805496966856f3c7f03080e05",
+        "license_file_sha256": "9853f9dce81365fcc1d9b46004633354450164b8d17904e92e80c444545f7e87"
+      },
+      "license": {
+        "declared": "MIT",
+        "legal_approval": false
+      },
+      "maintenance": {
+        "latest_checked_tag": "v7.11.1",
+        "published_at": "2026-06-18T12:15:08Z",
+        "upstream_advisory_count_checked": 0,
+        "snapshot_only": true
+      },
+      "toolchain_platform": {
+        "swift": "6.1+",
+        "xcode": "16.3+ for XCTest lane",
+        "upstream_macos": "10.15+",
+        "spike_target_macos": "14.0",
+        "arm64_probe_delta_bytes": 5780048,
+        "size_is_product_delta": false
+      },
+      "transitives": {
+        "normal_swift_package_dependencies": 0,
+        "system_library": "SQLite"
+      },
+      "replacement": "Direct SQLite C API or another reviewed Swift wrapper behind the persistence port.",
+      "blockers": [
+        "Full Xcode/XCTest, signed Data Protection Keychain integration, realistic product-size/performance, minimum-host, and long-soak evidence are missing.",
+        "Final notices, legal review, and independent dependency/security approval are pending."
+      ],
+      "disposition": "defer",
+      "owner_role": "Persistence owner",
+      "disposition_date": "2026-08-01"
+    },
+    {
+      "id": "tree-sitter",
+      "name": "tree-sitter runtime and SQL grammars",
+      "role": "Permissive editor parsing/highlighting candidate",
+      "identity": {
+        "runtime_version": null,
+        "grammar_versions": [],
+        "source": "https://github.com/tree-sitter/tree-sitter",
+        "checksum_sha256": null
+      },
+      "license": {
+        "candidate_level_posture": "Runtime reports MIT; every grammar and generated source needs a separate exact review",
+        "legal_approval": false
+      },
+      "maintenance": {
+        "exact_snapshot_recorded": false
+      },
+      "toolchain_platform": {
+        "arm64_macos_build_observed": false,
+        "product_size_delta_bytes": null
+      },
+      "transitives": {
+        "full_graph_recorded": false
+      },
+      "replacement": "TextKit highlighting plus an adapter-owned safety parser; a permissive grammar can never be the sole safety classifier.",
+      "blockers": [
+        "No exact runtime/grammar set, checksums, licenses, fuzz corpus, arm64 build, size, or maintenance owner exists.",
+        "Safety-critical SQL classification cannot depend on an unvalidated highlighting grammar."
+      ],
+      "disposition": "defer",
+      "owner_role": "Editor and SQL safety owner",
+      "disposition_date": "2026-08-01"
+    },
+    {
+      "id": "sqlx",
+      "name": "SQLx",
+      "role": "Alternative per-adapter Rust driver candidate",
+      "identity": {
+        "version": null,
+        "source": "https://github.com/launchbadge/sqlx",
+        "checksum_sha256": null
+      },
+      "license": {
+        "candidate_level_posture": "MIT OR Apache-2.0 reported upstream; exact-version files and feature graph not reviewed",
+        "legal_approval": false
+      },
+      "maintenance": {
+        "exact_snapshot_recorded": false
+      },
+      "toolchain_platform": {
+        "msrv": null,
+        "arm64_macos_build_observed": false,
+        "product_size_delta_bytes": null
+      },
+      "transitives": {
+        "full_graph_recorded": false,
+        "feature_surface_expected_large": true
+      },
+      "replacement": "Keep driver-per-adapter strategy and compare exact sqlx-postgres/libpq only against the frozen hostile-server matrix.",
+      "blockers": [
+        "No exact version, minimal features, checksum, lock graph, advisory/license result, arm64 build, hostile-frame cap, cancellation, transaction, or size evidence exists.",
+        "It is not selected as a generic lowest-common-denominator driver."
+      ],
+      "disposition": "defer",
+      "owner_role": "Database core lead",
+      "disposition_date": "2026-08-01"
+    },
+    {
+      "id": "sparkle",
+      "name": "Sparkle",
+      "role": "Direct-channel auto-update candidate",
+      "identity": {
+        "version": "2.9.4",
+        "tag_commit": "b6496a74a087257ef5e6da1c5b29a447a60f5bd7",
+        "release_asset_sha256": "ce89daf967db1e1893ed3ebd67575ed82d3902563e3191ca92aaec9164fbdef9",
+        "license_file_sha256": "389a4e4e9a32f059775b13a06e25a591445ba229d2838d26dd3e7c0c45127cfe"
+      },
+      "license": {
+        "declared": "MIT plus bundled third-party notices",
+        "legal_approval": false
+      },
+      "maintenance": {
+        "latest_checked_tag": "2.9.4",
+        "published_at": "2026-07-03T03:42:15Z",
+        "upstream_advisory_count_checked": 2,
+        "advisory_ranges": ["GHSA-hg88-v3cw-3qrh: <= 2.9.1", "GHSA-g3hp-f6mg-559v: <= 2.9.1"],
+        "exact_version_in_declared_ranges": false,
+        "snapshot_only": true
+      },
+      "toolchain_platform": {
+        "framework_architectures": ["x86_64", "arm64"],
+        "extracted_framework_logical_bytes": 3133440,
+        "embedded_product_delta_bytes": null
+      },
+      "transitives": {
+        "nested_code_count_observed": 4,
+        "framework_xpc_entitlement_graph_integrated": false
+      },
+      "replacement": "Manual verified delivery or another separately reviewed updater; a custom updater is not authorized.",
+      "blockers": [
+        "No Developer ID/notarized framework integration, pre-extraction host validation, real download/install/relaunch/interruption/rollback, or key-rotation evidence exists.",
+        "Final bundled notices, legal review, product size, and independent release-security approval are pending."
+      ],
+      "disposition": "defer",
+      "owner_role": "Release security owner",
+      "disposition_date": "2026-08-01"
+    },
+    {
+      "id": "sentry-cocoa",
+      "name": "Sentry Cocoa",
+      "role": "Optional opt-in crash reporting candidate",
+      "identity": {
+        "version": null,
+        "source": "https://github.com/getsentry/sentry-cocoa",
+        "checksum_sha256": null
+      },
+      "license": {
+        "candidate_level_posture": "SDK reports MIT; hosted-service terms, DPA, privacy, and exact artifact notices are separate",
+        "legal_approval": false
+      },
+      "maintenance": {
+        "exact_snapshot_recorded": false
+      },
+      "toolchain_platform": {
+        "arm64_artifact_verified": false,
+        "product_size_delta_bytes": null
+      },
+      "transitives": {
+        "full_spm_or_xcframework_graph_recorded": false
+      },
+      "replacement": "Local previewable diagnostics with no upload, or a later reviewed opt-in provider.",
+      "blockers": [
+        "No exact version/source/checksum, payload allowlist, no-network default test, DSN/secret model, retention/deletion policy, privacy/DPA/legal review, arm64 build, or size evidence exists.",
+        "Telemetry and crash upload must remain off by default."
+      ],
+      "disposition": "defer",
+      "owner_role": "Privacy and diagnostics owner",
+      "disposition_date": "2026-08-01"
+    }
+  ],
+  "platform_components_not_counted_as_third_party_candidate_dispositions": [
+    {
+      "name": "AppKit/TextKit/Security.framework",
+      "reason": "Apple platform frameworks remain subject to deployment-target, entitlement, API, security, and release validation rather than package adoption."
+    },
+    {
+      "name": "system SQLite",
+      "reason": "The OS library still needs version/capability and advisory policy, but it is not a separately vendored production dependency in the current plan."
+    }
+  ],
+  "external_blockers": [
+    "A qualified legal reviewer must approve exact license files, notices, redistribution obligations, service terms, and the product licensing model.",
+    "Candidate-level engineering and security adoption authority remains required before an exact source enters a production manifest; ADR-0017's M0 waiver is not that authority.",
+    "A separately authorized production scaffold must exist before release SBOM reproducibility or true product binary-size deltas can be measured."
+  ]
+}

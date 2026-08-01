@@ -1,8 +1,10 @@
 # Technical Backlog
 
-Status: Planning backlog; no item is implemented or authorized
+Status: M0 planning is closed by ADR-0017's owner waiver; DF-M0-001 through
+DF-M0-009 have durable spike/assurance/design evidence; no production item is
+implemented or authorized by this backlog
 
-Last updated: 2026-07-29
+Last updated: 2026-08-01
 
 Priorities: P0 safety/architecture blocker, P1 milestone-critical, P2 important, P3 later. Complexity: S/M/L/XL. Each item is independently reviewable; any scope discovered to be larger must be split before implementation.
 
@@ -68,6 +70,12 @@ Priorities: P0 safety/architecture blocker, P1 milestone-critical, P2 important,
 
 **Definition of done:** Prototype deleted; driver adopted/rejected with exact evidence and risk owner.
 
+**M0 disposition (2026-07-30):** Evidence complete; exact stack deferred by
+[ADR-0009](adr/0009-m0-postgres-driver-disposition.md). See
+[DF-M0-002 evidence](reports/DF-M0-002-postgres-driver-evidence.md). The
+production adapter gate remains closed until a hard backend-frame cap, bounded
+request admission, logging policy and credential-memory decision are verified.
+
 ### DF-M0-003
 
 **ID:** DF-M0-003
@@ -98,6 +106,14 @@ Priorities: P0 safety/architecture blocker, P1 milestone-critical, P2 important,
 
 **Definition of done:** Prototype disposed; editor component decision and measured limits documented.
 
+**M0 disposition (2026-07-30):** TextKit 2 is conditionally retained as the
+planning candidate by [ADR-0010](adr/0010-m0-textkit-editor-disposition.md).
+See the [DF-M0-003 evidence](reports/DF-M0-003-textkit-editor-evidence.md).
+Bounded analysis/find, large-file degradation, native undo and fallback
+detection have positive developer-host evidence. Production remains gated on
+true input-to-frame paint on the M1/16 GiB floor, an editor RSS ceiling, real
+shortcut/VoiceOver behavior, durable recovery and signposted cancellation.
+
 ### DF-M0-004
 
 **ID:** DF-M0-004
@@ -110,7 +126,8 @@ Priorities: P0 safety/architecture blocker, P1 milestone-critical, P2 important,
 
 **Complexity:** L
 
-**Dependencies:** ADR-0001, BF-02/BF-03, normalized type draft
+**Dependencies:** ADR-0001, BF-02/BF-03, `DATABASE_ADAPTERS.md` §10 and
+`ARCHITECTURE.md` §10 normalized type/style contracts
 
 **User story:** As a data user, I need a grid that remains responsive and preserves safe edit state at scale.
 
@@ -127,6 +144,18 @@ Priorities: P0 safety/architecture blocker, P1 milestone-critical, P2 important,
 **Out of scope:** Live DB, SQL writes, all editor types.
 
 **Definition of done:** Prototype deleted; grid decision/limits and follow-up tasks documented.
+
+**M0 disposition (2026-07-30):** The full-grid `NSTableView` plus frozen-table
+composition is rejected by
+[ADR-0011](adr/0011-m0-grid-disposition.md). See the
+[DF-M0-004 evidence](reports/DF-M0-004-appkit-grid-evidence.md). The bounded
+model/cache/identity contracts have positive synthetic evidence, but BF-03
+materializes the wide column/view graph and fails the one-logical-table
+accessibility contract. A bounded custom native two-dimensional renderer is
+the replacement planning candidate; production remains gated on its own
+presented-frame, M1/16 GiB, accessibility, memory and soak evidence. The spike
+source was removed in disposal commit `c775b8e`; its evidence source remains
+auditable at `7acdec0`.
 
 ### DF-M0-005
 
@@ -158,6 +187,21 @@ Priorities: P0 safety/architecture blocker, P1 milestone-critical, P2 important,
 
 **Definition of done:** Candidate decision, patched floor/fallback and threat/test evidence recorded; spike disposed.
 
+**M0 disposition (2026-07-30):** No SSH candidate is adopted by
+[ADR-0012](adr/0012-m0-ssh-disposition.md). See the
+[DF-M0-005 evidence](reports/DF-M0-005-ssh-tunnel-evidence.md). The tested
+system OpenSSH build and native `ProxyJump/-J` are rejected; the exact
+`ssh2`/libssh2 source is rejected on its current security floor; exact
+`russh 0.62.4` remains only a conditional planning candidate. Password,
+complete agent failure handling, connector-level no-direct fallback,
+local-listener echo and comprehensive cleanup remain unsupported. Production
+SSH is disabled until every ADR re-entry gate passes.
+The disposable source remains auditable at `875dd46` and was removed in
+separate disposal commit `0b80f7e`.
+ADR-0015 later supersedes only the conditional exact-version statement:
+official `GHSA-m65r-rprj-r5rg` affects `russh 0.62.4`, so that exact source is
+now rejected; a newer source must rerun the complete gate.
+
 ### DF-M0-006
 
 **ID:** DF-M0-006
@@ -187,6 +231,18 @@ Priorities: P0 safety/architecture blocker, P1 milestone-critical, P2 important,
 **Out of scope:** Product features, public feed or production signing-key workflow.
 
 **Definition of done:** Findings and release runbook captured; disposable shell regenerated later from approved scaffold.
+
+**M0 disposition (2026-07-30):** ADR-0013 retains direct Developer ID
+distribution as the first-channel plan but keeps production distribution and
+updater adoption disabled. See the
+[DF-M0-006 evidence](reports/DF-M0-006-distribution-evidence.md) and
+[release runbook](RELEASE_RUNBOOK.md). Local arm64/ad-hoc Hardened Runtime,
+tamper and exact Sparkle `2.9.4` offline signing smokes pass; Developer ID,
+secure timestamp, notarization, stapling, clean-Mac Gatekeeper and real updater
+install/rollback/key-rotation remain unsupported or partial. Production must
+regenerate an approved scaffold for the credentialed lane. The exact source
+remains auditable at `f0457dd` and was removed in separate disposal commit
+`38c7441`.
 
 ### DF-M0-007
 
@@ -218,6 +274,21 @@ Priorities: P0 safety/architecture blocker, P1 milestone-critical, P2 important,
 
 **Definition of done:** Prototype disposed; schema/security contracts and dependency decision recorded.
 
+**M0 disposition (2026-07-30):**
+[DF-M0-007 evidence](reports/DF-M0-007-persistence-keychain-evidence.md)
+and [ADR-0014](adr/0014-m0-persistence-keychain-disposition.md) retain the
+SQLite-behind-a-Swift-port and Keychain-only boundaries. The exact matrix is
+`15 pass / 3 partial / 2 unsupported / 0 fail`: migrations, rollback,
+future-version refusal, crash/corruption, bounded concurrency, retention,
+backup, permissions and secret-negative surfaces passed. Actual Data
+Protection Keychain add/attributes were unsupported because the unsigned CLI
+returned `errSecMissingEntitlement`; injected duplicate/missing/locked/denied
+and independent deletion are not substitutes for signed-app integration.
+Exact GRDB `7.11.1` is conditional only, XCTest/full Xcode did not run, no
+journal mode is selected and production persistence remains disabled. The
+source is auditable at `6388860` and was removed in separate disposal commit
+`02c86b7`.
+
 ### DF-M0-008
 
 **ID:** DF-M0-008
@@ -246,7 +317,83 @@ Priorities: P0 safety/architecture blocker, P1 milestone-critical, P2 important,
 
 **Out of scope:** General dependency upgrades and product licensing decision.
 
-**Definition of done:** Dossiers reviewed by engineering/security/legal; ADR/backlog updated with exact decisions.
+**Definition of done:** Dossier, policy dry run and exact dispositions are
+current; any absent external review remains explicit and grants no adoption.
+
+**M0 engineering disposition (2026-08-01):** The
+[DF-M0-008 dossier](reports/DF-M0-008-dependency-adoption-dossiers.md),
+[dependency policy](DEPENDENCY_POLICY.md), prototype SPDX inventory and
+[ADR-0015](adr/0015-m0-dependency-disposition.md) record
+`0 approve / 10 defer / 3 reject`; production dependency adoption remains
+false. Fresh official `GHSA-m65r-rprj-r5rg` affects exact `russh 0.62.4`, so
+ADR-0015 rejects that exact source in addition to the previously rejected
+tested system OpenSSH/native `-J` and `ssh2`/libssh2 source. The candidate
+coverage, immutable lock/checksum reconstruction and planned policy dry run
+are recorded, but the dry run correctly blocks: exact legal/notices reviews,
+several unselected identities, product manifests/size/release SBOM and
+independent engineering/security/legal approvals are absent. ADR-0017 waives
+those three reviews only for M0 planning closure. The task planning Definition
+of Done is met, but no dependency was added or approved and every candidate
+keeps its recorded `defer`/`reject` re-entry gate.
+
+The [M0 review disposition packet](reports/M0-external-review-packet.md) pins
+the DF-M0-008 evidence and records three review lanes as owner-waived rather
+than completed.
+
+### DF-M0-009
+
+**ID:** DF-M0-009
+
+**Title:** Review original shell wireframes and accessibility annotations
+
+**Epic:** Native macOS UX foundation
+
+**Priority:** P1
+
+**Complexity:** S
+
+**Dependencies:** ADR-0001, `docs/USER_FLOWS.md`, `docs/UX_WIREFRAMES.md`
+
+**User story:** As a macOS user, I need a reviewed keyboard- and VoiceOver-first shell before application UI implementation begins.
+
+**Description:** Review the low-fidelity shell, connection, editor/grid, destructive-confirmation and transaction-close wireframes; record terminology, focus order, production/read-only language and accessibility acceptance decisions.
+
+**Technical notes:** This is a design gate, not a SwiftUI/AppKit implementation. Validate resizing, Light/Dark, Increase Contrast, Differentiate Without Color, Reduce Motion and localized consequence text against the M0 budgets.
+
+**Security considerations:** Production and destructive warnings must remain text/icon/VoiceOver-visible; no color-only or shortcut-only bypass may be approved.
+
+**Acceptance criteria:** Every wireframe and unresolved focus, warning, resize
+or VoiceOver issue has a disposition, owner and revisit trigger; owning M1/M2
+items link the artifact without treating static review or an owner waiver as
+executable evidence.
+
+**Tests required:** Keyboard/focus walkthrough, accessibility-label review, appearance/contrast checklist, resize/localization review and traceability check to UF-01/02/04/05/06.
+
+**Out of scope:** Production UI, database calls, credentials, assets, pixel-perfect measurements and competitor comparison.
+
+**Definition of done:** Review record and artifact status are current; owning
+M1/M2 items can reference the decision without relying on an untracked design
+assumption.
+
+**M0 engineering disposition (2026-08-01):** The revised
+[wireframe artifact](UX_WIREFRAMES.md),
+[DF-M0-009 review](reports/DF-M0-009-wireframe-accessibility-review.md),
+machine-readable matrix and
+[ADR-0016](adr/0016-m0-wireframe-accessibility-disposition.md) conditionally
+retain all five flows. Ten low-fidelity contract revisions clarify current SSH
+unsupported state, terminology, focus lifecycle, cancellation/result limits,
+appearance/localization and dangerous confirmation behavior. Twelve tracked
+actions remain (`0 Critical / 5 High / 6 Medium / 1 Low`), each with owner and
+revisit trigger. No executable UI/AX/VoiceOver/contrast/resize/localization
+evidence or independent Product/Design/Accessibility/Database-Safety/Security
+sign-off exists. ADR-0017 waives those five reviews only for M0 planning
+closure, so `df_m0_009_definition_of_done_met=true` at static-artifact scope;
+neither M1 nor M2 UI implementation or runtime behavior is authorized by this
+record.
+
+The [M0 review disposition packet](reports/M0-external-review-packet.md) pins
+the DF-M0-009 evidence and records the five review lanes as owner-waived rather
+than completed.
 
 ## Milestone 1 — Application shell
 
@@ -262,7 +409,8 @@ Priorities: P0 safety/architecture blocker, P1 milestone-critical, P2 important,
 
 **Complexity:** M
 
-**Dependencies:** M0 exit, explicit production implementation authorization
+**Dependencies:** M0 exit (satisfied by ADR-0017), explicit production
+implementation authorization (not yet received)
 
 **User story:** As a contributor, I need buildable module boundaries so dependencies cannot silently collapse.
 
@@ -292,7 +440,8 @@ Priorities: P0 safety/architecture blocker, P1 milestone-critical, P2 important,
 
 **Complexity:** L
 
-**Dependencies:** DF-M1-001, ADR-0001, approved wireframes
+**Dependencies:** DF-M1-001, ADR-0001, reviewed shared/WF-01/non-live WF-02
+contract from DF-M0-009
 
 **User story:** As a Mac user, I need keyboard-first windows/tabs/panes and standard commands.
 
@@ -504,19 +653,27 @@ Priorities: P0 safety/architecture blocker, P1 milestone-critical, P2 important,
 
 **Complexity:** L
 
-**Dependencies:** M1, DF-M0-002/005, adopted driver/TLS/SSH dossiers
+**Dependencies:** M1, DF-M0-002, reviewed live WF-02 contract and adopted
+PostgreSQL/TLS dossiers; DF-M0-005 and an adopted SSH dossier only if this item
+enables an SSH capability
 
 **User story:** As a PostgreSQL user, I need a validated connection whose safety capabilities are truthful.
 
-**Description:** Build adapter option transformation, connect/test/close, TLS/custom CA/client cert, accepted SSH subset, pool ceilings and capability snapshot.
+**Description:** Build adapter option transformation, connect/test/close,
+TLS/custom CA/client cert, pool ceilings and capability snapshot. Add only an
+explicitly adopted SSH subset; otherwise expose direct TLS connections only.
 
 **Technical notes:** Credentials enter only as leases; no UI connection string; tunnel owns DB lifecycle.
 
-**Security considerations:** Hostname/cert/host-key verification, no direct fallback, read-only/production, redacted errors.
+**Security considerations:** Hostname/certificate verification always;
+host-key verification and no-direct-fallback only when SSH is enabled;
+read-only/production context and redacted errors in every mode.
 
 **Acceptance criteria:** Declared matrix passes; invalid trust/auth blocks; cancel/cleanup works; capability conditions are source/version aware.
 
-**Tests required:** Disposable PG oldest/current, TLS/SSH/auth/timeout/cancel/pool/leak/security.
+**Tests required:** Disposable PG oldest/current,
+TLS/auth/timeout/cancel/pool/leak/security; add the full SSH matrix only when
+that capability is enabled.
 
 **Out of scope:** Query UI, metadata and writes.
 
@@ -564,7 +721,7 @@ Priorities: P0 safety/architecture blocker, P1 milestone-critical, P2 important,
 
 **Complexity:** L
 
-**Dependencies:** M1 Workspace, DF-M0-003
+**Dependencies:** M1 Workspace, DF-M0-003 and reviewed WF-03 editor contract
 
 **User story:** As a developer, I need native SQL editing with exact selections and recovery.
 
@@ -594,7 +751,8 @@ Priorities: P0 safety/architecture blocker, P1 milestone-critical, P2 important,
 
 **Complexity:** XL
 
-**Dependencies:** DF-M2-003, dialect parser decision, DATABASE_SAFETY
+**Dependencies:** DF-M2-003, dialect parser decision, DATABASE_SAFETY and
+reviewed WF-04 destructive-confirmation contract
 
 **User story:** As a production user, I need destructive and unknown SQL blocked or confirmed based on exact effects.
 
@@ -654,7 +812,7 @@ Priorities: P0 safety/architecture blocker, P1 milestone-critical, P2 important,
 
 **Complexity:** L
 
-**Dependencies:** DF-M2-005
+**Dependencies:** DF-M2-005 and reviewed WF-05 transaction-close contract
 
 **User story:** As a developer, I need explicit begin/commit/rollback and close warnings with authoritative state.
 
@@ -684,13 +842,14 @@ Priorities: P0 safety/architecture blocker, P1 milestone-critical, P2 important,
 
 **Complexity:** XL
 
-**Dependencies:** DF-M2-005, DF-M0-004, normalized type/theme contract
+**Dependencies:** DF-M2-005, DF-M0-004, ADR-0011, reviewed WF-03 grid contract
+and normalized type/theme contract
 
 **User story:** As a user, I need smooth typed browsing at million-row scale.
 
-**Description:** Implement AppKit table, page/cache/prefetch, type renderers, NULL/empty/not-loaded, sort/filter intents, deferred BLOB and baseline scoped appearance.
+**Description:** Implement a reviewed bounded custom native two-dimensional renderer, page/cache/prefetch, type renderers, NULL/empty/not-loaded, sort/filter intents, deferred BLOB and baseline scoped appearance.
 
-**Technical notes:** Pending edits separate; visible-style invalidation; byte+item cache limits and memory pressure.
+**Technical notes:** Virtualize rows and columns with bounded overscan/object inventory; expose one logical accessibility table; keep pending edits separate; visible-style invalidation; byte+item cache limits and memory pressure.
 
 **Security considerations:** Untrusted cell metadata/text, clipboard lifecycle, no row logging.
 

@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "post-run query provenance companion",
+  "metadata_recorded_on": "2026-08-01",
+  "candidate": {
+    "name": "GRDB",
+    "version": "7.11.1",
+    "revision": "b83108d10f42680d78f23fe4d4d80fc88dab3212"
+  },
+  "query": {
+    "reported_evidence_date": "2026-07-30",
+    "date": null,
+    "timestamp_utc": null,
+    "timestamp_limitation": "The historical runner retained no exact request date or timestamp. The report labels the evidence 2026-07-30, while the source and first retained-evidence commits were created on 2026-07-31 +07:00; this companion does not invent which date the request occurred.",
+    "commit_context": {
+      "source_commit_time": "2026-07-31T08:35:22+07:00",
+      "first_retained_evidence_commit": "8cfa4b5125959eb70765d6807c508d5681bb3ee6",
+      "first_retained_evidence_commit_time": "2026-07-31T08:44:44+07:00",
+      "limitation": "Commit timestamps identify retained source/evidence context, not a trustworthy lower/upper bound for an uncommitted runner execution."
+    },
+    "endpoint": "https://api.github.com/repos/groue/GRDB.swift/security-advisories?per_page=100",
+    "accept": "application/vnd.github+json",
+    "github_api_version": "2026-03-10",
+    "source_commit": "638886064b563aa3f472191c8edbf365a86d3feb",
+    "source_path": "spikes/persistence-keychain/scripts/run-evidence.sh"
+  },
+  "raw_result": {
+    "path": "docs/reports/data/DF-M0-007/grdb-advisories.json",
+    "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "shape": "array",
+    "result_count": 0,
+    "preserved_without_shape_change": true
+  },
+  "interpretation": "Empty point-in-time repository response only; not proof that the candidate had or will have no vulnerabilities. Repeat all required advisory sources at adoption and release."
+}

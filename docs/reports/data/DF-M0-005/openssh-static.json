@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "local_static_system_ssh_audit",
+  "candidate": "macOS system OpenSSH",
+  "local_version": "OpenSSH_10.2p1, LibreSSL 3.3.6",
+  "apple_project": "PROGRAM:ssh  PROJECT:OpenSSH-354.120.2",
+  "executable_logical_bytes": 1555472,
+  "code_signature_valid_on_disk": true,
+  "apple_anchor_requirement_verified": false,
+  "arm64_slice_reported": true,
+  "proxyjump_untrusted_value_accepted_by_parser": true,
+  "native_proxyjump_shell_boundary_source_review": true,
+  "upstream_10_4_security_floor_source_review_met": false,
+  "live_network_test_executed": false,
+  "disposition": "rejected_on_static_security_gate",
+  "blockers": [
+    "Apple build predates the client rekey host-key UAF fix represented by CVE-2026-60002",
+    "native ProxyJump constructs a ProxyCommand executed through the user's shell",
+    "typed host-trust errors depend on localized stderr rather than a structured callback"
+  ]
+}

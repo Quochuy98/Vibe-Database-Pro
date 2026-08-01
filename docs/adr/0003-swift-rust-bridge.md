@@ -17,7 +17,20 @@ Swift and Rust must exchange commands, typed metadata, errors and bounded result
 
 ## Decision
 
-Use a narrow versioned C ABI with fixed-width small records, tagged enums, length-delimited buffers and opaque integer handles. A hand-written Swift facade exposes typed `async` APIs/`AsyncSequence`. Swift pulls bounded chunks, acknowledges ownership, and propagates cancellation. Each exported Rust entry catches panic and returns a controlled error. Runtime ABI handshake rejects incompatible pairs.
+Use a narrow versioned C ABI with fixed-width small records, tagged enums,
+length-delimited buffers and opaque integer handles. A hand-written Swift
+facade exposes typed `async` APIs/`AsyncSequence`. Swift supplies each bounded
+destination buffer; Rust copies into that caller-owned storage only during the
+pull call and returns a logical chunk-sequence token. Swift later ACKs that
+matching token to advance the stream; neither pull nor ACK transfers ownership
+of a Rust allocation across the boundary. Swift also propagates cancellation.
+Each exported Rust entry catches panic and returns a controlled error. Runtime
+ABI handshake rejects incompatible pairs.
+
+The M0 disposition in [ADR-0008](0008-m0-ffi-spike-disposition.md) records the
+evidence for this caller-owned-buffer and logical-ACK contract. A Rust-owned
+lease or callback shape requires new ownership and sanitizer evidence before
+implementation.
 
 ## Reasons
 

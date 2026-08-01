@@ -2,7 +2,10 @@
 
 DataForge is the working codename for an independent, native macOS database client. The product is being designed for developers, DBAs, and data engineers who need safe connection management, query execution, data editing, schema tools, transfer workflows, and database observability without sacrificing credential security or data integrity.
 
-> Status: architecture and product planning only. This repository does not yet contain production implementation. A separate, reviewed implementation request is required before production code is started.
+> Status: M0 architecture and product planning exit is accepted by the owner
+> waiver in ADR-0017. This repository does not yet contain production
+> implementation. A separate explicit implementation request is still required
+> before production code is started.
 
 ## Product direction
 
@@ -23,6 +26,7 @@ The baseline assumptions above remain subject to the Architecture Decision Recor
 - [Product specification](docs/PRODUCT_SPEC.md)
 - [Feature matrix](docs/FEATURE_MATRIX.md)
 - [User flows](docs/USER_FLOWS.md)
+- [UX wireframes](docs/UX_WIREFRAMES.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Implementation backlog](docs/BACKLOG.md)
 - [Risks and unknowns](docs/RISKS.md)
@@ -32,6 +36,18 @@ The baseline assumptions above remain subject to the Architecture Decision Recor
 - [System architecture](docs/ARCHITECTURE.md)
 - [Database adapter model](docs/DATABASE_ADAPTERS.md)
 - [Architecture Decision Records](docs/adr/README.md)
+- [DF-M0-001 C ABI streaming evidence](docs/reports/DF-M0-001-ffi-streaming-evidence.md)
+- [DF-M0-002 PostgreSQL driver evidence](docs/reports/DF-M0-002-postgres-driver-evidence.md)
+- [DF-M0-003 TextKit editor evidence](docs/reports/DF-M0-003-textkit-editor-evidence.md)
+- [DF-M0-004 AppKit grid evidence](docs/reports/DF-M0-004-appkit-grid-evidence.md)
+- [DF-M0-005 SSH tunnel/host-trust evidence](docs/reports/DF-M0-005-ssh-tunnel-evidence.md)
+- [DF-M0-006 direct-distribution evidence](docs/reports/DF-M0-006-distribution-evidence.md)
+- [DF-M0-007 SQLite/Keychain separation evidence](docs/reports/DF-M0-007-persistence-keychain-evidence.md)
+- [DF-M0-008 dependency adoption dossiers](docs/reports/DF-M0-008-dependency-adoption-dossiers.md)
+- [DF-M0-009 wireframe/accessibility review](docs/reports/DF-M0-009-wireframe-accessibility-review.md)
+- [M0 external review packet](docs/reports/M0-external-review-packet.md)
+- [M0 owner review-waiver decision](docs/adr/0017-m0-owner-review-waiver.md)
+- [Dependency and supply-chain policy](docs/DEPENDENCY_POLICY.md)
 
 ### Assurance and release
 
@@ -40,6 +56,7 @@ The baseline assumptions above remain subject to the Architecture Decision Recor
 - [Test strategy](docs/TEST_STRATEGY.md)
 - [Performance budget](docs/PERFORMANCE_BUDGET.md)
 - [Distribution strategy](docs/DISTRIBUTION_STRATEGY.md)
+- [Direct release runbook](docs/RELEASE_RUNBOOK.md)
 
 ## Governing rules
 
@@ -57,7 +74,12 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the development gate and [SECURITY.md
 
 ## Current scope
 
-The current planning task may create documentation, decision records, specifications, risk analysis, and tightly scoped feasibility-spike proposals. It must not implement the recommended first production task. The proposed first task is recorded in the roadmap/backlog only after architecture, safety, test, and performance gates are defined.
+The repository may contain documentation, decision records, specifications,
+risk analysis, and tightly scoped disposable feasibility spikes. It must not
+claim production implementation from a spike or import spike code into a
+product target. The proposed first production task remains recorded in the
+roadmap/backlog only after architecture, safety, test, and performance gates
+are defined.
 
 ## License
 

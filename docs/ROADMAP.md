@@ -2,7 +2,7 @@
 
 Status: Sequenced planning baseline; estimates require team sizing after M0
 
-Last updated: 2026-07-29
+Last updated: 2026-08-01
 
 ## 1. Delivery principles
 
@@ -30,7 +30,7 @@ flowchart LR
 ### Included scope
 
 - Product specification, feature matrix, user flows, architecture, adapter contract, security threat model, database safety, tests, performance, distribution, roadmap/backlog/risks and ADRs.
-- UX wireframes for shell, connection, editor/grid, production/destructive confirmation and transaction close; original identity only.
+- Original low-fidelity UX wireframes and accessibility annotations for shell, connection, editor/grid, production/destructive confirmation and transaction close (see [UX_WIREFRAMES.md](UX_WIREFRAMES.md)).
 - Disposable spikes: Swift/Rust C ABI bounded stream/cancel/panic; PostgreSQL driver/TLS/cancel; SQL editor; virtualized grid; SSH/known-host/jump host; signed/notarized/update shell; local SQLite/Keychain boundary.
 - Dependency/driver/editor/parser/grid/updater/SSH/license/advisory/binary-size and Apple Silicon evaluation.
 - Supported macOS/architecture and direct-vs-Store distribution proposal.
@@ -45,10 +45,10 @@ flowchart LR
 
 ### Deliverables
 
-- Accepted-for-planning ADR-0001–0007 and spike decision records with measurements/disposition.
+- Accepted-for-planning ADR-0001–0007 plus M0 evidence ADRs and spike decision records with measurements/disposition.
 - Architecture/module/FFI/capability/error/cancellation contracts.
 - Threat-to-control-to-test traceability and prioritized risk register.
-- Original low-fidelity UX wireframes and accessibility annotations.
+- Original low-fidelity UX wireframes and accessibility annotations reviewed against [UX_WIREFRAMES.md](UX_WIREFRAMES.md).
 - Proposed exact dependency versions/checksums/licenses/advisories only after adoption review.
 
 ### Acceptance criteria
@@ -57,7 +57,9 @@ flowchart LR
 - PostgreSQL spike proves valid/invalid TLS, typed streaming, transaction and cancellation truth against a disposable DB.
 - Editor/grid prototypes meet provisional M0 budgets and accessibility checks or produce an accepted fallback decision.
 - Empty arm64 Swift/Rust shell signs, notarizes, staples and rejects tampered/downgraded update.
-- SSH candidate fails closed for unknown/changed host key and cleans tunnels; 2026 advisories/patched floor/fallback reviewed.
+- SSH spike records an adopt/reject disposition. Any retained candidate must
+  fail closed for unknown/changed host keys, clean owned resources and pass the
+  current advisory floor; otherwise SSH remains unavailable.
 - No spike contains real credentials/data or is represented as a product feature.
 
 ### Test requirements
@@ -75,6 +77,10 @@ flowchart LR
 ### Exit criteria
 
 - All Critical M0 unknowns have pass/fail evidence and owner; ADRs accepted or explicitly revised; failed spikes cause redesign/defer, not lowered safety; production implementation receives a separate request.
+
+**Current disposition (2026-08-01):** ADR-0017 accepts M0 planning exit by
+owner waiver without claiming eight external reviews. The separate production
+implementation request has not been received.
 
 ## 3. Milestone 1 — Application shell
 
@@ -134,7 +140,9 @@ flowchart LR
 
 ### Included scope
 
-- PostgreSQL profile/test/connect/disconnect; TLS/custom CA/client cert; accepted SSH tunnel subset; bounded pool; read-only/production context.
+- PostgreSQL profile/test/connect/disconnect; TLS/custom CA/client cert; an SSH
+  tunnel subset only after separate adoption; bounded pool; read-only/
+  production context.
 - Lazy object explorer for databases/schemas/tables/columns/keys/indexes/views/materialized views/routines and DDL/details as capability permits.
 - TextKit SQL tabs, current/selection/script execution, parser/classifier, timeout/row limit, typed streaming, messages/multiple results, cancel.
 - Transactions/autocommit/commit/rollback and close/lost-state warnings.
@@ -147,7 +155,9 @@ flowchart LR
 
 ### Dependencies
 
-- M1 foundation; adopted PostgreSQL/TLS/SSH/parser dependencies; disposable PG matrix; M0 grid/editor/driver evidence.
+- M1 foundation; adopted PostgreSQL/TLS/parser dependencies; an adopted SSH
+  dependency only if SSH is in scope; disposable PG matrix; M0 grid/editor/
+  driver evidence.
 
 ### Deliverables
 
@@ -161,16 +171,22 @@ flowchart LR
 - R3 production/readonly controls cannot be bypassed by shortcut/stale preview/parser failure.
 - One-million-row result stays within memory/frame budget and cancellation truth is accurate.
 - Key edit changes exactly one row; zero/multiple/concurrent conflict and rollback are safe; no-key source is read-only.
-- Bad certificate/hostname/host key fails closed; tunnel failure never uses direct connection.
+- Bad certificate/hostname fails closed. If SSH is enabled, bad host keys fail
+  closed and tunnel failure never uses a direct connection.
 - CSV export is correct, formula-safe, bounded, cancellable and atomic/marked on failure.
 
 ### Test requirements
 
-- PostgreSQL oldest/current disposable matrix, TLS/SSH/auth; classifier fuzz; transaction/cancel/loss; type round-trip; edit wrong-row regressions; UI/accessibility; performance/security.
+- PostgreSQL oldest/current disposable matrix and TLS/auth; add SSH tests only
+  for an enabled SSH capability; classifier fuzz; transaction/cancel/loss;
+  type round-trip; edit wrong-row regressions; UI/accessibility; performance/
+  security.
 
 ### Security review
 
-- Credential leases, TLS/SSH trust, malicious server/result limits, SQL generation/injection, production/read-only/destructive safeguards, export path/formula.
+- Credential leases, TLS trust, conditional SSH trust, malicious server/result
+  limits, SQL generation/injection, production/read-only/destructive
+  safeguards and export path/formula.
 
 ### Performance review
 
@@ -416,9 +432,10 @@ flowchart LR
 | --- | --- |
 | Architecture | ADR/spike evidence, boundary tests and no unresolved Critical design conflict |
 | Database safety | Classifier/read-only/production/transaction/row identity/preview tests pass |
-| Credential/trust | Keychain/TLS/SSH/secret-leak gates pass before any real connection feature |
+| Credential/trust | Keychain/TLS/secret-leak gates pass before direct connection; every shipped SSH capability must separately pass ADR-0012 re-entry gates |
 | Adapter capability | Truthful supported/conditional/unknown snapshot and conformance matrix |
 | Streaming/performance | Named fixture shows bounded memory/queue/cache/cancel and UI responsiveness |
+| UX/accessibility | Reviewed wireframe hierarchy and milestone-owned focus, keyboard/menu, AX/VoiceOver, appearance, resize/localization and safety-copy gates before each M1/M2 UI flow |
 | Distribution | Signed/notarized/update-tamper evidence before external beta |
 | Documentation | User consequence, limits, untested/risk and runbook are current |
 
@@ -434,6 +451,104 @@ flowchart LR
 | M0-S06 | Direct artifact/update chain is viable | Empty app/core/helper | Sign/notarize/staple/tamper/downgrade/rollback | Delete/regenerate approved scaffold |
 | M0-S07 | SQLite/Keychain separation is reliable | Synthetic profile/workspace | Transactional migration, denial/locked, canary absence | Delete; retain schema/security decision |
 
-## 12. Recommended first implementation task
+M0-S02 now has a complete runtime/dependency evidence record: the exact
+PostgreSQL candidate is deferred by ADR-0009 because its upstream
+frame and request-resource boundaries do not yet meet the product safety
+contract. The spike source is disposable and is removed after the durable
+report is committed.
 
-**Only one next task:** execute `M0-S01 — C ABI bounded streaming, cancellation and panic-containment spike` exactly as bounded above. It is prerequisite evidence for every database/result feature, touches no real database or credential, and must be deleted/replaced after its report. This roadmap does not implement it.
+M0-S03 now has a durable editor evidence record and ADR-0010 disposition.
+TextKit 2 is conditionally retained as the planning candidate, while production
+implementation remains gated on true input-to-frame measurement at the
+M1/16 GiB floor, an editor RSS ceiling, real shortcut/VoiceOver behavior,
+durable recovery and signposted cancellation. The proxy and metadata smoke
+results are not treated as a full BF-01 or accessibility pass.
+The disposable M0-S03 source was removed in commit `262250a`; its evidence
+source remains auditable at `130bd3a`.
+
+M0-S04 now has a durable grid evidence record and ADR-0011 disposition. The
+full-grid `NSTableView` plus frozen-table candidate is rejected: BF-03 expands
+the physical column/view graph and the split projection does not expose one
+logical accessibility table. A bounded custom native two-dimensional renderer
+is selected for subsequent planning, with production still gated on true
+presented frames, M1/16 GiB memory, row-and-column object caps, unified
+accessibility, manual VoiceOver and soak. The proxy values are not treated as
+FPS or a presentation-budget pass. The disposable source was removed in commit
+`c775b8e`; the exact evidence source remains auditable at `7acdec0`.
+
+M0-S05 now has a durable SSH evidence record and ADR-0012 disposition. No
+candidate is adopted: the tested system OpenSSH/native `-J` and exact
+`ssh2`/libssh2 candidate are rejected. DF-M0-008/ADR-0015 subsequently rejects
+exact `russh 0.62.4` after a fresh official advisory included that version;
+upstream-reported `0.62.5` is unevaluated and inherits no approval. Seven
+frozen rows remain unsupported. Production SSH remains disabled; direct
+PostgreSQL/TLS planning does not depend on enabling SSH. The exact disposable
+source is auditable at `875dd46` and was removed in separate disposal commit
+`0b80f7e`.
+
+M0-S06 now has a durable distribution evidence record and ADR-0013
+disposition. The direct Developer ID channel remains the planning baseline,
+but the release gate is closed: the host had no valid signing identity or full
+Xcode, so notarization, stapling and clean-Mac Gatekeeper did not run. Exact
+Sparkle `2.9.4` is conditional only; offline Ed25519/tamper and policy-model
+smokes do not establish framework integration, install, rollback or key
+rotation. The disposable source remains auditable at `f0457dd` and was removed
+in separate disposal commit `38c7441`.
+
+M0-S07 now has a durable persistence/credential evidence record and ADR-0014
+disposition. Exact GRDB `7.11.1` conditionally remains the metadata candidate:
+transactional migration/rollback, future-version refusal, crash/corruption,
+bounded concurrency, retention, backup, permissions and canary-negative
+surfaces passed. Actual Data Protection Keychain CRUD/attributes and XCTest
+were unavailable because the host had no signed entitlement or full Xcode;
+they remain unsupported rather than inferred from injected policy tests. No
+production persistence or journal mode is enabled. The exact source is
+auditable at `6388860` and was removed in separate disposal commit `02c86b7`.
+
+The M0 dependency gate now has a durable engineering dossier, proposed policy,
+prototype SPDX inventory and ADR-0015. It records
+`0 approve / 10 defer / 3 reject`; exact `russh 0.62.4` is newly rejected after
+an official upstream advisory published after DF-M0-005. Production adoption
+remains closed because exact identities for several future candidates, exact
+license/notices decisions and a production build/release SBOM do not exist.
+ADR-0017 waives the three external dossier reviews only as an M0 exit gate; it
+does not convert any candidate to `approve` or satisfy adoption/release review.
+
+The M0 wireframe/accessibility gate now has a revised low-fidelity artifact,
+engineering review matrix and ADR-0016. All five wireframes are conditionally
+retained after ten planning-contract revisions; 12 owned actions remain. No
+executable keyboard/AX/VoiceOver/contrast/resize/localization evidence or
+independent Product/Design/Accessibility/Database-Safety/Security sign-off
+exists. M1 owns shared shell/WF-01/non-live WF-02 evidence; M2 owns live WF-02
+and WF-03/04/05. ADR-0017 accepts the static artifact for planning without
+those five reviews. Production UI remains closed until a separate request and
+the owning executable gates.
+
+### Canonical M0 traceability
+
+The IDs below prevent the spike list, backlog and architecture section from
+drifting. `M0-S01`–`M0-S07` are disposable technical spikes; the dependency
+dossier and wireframe review are milestone gates, not additional runtime
+spikes.
+
+| Roadmap spike/gate | Backlog item | Architecture evidence |
+| --- | --- | --- |
+| M0-S01 C ABI stream | DF-M0-001 | C ABI stream row |
+| M0-S02 PostgreSQL driver | DF-M0-002 | PostgreSQL driver row |
+| M0-S03 SQL editor | DF-M0-003 | SQL editor row |
+| M0-S04 result grid | DF-M0-004 | Grid row |
+| M0-S05 SSH tunnel/host trust | DF-M0-005 | SSH tunnel/host-trust row |
+| M0-S06 distribution | DF-M0-006 | Distribution row |
+| M0-S07 SQLite/Keychain | DF-M0-007 | SQLite/Keychain row |
+| M0 dependency gate | DF-M0-008 | Dependency/adoption gate |
+| M0 wireframe/accessibility gate | DF-M0-009 | UX wireframe artifact |
+
+## 12. Recommended next planning task
+
+**Only one next planning task:** obtain the separate, explicit production
+implementation request required by `MASTER_PROMPT.md` for DF-M1-001. ADR-0017
+closes M0 planning by owner waiver without claiming any of the eight external
+reviews. Until that request arrives, do not create the Xcode/Cargo production
+scaffold. After authorization, DF-M1-001 remains limited to the buildable
+module/fitness-test foundation and cannot add a live database feature or an
+unapproved dependency.

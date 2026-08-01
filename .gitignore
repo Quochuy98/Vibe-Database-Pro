@@ -9,6 +9,9 @@
 
 # Swift/Xcode build output and user state
 .build/
+**/.build-*/
+.swiftpm/
+**/.swiftpm/
 DerivedData/
 *.xcuserstate
 xcuserdata/
@@ -18,5 +21,6 @@ target/
 
 # Local diagnostics and test artifacts
 artifacts/
+**/artifacts/
 diagnostics/
 *.log

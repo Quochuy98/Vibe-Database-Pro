@@ -2,7 +2,7 @@
 
 Status: Provisional targets; M0 measurements required
 
-Last updated: 2026-07-29
+Last updated: 2026-08-01
 
 Owners: Performance, macOS, Database Core, feature owners
 
@@ -43,7 +43,7 @@ All UI interactions must keep main-thread stalls under 100 ms; routine interacti
 | New window/tab | Empty query tab | p95 ≤100 ms |
 | Connection | Local disposable PostgreSQL, no SSH, warm DNS | client overhead p95 ≤250 ms excluding server handshake |
 | Connection | 100 ms RTT TLS endpoint | client overhead beyond protocol/network p95 ≤300 ms |
-| Cancel UI | Stop action to visible `cancelling` state | ≤100 ms |
+| Cancel UI | Cancel Query action to visible `cancelling` state | ≤100 ms |
 | Object tree | Connect to first root nodes | p95 ≤750 ms after connection; no full catalog load |
 | Object expand | Node with ≤1,000 children, cached metadata absent | first visible page p95 ≤500 ms plus server time |
 | Metadata refresh | Refresh one ≤1,000-object scope with unchanged server | first visible reconciliation p95 ≤750 ms plus server time; unrelated scopes remain usable |
@@ -57,6 +57,99 @@ All UI interactions must keep main-thread stalls under 100 ms; routine interacti
 | Grid theme change | Update visible cells only | p95 ≤100 ms; selection/scroll/pending edits unchanged |
 | Filter/sort intent | UI acknowledgment and cancellable request start | ≤100 ms; server completion reported separately |
 | Workspace save | 20 tabs including 10 MB total drafts | UI stall ≤50 ms; atomic completion p95 ≤1 s |
+
+### 3.1 M0 grid measurement protocol
+
+DF-M0-004 freezes the following protocol before its prototype is measured. A
+future budget change requires new evidence; the spike must not select a more
+favorable interpretation after seeing a result.
+
+- Run a visible, unoccluded window on a display fixed at 60.00 Hz. Record the
+  viewport, scaling, display connection and any mirroring. Within each measured
+  scroll run, the individual Core Animation presented-frame intervals are the
+  frame-level population. That population must have p95 at most
+  `1000 / 55 = 18.18 ms`; no more than 1% of its intervals may exceed
+  33.33 ms, and two such intervals may not be consecutive. Publish the raw
+  intervals and these three checks for every run rather than deriving them from
+  ten run-level summary values.
+- A Core Animation/display presentation instrument is the evidence source for
+  a presented-frame claim. Display-link callbacks, scroll-step duration,
+  `layoutSubtreeIfNeeded`, drawing callbacks and signposts are useful diagnostic
+  proxies, but must be reported as proxies rather than FPS or presentation.
+- BF-02 vertical scrolling uses 1M logical rows, a 200-row page, a 24-point row
+  height and deterministic 10-second down/up sweeps at 2,400 points/second from
+  start, midpoint and near-end anchors. Re-anchoring by stable row identity is
+  outside the measured interval. The run is repeated with 10M logical rows to
+  prove that logical cardinality does not materialize rows or grow the cache.
+  The same presented-frame gate applies to both cardinalities.
+- BF-03 uses 500 columns by 100k logical rows, three 120-point frozen columns,
+  deterministic 80/120/180-point non-frozen widths and five selected text
+  columns whose generated payload averages 10 KiB. Its 10-second horizontal
+  forward/back scroll runs at 2,400 points/second and uses the same 18.18/33.33 ms
+  presented-frame gate. Column resize and reorder are measured separately and
+  must preserve row/column identity, selection, scroll anchor and pending
+  edits.
+- Grid first paint starts immediately before a ready schema and first 200-row
+  chunk are applied to an otherwise cold grid, and ends at the first presented
+  frame containing those cells. Use at most 50 non-hidden result columns and
+  report their count and widths. Forced layout without a presented frame is a
+  separately named first-layout proxy and cannot satisfy the p95 ≤300 ms gate.
+- Theme timing starts before changing the palette version and ends at the first
+  presented frame in which every visible cell uses the new resolved style.
+  The data source and page cache are not reloaded. The p95 ≤100 ms gate also
+  requires unchanged stable selection, scroll anchor and pending-edit keys.
+- Incremental grid RSS is the peak physical footprint minus an empty visible
+  harness after a five-second steady state, measured during page eviction,
+  vertical/horizontal scrolling, theme changes and deferred-value access. The
+  default cache has an item ceiling of five 200-row pages and a 64 MiB byte
+  ceiling; it may hold fewer than five pages when the byte ceiling wins. At
+  most one additional 1,000-row/4 MiB synthetic fetch chunk may be in flight.
+  The separate pending-edit overlay has its own 10,000-cell/16 MiB ceilings and
+  rejects further admission without discarding or applying an existing edit.
+  Both 1M and 10M runs must remain ≤150 MiB incremental RSS, and their peaks
+  must differ by no more than 8 MiB to support the cardinality-independent
+  claim.
+- Generated 1/10/100 MiB JSON/BLOB cells retain only type, logical length,
+  locator and bounded preview metadata. The spike must never allocate the
+  declared payload; preview remains at most 64 KiB and values over 1 MiB are
+  deferred.
+- Grid-fetch cancellation is exercised with a deterministic suspended
+  synthetic producer. UI acknowledgement must be visible within 100 ms, no
+  new chunk may be admitted 500 ms after the request, and terminal state must
+  remain distinct from `cancelRequested`. This proves only the grid-side
+  contract, not driver, network or FFI cancellation.
+- Latency and frame scenarios use one unreported warm-up followed by 10
+  measured runs. A latency run contributes one duration sample. A scroll/frame
+  run contributes all raw frame intervals plus one run-level summary containing
+  its frame p95, over-33.33 ms fraction and consecutive-interval result. Publish
+  every run-level sample, median, nearest-rank p95
+  (`sorted[ceil(0.95 * n) - 1]`) and worst; with 10 run-level samples, p95 is the
+  maximum. This across-run percentile is additional variance evidence and does
+  not replace any within-run frame-level percentile or threshold check. A
+  coefficient of variation over 10% triggers environment diagnosis and a rerun
+  rather than averaging the instability away.
+
+DF-M0-004 records its disposition in
+[ADR-0011](adr/0011-m0-grid-disposition.md) and the
+[grid evidence report](reports/DF-M0-004-appkit-grid-evidence.md). The
+`NSTableView` spike's forced-layout/display and scroll-step values are
+diagnostic proxies, not presented frames. Its BF-03 renderer and unified
+accessibility contract failed, so none of the presentation gates above is
+waived or reinterpreted for the replacement renderer.
+
+Automated accessibility inspection must verify table/row/cell/header roles,
+stable row and column counts, selection, loading, SQL `NULL`, deferred and
+modified descriptions. Manual VoiceOver navigation remains a separate gate;
+metadata assertions alone are never reported as a VoiceOver pass.
+Default text/background pairs use WCAG relative luminance and a 4.5:1 minimum
+for ordinary grid text. A lower user-defined pair produces a visible and
+accessible warning; color is still supplemented by icon/text/tooltip traits.
+
+DF-M0-009 adds a static focus/appearance/resize/localization test contract in
+the [wireframe review](reports/DF-M0-009-wireframe-accessibility-review.md).
+It records no timing, contrast or frame measurement. The launch, cancel,
+editor/grid, 4.5:1, minimum-machine and manual VoiceOver budgets above remain
+unchanged and executable-release-gated.
 
 ## 4. Memory and bounded-resource budgets
 
@@ -220,7 +313,12 @@ Unbounded memoization, global mutable dictionaries and “cache forever until di
 
 ## 12. Open measurements
 
-- Validate whether `NSTableView` horizontal width and frozen-column synchronization meet BF-03; otherwise prototype a native custom renderer with equivalent accessibility.
+- Define an editor-only incremental RSS ceiling before the next visible-host
+  BF-01 run; the DF-M0-003 whole-process 10/100 MiB RSS baselines cannot be
+  graded retroactively against an invented threshold.
+- Measure SQL editor input event to Core Animation presented frame on the
+  M1/16 GiB floor. Hidden-window forced local layout is only a proxy.
+- Benchmark the ADR-0011 bounded custom native renderer against BF-02/BF-03 with row-and-column object caps, one logical accessibility table and true presented-frame evidence; the rejected `NSTableView` composition is not a baseline to promote.
 - Select actual FFI chunk encoding and measure copy/decoding cost.
 - Establish per-driver fetch/cursor/batch controls and cancellation latency.
 - Measure Keychain prompt/retrieval and metadata migration at large history sizes.

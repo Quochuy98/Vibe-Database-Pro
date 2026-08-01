@@ -23,7 +23,28 @@ DataForge is currently in planning. This document describes the gate for future 
 
 ## Dependency gate
 
-Before adding a dependency, record its exact version/source/checksum, license and commercial-use compatibility, maintenance activity, security advisories, Apple Silicon/macOS support, binary-size delta, transitive tree and replacement cost. Prefer standard library or existing dependencies when adequate. GPL/AGPL or unclear binaries require explicit legal approval; no dependency is approved merely because it appears in a planning table.
+Before adding a dependency, follow the complete
+[dependency and supply-chain policy](docs/DEPENDENCY_POLICY.md): record its
+exact version/source/checksum, license and commercial-use compatibility,
+maintenance activity, multi-source security advisories, Apple Silicon/macOS
+support, binary-size delta, transitive tree and replacement cost. Prefer the
+standard library or existing dependencies when adequate. GPL/AGPL, unclear
+binaries or hosted-service terms require explicit legal review; no dependency
+is approved merely because it appears in a planning table, spike or SBOM.
+
+## M0 owner waiver and future reviews
+
+[ADR-0017](docs/adr/0017-m0-owner-review-waiver.md) records the repository
+owner's decision that the eight lanes in the
+[M0 external review packet](docs/reports/M0-external-review-packet.md) are not
+required for M0 planning exit. They are waived, not completed; no agent may
+invent a reviewer, result or date.
+
+The waiver does not approve a dependency, production implementation,
+accessibility runtime result, license, security exception or release. Any
+future review result must still be attributable, scoped and dated. Record only
+a non-privileged disposition summary and never commit legal advice, private
+contact details, signatures, credentials or customer/database data.
 
 ## Testing and database safety
 

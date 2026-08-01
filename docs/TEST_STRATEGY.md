@@ -2,7 +2,7 @@
 
 Status: Proposed quality contract
 
-Last updated: 2026-07-29
+Last updated: 2026-08-01
 
 Owners: Quality Engineering with feature, Database Core, macOS and Security owners
 
@@ -10,7 +10,38 @@ Owners: Quality Engineering with feature, Database Core, macOS and Security owne
 
 Tests must prove that DataForge is safe and correct under success, failure, cancellation, concurrency, partial progress and malicious input. A green narrow suite cannot support a broad capability claim. Production and shared staging databases are never automated-test targets.
 
-This repository currently contains planning documents only, so the commands and suites below are future gates, not tests claimed as passing today.
+The repository has no production implementation. Separately scoped disposable
+artifacts preserve exact evidence in the
+[DF-M0-001 FFI report](reports/DF-M0-001-ffi-streaming-evidence.md),
+[DF-M0-002 PostgreSQL report](reports/DF-M0-002-postgres-driver-evidence.md)
+and [DF-M0-003 editor report](reports/DF-M0-003-textkit-editor-evidence.md),
+plus the
+[DF-M0-004 grid report](reports/DF-M0-004-appkit-grid-evidence.md),
+[DF-M0-005 SSH report](reports/DF-M0-005-ssh-tunnel-evidence.md),
+[DF-M0-006 distribution report](reports/DF-M0-006-distribution-evidence.md),
+[DF-M0-007 persistence/Keychain report](reports/DF-M0-007-persistence-keychain-evidence.md),
+the [DF-M0-008 dependency dossier](reports/DF-M0-008-dependency-adoption-dossiers.md)
+and the
+[DF-M0-009 wireframe/accessibility review](reports/DF-M0-009-wireframe-accessibility-review.md).
+Their source commits remain auditable after disposal. None establishes a
+production capability: the PostgreSQL stack is deferred, and the TextKit 2
+candidate still lacks input-to-frame, M1/16 GiB, real keyboard/VoiceOver,
+durable-recovery and active-cancellation evidence. The full-grid `NSTableView`
+candidate is rejected; its bounded-state tests do not establish presented
+frames, M1/16 GiB, one logical accessibility table, manual VoiceOver or soak
+for the ADR-0011 replacement. The commands and suites below remain future
+production gates unless an exact command is recorded as run. DF-M0-006 adds
+local arm64/ad-hoc signing and offline update-signature evidence, but Developer
+ID, notarization, clean-Mac Gatekeeper and real updater behavior remain open.
+DF-M0-008 adds a prototype SPDX inventory and multi-source policy evidence,
+not a production/release SBOM. It rejects exact `russh 0.62.4` after the
+official repository published an affected range that the current RustSec/Cargo
+dry run had not yet surfaced.
+DF-M0-009 specifies five conditional wireframe contracts and 12 owned actions;
+it runs no UI. Automated AX assertions, actual keyboard events, manual
+VoiceOver, Light/Dark/contrast/non-color/motion, resize/pseudo-localization and
+performance remain executable gates owned by M1 for the shared shell, WF-01 and
+non-live WF-02, and by M2 for live WF-02 plus WF-03/04/05.
 
 ## 2. Quality principles
 
@@ -69,7 +100,14 @@ Fuzz targets include statement parser/classifier, result decoders, identifier/li
 - transaction and pending-edit close warnings;
 - workspace draft/restoration without silently restoring live sessions;
 - Keychain reference CRUD/error mapping and non-`Codable` secret model checks;
-- SQLite migrations, rollback/corruption/retention/deletion;
+- serialized `ConnectionAttempt` fake-clock permutations for revoke-before-
+  announcement/driver-forward, auth success before/after cancel, explicit
+  confirmation, connection close, typed error, unsupported cancellation,
+  teardown deadline, repeated cancel, stale attempt ID, forced late-session
+  close and denied lease access after revocation;
+- SQLite migrations, rollback/corruption/retention/deletion, owner-only parent/
+  main/sidecar/backup/staging permissions, symlink/non-regular/path-escape and
+  descriptor-identity rejection;
 - command enablement driven by capabilities and revalidation failure;
 - theme cascade, contrast warnings, non-color indicators and visible-cell-only invalidation;
 - error messages contain consequence/action but no raw driver stack/secret;
@@ -82,9 +120,16 @@ The C ABI suite is independently release-blocking. It covers:
 - exact ABI version/feature handshake and incompatible pair rejection;
 - fixed-width record layout/size/alignment on supported architectures;
 - null, malformed length, unknown enum, stale/invalid handle and allocation-failure behavior;
-- ownership transfer, idempotent release, double release, use after terminal, leak detection;
+- caller-owned destination lifetime, idempotent release, double release, use
+  after terminal, stale-generation and leak detection;
 - panic containment for every exported entry point;
 - pull/ack streaming with row and byte limits under a slow/failed consumer;
+- exact `next` status/output matrix: full-copy-only `OK`, zero-copy terminal/
+  cancelled/needs-ack/error paths, no cursor advance on buffer-too-small,
+  required-capacity bounds, partial-copy prohibition and matching ACK only
+  after complete metadata/payload validation;
+- validation/decoding rejection after `OK` takes the explicit abort/cancel path
+  without a false success ACK, demand advance, leaked handle or retained bytes;
 - callback ordering, documented executor, reentrancy and no UI mutation off MainActor;
 - cancel before start, during driver wait, during chunk, after terminal and concurrent with release;
 - typed error fidelity and seeded-secret redaction;
@@ -138,7 +183,10 @@ Each declared capability maps to a stable test ID and evidence:
 
 - valid/invalid config, connect, auth failure, timeout, disconnect, graceful close, reconnect policy;
 - TLS trust/hostname/custom CA/client certificate and no global bypass;
-- SSH valid/unknown/changed host key, agent/key/password/jump host as scoped, cancellation and no direct fallback;
+- when SSH is enabled: exact/hashed/multiple-port known hosts, unknown/changed/
+  revoked and malicious-rekey behavior per hop; declared key/agent/password
+  subset; connector-level no-direct trap; local-listener echo; phase-by-phase
+  cancellation and owned resource cleanup;
 - lazy metadata, limited privilege, quoted/unicode objects, refresh/invalidation and bounded large schema;
 - query/script success, syntax/constraint/auth/network errors, warnings/messages, multiple results;
 - typed streaming, slow consumer, row/byte limit, deferred BLOB, server interruption;
@@ -163,7 +211,8 @@ High-value integration flows:
 8. Schema/data compare → target changes after preview → apply blocked as stale.
 9. Malicious import/archive/spreadsheet fixture → bounded failure/no traversal/no formula injection/no partial write beyond policy.
 10. Export cancellation/disk-full/overwrite → atomic or clearly marked/cleaned artifact.
-11. Tunnel failure → DB operation fails and tunnel closes; no direct fallback.
+11. If SSH is enabled: tunnel failure → DB operation fails and every tunnel
+    resource closes; packet/socket observation proves no direct endpoint attempt.
 12. Restore/privilege/kill-session flows → capability/permission/confirmation and partial consequence handling.
 
 ## 9. UI, keyboard and accessibility tests
@@ -188,9 +237,32 @@ Snapshot tests cover controlled appearance matrices but do not replace semantic 
 The threat IDs in [SECURITY_THREAT_MODEL.md](SECURITY_THREAT_MODEL.md) map to tests. Required suites include:
 
 - Keychain storage/ACL/locked/denied behavior and no plaintext fallback;
+- SQLite migration success/rollback/future-version refusal, crash/corruption,
+  bounded concurrency/retention, owner-only main/sidecar/backup/staging files,
+  no-follow/exclusive temporary creation and path-escape/TOCTOU defenses;
+- SQLite online backup during WAL concurrency and DELETE-mode recovery,
+  explicit refusal to copy a live WAL main file alone, verified staged restore,
+  same-volume atomic replacement, previous-file/marker recovery and injected
+  disk-full/permission/crash/cancellation at every durable transition;
+- signed-app Data Protection Keychain CRUD/attributes, exact duplicate/missing,
+  lock/ACL/access-group/Team migration and independent deletion; injected
+  errors may test mapping but cannot pass these system boundaries;
 - seeded secret scan across SQLite, UserDefaults, exports, logs, crash payload, diagnostics, snapshots, temp files, process arguments and clipboard lifecycle;
 - valid/invalid/expired/mismatched TLS certificate, custom CA scope and bypass absence;
-- SSH unknown/changed host key, known-host policy, jump-host isolation and tunnel cleanup;
+- SSH unknown/changed/revoked/rekey host keys, exact/hashed/multiple-port
+  known-host policy and independent jump-hop isolation;
+- SSH key/agent/password canaries for only the declared auth subset, including
+  missing/malformed/stalled/oversized agent responses and key owner/mode/size/
+  symlink cases;
+- SSH connector trap and packet-level assertion of zero direct DB attempts,
+  local-listener echo, destination refusal, backpressure and cancellation at
+  DNS/TCP/trust/auth/channel/forward/teardown states;
+- SSH task/channel/FD/socket/listener/child/control-socket/askpass cleanup,
+  1,000-cycle repetition and soak. System OpenSSH-specific tests cover `-J`/
+  config/username metacharacters, no shell descendants, `ExitOnForwardFailure`
+  limits, ControlMaster fallback and SIGTERM-to-Cancellation mapping;
+- never run a malicious-rekey exploit against a platform client below the
+  verified security floor; use only a disposable instrumented patched client;
 - malicious database server frames/metadata/lengths/type values, bounded allocation and no panic;
 - SQL injection in generated operations and identifier/literal quoting;
 - path traversal/symlink race, archive/ZIP bomb, XXE, deep JSON, malformed XLSX/CSV and encoding attacks;
@@ -198,7 +270,9 @@ The threat IDs in [SECURITY_THREAT_MODEL.md](SECURITY_THREAT_MODEL.md) map to te
 - native-tool command/argument/environment injection and malicious filenames;
 - secure temporary permissions, atomic write and error cleanup;
 - update feed/artifact tamper, downgrade/replay/channel/signature/helper identity;
-- dependency advisory/license/SBOM/provenance and secret scanning;
+- dependency registry/yank, RustSec/ecosystem, official repository/vendor/OS
+  advisory, license/SBOM/provenance and secret scanning; source disagreement
+  resolves fail-closed;
 - plugin loading absent in MVP; future unsigned/unauthorized capability requests denied;
 - telemetry/crash fresh install sends no data; opt-out immediately stops future sends.
 
@@ -210,6 +284,8 @@ Use the named datasets and budgets in [PERFORMANCE_BUDGET.md](PERFORMANCE_BUDGET
 - high-latency connect and metadata lazy load;
 - 10 MB/100 MB SQL files and incremental edit/completion latency;
 - 1M/10M streamed rows, 500-column wide table, large JSON and deferred 100 MB BLOB;
+- bounded grid row-and-column viewport objects, frozen-region synchronization
+  and one unified logical accessibility tree;
 - large schema/object tree and 5,000-table ER model;
 - import/export/transfer throughput with slow disk/network/consumer;
 - schema/data diff memory and runtime;
@@ -278,7 +354,20 @@ PR selection uses a dependency-aware test map but always runs safety classifier,
 
 ## 15. Traceability and evidence
 
-Each backlog item names required test IDs. Each capability links to conformance tests. Each threat links to controls/tests. Each performance budget links to benchmark jobs. Release evidence records commit, toolchains, dependency lock/SBOM, fixture image digests, commands, pass/fail/skip list and artifact signatures.
+Before implementation, each backlog item must be assigned stable test IDs.
+The current planning backlog records required test categories in prose.
+DF-M0-001 through DF-M0-007 record separate durable spike evidence and ADR
+dispositions. DF-M0-008 records the non-adoption inventory, immutable graph
+indexes, SPDX prototype and planned policy dry run; its human legal/security/
+engineering review and release-SBOM gates remain incomplete. DF-M0-009 records
+the static wireframe/focus/accessibility review; it does not count ASCII or
+metadata as a keyboard, VoiceOver, contrast or resize pass. Incomplete
+candidate rows remain unsupported rather than being collapsed into a
+task-level pass.
+Each capability must link to conformance tests, each threat to controls/tests
+and each performance budget to benchmark jobs before its milestone gate.
+Release evidence records commit, toolchains, dependency lock/SBOM, fixture
+image digests, commands, pass/fail/skip list and artifact signatures.
 
 “Pass” may be reported only for commands actually run. If infrastructure prevents a suite, the completion report states the exact unrun tests, reason, remaining risk and reviewer command.
 

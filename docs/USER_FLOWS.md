@@ -2,7 +2,7 @@
 
 Status: Planning baseline
 
-Last updated: 2026-07-29
+Last updated: 2026-08-01
 
 ## 1. Interaction principles
 
@@ -12,6 +12,12 @@ Last updated: 2026-07-29
 - A preview is immutable and bound to a digest. Changing target, SQL, mapping, capability or transaction invalidates it.
 - Compare, preview and apply are separate user intents. Cancel never means “server definitely stopped” without evidence.
 - Error text describes consequence and next action; it never exposes a secret or raw stack trace.
+
+The conditional [DF-M0-009 wireframe review](reports/DF-M0-009-wireframe-accessibility-review.md)
+maps WF-01/02/03/04/05 to UF-01/02/03/04/05/06/09/12, including every required
+review trace UF-01/02/04/05/06. It sharpens the planning focus, capability,
+cancellation, limit and warning contracts but does not establish an executable
+keyboard, VoiceOver, appearance or layout pass.
 
 ## 2. Global workspace flow
 
@@ -41,21 +47,56 @@ Last updated: 2026-07-29
 
 1. Choose adapter; the form renders only declared configuration/auth capabilities.
 2. Enter non-secret endpoint/database/options, environment and optional read-only policy.
-3. Enter secret fields; the UI labels Keychain storage and never writes them to profile drafts/diagnostics.
-4. Configure TLS (validation on), optional custom CA/client identity, then optional SSH/jump host and known-host policy.
-5. “Test” validates form, acquires a short credential lease, establishes tunnel/TLS/database session with timeout/cancel, then closes everything.
-6. Result states exactly which layers succeeded (SSH, TLS, authentication, selected database) without exposing internals.
-7. Save non-secret metadata to SQLite and secret to Keychain only after successful Keychain operation; partial save rolls back/reconciles.
+3. Choose database authentication method separately from credential storage.
+   Enter secret fields; with Keychain storage off, use the bounded
+   owner/deadline/revocation/best-effort-cleanup contract in WF-02. The secret
+   never enters profile drafts, diagnostics, history or logs.
+4. Configure TLS (validation on) and optional custom CA/client identity. Show
+   SSH/jump-host/known-host controls only after an SSH capability is adopted;
+   ADR-0012/0015 currently keep them unavailable.
+5. “Test” validates form, acquires one credential lease for that attempt and establishes
+   only configured transport/session layers with timeout/cancel, then closes
+   everything. The current direct mode establishes TLS/database only; a tunnel
+   exists only after an SSH implementation is adopted and configured.
+6. Result states exactly which configured layers succeeded without exposing
+   internals. Current direct mode reports TLS, database authentication and
+   selected database, with no SSH or host-key phase.
+7. Save non-secret metadata to SQLite. Save a secret to Keychain only after an
+   explicit storage choice and successful Keychain operation; otherwise the
+   profile has no persisted credential and prompts later. Partial save rolls
+   back/reconciles.
 
-**Failure/cancel:** Bad certificate/hostname or changed host key blocks with repair options; tunnel failure never falls back to direct; locked/denied Keychain never saves plaintext; cancel closes sockets/tunnel.
+**Failure/cancel:** Bad certificate/hostname blocks with repair options;
+changed host key and tunnel/no-direct-fallback behavior exist only for a future
+adopted and configured SSH capability. Locked/denied Keychain never saves
+plaintext; cancel closes every configured socket/tunnel resource.
+
+One `ConnectionAttempt` actor serializes lease/authentication/session/cancel/
+close/error callbacks by attempt ID. An accepted cancel records `requested`,
+revokes the lease, publishes `Cancelling`, then forwards driver cancel/close.
+If success linearizes first, it remains success and a later cancel cannot
+rewrite it. If cancel wins, late success cannot publish Connected and its
+session is closed. Explicit driver acknowledgement alone yields `confirmed`
+and permits `Cancelled`; close-before-confirmation yields `connectionClosed` +
+unknown outcome, a typed terminal error remains Failed, `unsupported` fails/
+closes without reusing or reacquiring that lease, and teardown deadline remains
+unconfirmed/timeout. Repeated cancel is idempotent, stale callbacks are ignored,
+and no event after revocation may read the secret.
 
 **Production:** Environment selection requires confirmation and creates persistent text/icon badge; color is supplementary.
 
-**Acceptance:** TLS/SSH/Keychain adversarial suite, no exported/logged secret, keyboard flow and connection timeout/cancel.
+**Acceptance:** TLS/Keychain adversarial suite, no exported/logged secret,
+keyboard flow and connection timeout/cancel; fake-clock permutations cover
+revoke-before-announcement, auth/cancel ordering, late-session close,
+connectionClosed/error-before-confirmation, repeated cancel, stale callback,
+teardown deadline and denied use after revoke. Add the complete SSH suite only
+when that capability is adopted and enabled.
 
 ### UF-03 — Connect, reconnect and disconnect
 
-1. Select profile and connect; a cancellable state reports SSH/TLS/auth phases.
+1. Select profile and connect; a cancellable state reports only configured
+   phases. Current direct mode reports TLS/database authentication; SSH appears
+   only after adoption and per-profile configuration.
 2. On success, display server/database/read-only/production context before lazy metadata fetch.
 3. On idle connection loss, offer reconnect. On transaction/write loss, report unknown outcome and do not auto-retry/resume.
 4. Disconnect checks active transaction, pending edits, running operations and tunnel state.
@@ -84,7 +125,12 @@ flowchart LR
 
 **Failure:** Syntax error highlights position when trustworthy; network loss states whether a transaction/write outcome is unknown; unsupported explain or multi-result is disabled before execution.
 
-**Cancel:** Stop changes UI to `cancelling` immediately, propagates to driver and reports requested/confirmed/connection-closed/unsupported truth. It does not auto-retry.
+**Cancel:** `Cancel Query` changes UI to `cancelling` immediately and propagates
+to the driver. Cancellation outcome is one of `requested`, `confirmed`,
+`connectionClosed` or `unsupported`; execution outcome is separate. Only
+`confirmed` permits a `cancelled` execution result. `connectionClosed` reports
+execution outcome unknown unless stronger adapter evidence exists. It does not
+auto-retry.
 
 ### UF-05 — Execute destructive SQL on production
 

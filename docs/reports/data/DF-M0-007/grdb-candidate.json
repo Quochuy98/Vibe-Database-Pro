@@ -1,0 +1,43 @@
+{
+  "candidate": "GRDB",
+  "version": "7.11.1",
+  "revision": "b83108d10f42680d78f23fe4d4d80fc88dab3212",
+  "published_at": "2026-06-18T12:15:08Z",
+  "source_archive_sha256": "015b476733e6c34f567ef78071d2ac3b92b6249805496966856f3c7f03080e05",
+  "license": {
+    "preliminary": "MIT; final application and notice review still required",
+    "license_file_sha256": "9853f9dce81365fcc1d9b46004633354450164b8d17904e92e80c444545f7e87",
+    "legal_approval": false
+  },
+  "advisories": [],
+  "package_graph": {
+    "probe_package_normal_external_dependencies": 1,
+    "probe_package_external_dependency_names": ["GRDB"],
+    "grdb_transitive_normal_dependencies": 0,
+    "system_library": "SQLite",
+    "system_sqlite_version": "3.51.0"
+  },
+  "requirements": {
+    "swift": "6.1 or newer",
+    "xcode": "16.3 or newer for XCTest/Xcode lane",
+    "macos": "10.15 or newer upstream; spike target 14.0",
+    "sqlite": "3.20 or newer"
+  },
+  "binary_evidence": {
+    "architecture": "arm64",
+    "probe_sha256": "35d3906b0d077e8b2a482d91d9484abf902319f4a218f274b5f87c00cfe4d565",
+    "probe_bytes": 5830696,
+    "baseline_sha256": "62275580b26703818299c788ac9d06dbb70c1653bdce8c03450dea7b97fda1a0",
+    "baseline_bytes": 50648,
+    "size_delta_bytes": 5780048
+  },
+  "replacement": {
+    "boundary": "Swift metadata persistence port",
+    "alternatives": [
+      "SQLite C API",
+      "another reviewed Swift SQLite wrapper"
+    ],
+    "migration_and_query_rewrite_required": true
+  },
+  "adoption_approved": false
+}

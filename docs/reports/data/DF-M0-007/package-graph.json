@@ -1,0 +1,15 @@
+{
+  "identity": "persistence-keychain",
+  "name": "DataForgePersistenceKeychainSpike",
+  "url": "<local-spike>",
+  "version": "unspecified",
+  "dependencies": [
+    {
+      "identity": "grdb.swift",
+      "name": "GRDB",
+      "url": "https://github.com/groue/GRDB.swift.git",
+      "version": "7.11.1",
+      "dependencies": []
+    }
+  ]
+}
