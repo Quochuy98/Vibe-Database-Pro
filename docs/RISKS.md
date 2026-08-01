@@ -27,7 +27,7 @@ Scoring: Probability (L/M/H), impact (L/M/H/Critical). Any Critical impact with 
 | R-15 | App Sandbox blocks SSH/files/subprocess/backup/automation | H | High | Separate MAS entitlement/helper/file/tool prototype; if SSH is reconsidered, test agent/key/known-host access and any loopback listener/process model | Direct distribution first; separate channel matrix; feature capability gating | Do not ship affected capability in MAS; no entitlement overreach | macOS/release owner |
 | R-16 | Background jobs cannot run across logout/sleep or Keychain lock | H | High | SMAppService lifecycle, logout/sleep/locked-keychain tests | In-app MVP; explicit LaunchAgent consent/status; no guarantee claims | Require app-open execution; report skipped job | Automation owner |
 | R-17 | Rust/Swift FFI ownership/cancellation bugs | M | Critical | Sanitizers, ABI mismatch, leak/double-release/panic/concurrency tests | Versioned C ABI, opaque handles, pull/ack chunks, integration gate | Freeze FFI changes; revert to last compatible ABI; disable feature | Core/FFI owner |
-| R-18 | UI performance/regressions from SwiftUI/AppKit split | M | High | Instruments, frame/RSS/editor/grid/accessibility and retained-object budgets | Narrow AppKit bridges, MainActor state, incremental work; ADR-0011 bounded custom grid renderer with row-and-column virtualization | Replace/defer a failing component; never lower frame or accessibility gates | macOS UI owner |
+| R-18 | UI performance/accessibility regressions from SwiftUI/AppKit split or unsafe focus/copy | M | High | Instruments, frame/RSS/editor/grid/AX/manual VoiceOver/keyboard/focus/appearance/resize/localization and retained-object budgets | Narrow AppKit bridges, MainActor state, incremental work; ADR-0011 bounded grid plus ADR-0016 focus/capability/safety-copy contract | Replace/defer a failing component or flow; never lower frame/accessibility/safety gates | macOS UI + Accessibility |
 | R-19 | ER graph layout is slow or unreadable at scale | H | Medium | 500/5,000-table layout/pan/zoom benchmarks and usability tests | Level of detail, incremental/worker layout, manual pinning, hide/filter | Limit visible scope; defer auto-layout/large export | Modeling owner |
 | R-20 | Destructive-operation safety is bypassed by parser gap or stale UI | M | Critical | Fuzz classifier, stale digest/target-switch/shortcut/production tests | Core revalidation, typed confirmation, unknown=block, audit | Emergency disable writes/feature flag; incident/reconciliation | Security + query owner |
 | R-21 | Supply-chain dependency/update compromise | M | Critical | Registry/yank, RustSec/ecosystem, official repository/vendor/OS advisory scans plus SBOM/provenance, signature/tamper/reproducible checks | Pin/lock, multi-source review, independent license approval, offline release keys, signed updates | Reject/disable exact source, revoke release/key, halt feed, ship verified rollback | Security + release |
@@ -132,6 +132,13 @@ policy while an official repository advisory affected its root. Exact legal
 reviews, several candidate identities, production product-size/release-SBOM
 evidence and independent reviewers remain external blockers.
 
+DF-M0-009 narrows the design side of R-18/R-20 but closes neither. The
+[wireframe review](reports/DF-M0-009-wireframe-accessibility-review.md) and
+[ADR-0016](adr/0016-m0-wireframe-accessibility-disposition.md) apply ten
+low-fidelity contract revisions and retain five flows conditionally. Twelve
+actions remain; no UI, AX tree, keyboard event, VoiceOver session, palette,
+localized bundle or independent human approval exists.
+
 ## 5. Risk acceptance format
 
 ```text
@@ -153,5 +160,7 @@ mitigated by code. The strongest current evidence is the architecture/safety/
 test plan, disposed spike records and primary-source dependency/platform
 review. DF-M0-008 now supplies the canonical non-adoption inventory and keeps
 every production dependency gate closed; SSH is disabled and exact
-`russh 0.62.4` is rejected. Future implementation requests must close their
-remaining M0 gates rather than build broad feature surfaces.
+`russh 0.62.4` is rejected. DF-M0-009 supplies a conditional UX contract but
+keeps its M1 and M2 UI gates closed. Future implementation requests must close
+their remaining M0 and owning milestone gates rather than build broad feature
+surfaces.

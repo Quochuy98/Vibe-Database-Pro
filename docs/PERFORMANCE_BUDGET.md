@@ -2,7 +2,7 @@
 
 Status: Provisional targets; M0 measurements required
 
-Last updated: 2026-07-30
+Last updated: 2026-08-01
 
 Owners: Performance, macOS, Database Core, feature owners
 
@@ -43,7 +43,7 @@ All UI interactions must keep main-thread stalls under 100 ms; routine interacti
 | New window/tab | Empty query tab | p95 ≤100 ms |
 | Connection | Local disposable PostgreSQL, no SSH, warm DNS | client overhead p95 ≤250 ms excluding server handshake |
 | Connection | 100 ms RTT TLS endpoint | client overhead beyond protocol/network p95 ≤300 ms |
-| Cancel UI | Stop action to visible `cancelling` state | ≤100 ms |
+| Cancel UI | Cancel Query action to visible `cancelling` state | ≤100 ms |
 | Object tree | Connect to first root nodes | p95 ≤750 ms after connection; no full catalog load |
 | Object expand | Node with ≤1,000 children, cached metadata absent | first visible page p95 ≤500 ms plus server time |
 | Metadata refresh | Refresh one ≤1,000-object scope with unchanged server | first visible reconciliation p95 ≤750 ms plus server time; unrelated scopes remain usable |
@@ -136,6 +136,12 @@ metadata assertions alone are never reported as a VoiceOver pass.
 Default text/background pairs use WCAG relative luminance and a 4.5:1 minimum
 for ordinary grid text. A lower user-defined pair produces a visible and
 accessible warning; color is still supplemented by icon/text/tooltip traits.
+
+DF-M0-009 adds a static focus/appearance/resize/localization test contract in
+the [wireframe review](reports/DF-M0-009-wireframe-accessibility-review.md).
+It records no timing, contrast or frame measurement. The launch, cancel,
+editor/grid, 4.5:1, minimum-machine and manual VoiceOver budgets above remain
+unchanged and executable-release-gated.
 
 ## 4. Memory and bounded-resource budgets
 

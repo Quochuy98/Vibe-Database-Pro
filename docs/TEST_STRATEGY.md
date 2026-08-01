@@ -19,9 +19,10 @@ plus the
 [DF-M0-004 grid report](reports/DF-M0-004-appkit-grid-evidence.md),
 [DF-M0-005 SSH report](reports/DF-M0-005-ssh-tunnel-evidence.md),
 [DF-M0-006 distribution report](reports/DF-M0-006-distribution-evidence.md),
-[DF-M0-007 persistence/Keychain report](reports/DF-M0-007-persistence-keychain-evidence.md)
+[DF-M0-007 persistence/Keychain report](reports/DF-M0-007-persistence-keychain-evidence.md),
+the [DF-M0-008 dependency dossier](reports/DF-M0-008-dependency-adoption-dossiers.md)
 and the
-[DF-M0-008 dependency dossier](reports/DF-M0-008-dependency-adoption-dossiers.md).
+[DF-M0-009 wireframe/accessibility review](reports/DF-M0-009-wireframe-accessibility-review.md).
 Their source commits remain auditable after disposal. None establishes a
 production capability: the PostgreSQL stack is deferred, and the TextKit 2
 candidate still lacks input-to-frame, M1/16 GiB, real keyboard/VoiceOver,
@@ -36,6 +37,11 @@ DF-M0-008 adds a prototype SPDX inventory and multi-source policy evidence,
 not a production/release SBOM. It rejects exact `russh 0.62.4` after the
 official repository published an affected range that the current RustSec/Cargo
 dry run had not yet surfaced.
+DF-M0-009 specifies five conditional wireframe contracts and 12 owned actions;
+it runs no UI. Automated AX assertions, actual keyboard events, manual
+VoiceOver, Light/Dark/contrast/non-color/motion, resize/pseudo-localization and
+performance remain executable gates owned by M1 for the shared shell, WF-01 and
+non-live WF-02, and by M2 for live WF-02 plus WF-03/04/05.
 
 ## 2. Quality principles
 
@@ -335,7 +341,9 @@ The current planning backlog records required test categories in prose.
 DF-M0-001 through DF-M0-007 record separate durable spike evidence and ADR
 dispositions. DF-M0-008 records the non-adoption inventory, immutable graph
 indexes, SPDX prototype and planned policy dry run; its human legal/security/
-engineering review and release-SBOM gates remain incomplete. Incomplete
+engineering review and release-SBOM gates remain incomplete. DF-M0-009 records
+the static wireframe/focus/accessibility review; it does not count ASCII or
+metadata as a keyboard, VoiceOver, contrast or resize pass. Incomplete
 candidate rows remain unsupported rather than being collapsed into a
 task-level pass.
 Each capability must link to conformance tests, each threat to controls/tests

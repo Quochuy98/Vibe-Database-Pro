@@ -4,7 +4,7 @@ Status: Planning baseline
 
 Version: 0.1
 
-Last updated: 2026-07-29
+Last updated: 2026-08-01
 
 Owners: Product, macOS, Database Core, Security, Quality Engineering
 
@@ -178,8 +178,8 @@ candidate passes ADR-0012; Post-MVP presets/auth expansion / XL
 - TLS with system trust, custom CA, optional client certificate, hostname validation, and per-connection exceptional policy only when explicitly designed and warned.
 - If a future ADR enables SSH: expose only its adopted password/key/agent
   subset, bounded known-host policy, per-hop host-key handling, clean tunnel
-  lifecycle and connector-level no-direct fallback. ADR-0012 currently keeps
-  the capability unavailable.
+  lifecycle and connector-level no-direct fallback. ADR-0012/0015 currently
+  keep the capability unavailable.
 - Cloud presets may populate non-secret fields but cannot bypass validation or capability checks.
 
 **Non-functional requirements:** Connection establishment is cancellable and off-main-thread; pool and reconnect policies are bounded; logs are structured and redacted.

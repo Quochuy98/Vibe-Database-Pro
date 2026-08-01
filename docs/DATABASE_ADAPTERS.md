@@ -2,7 +2,7 @@
 
 Status: Proposed
 
-Last updated: 2026-07-29
+Last updated: 2026-08-01
 
 Related: [Architecture](ARCHITECTURE.md), [Database safety](DATABASE_SAFETY.md), [ADR-0007](adr/0007-database-adapter-interface.md)
 
@@ -130,7 +130,7 @@ Common non-secret fields:
 - connect/read/statement timeouts and row/byte limits;
 - TLS policy and references to user-selected CA/client-certificate material;
 - optional SSH policy and non-secret host/jump-host/key references only after
-  a candidate is adopted; ADR-0012 currently keeps these unavailable;
+  a candidate is adopted; ADR-0012/0015 currently keep these unavailable;
 - pool ceiling, idle timeout, keepalive, and safe reconnect policy.
 
 Adapters transform typed options to driver configuration internally. Full connection strings are never logged. Export omits all secrets by default and warns before including any sensitive certificate/key material; production credentials cannot be exported.

@@ -1,7 +1,8 @@
 # Technical Backlog
 
-Status: Production backlog remains planning-only; DF-M0-001 through DF-M0-006
-have durable disposed spike records; no production item is implemented
+Status: Production backlog remains planning-only; DF-M0-001 through DF-M0-009
+have durable spike/assurance/design evidence; DF-M0-008/009 external reviews
+remain open and no production item is implemented
 
 Last updated: 2026-08-01
 
@@ -355,13 +356,33 @@ review and no dependency was added.
 
 **Security considerations:** Production and destructive warnings must remain text/icon/VoiceOver-visible; no color-only or shortcut-only bypass may be approved.
 
-**Acceptance criteria:** Product/design/accessibility reviewers approve or explicitly disposition every wireframe; unresolved focus, warning, resize or VoiceOver issue has an owner and revisit trigger; the approved artifact is linked from M1 dependencies.
+**Acceptance criteria:** Product, macOS interaction design,
+Accessibility/VoiceOver, Database Safety and Security reviewers approve or
+explicitly disposition every wireframe; unresolved focus, warning, resize or
+VoiceOver issue has an owner and revisit trigger; owning M1/M2 items link the
+reviewed artifact without treating static review as executable evidence.
 
 **Tests required:** Keyboard/focus walkthrough, accessibility-label review, appearance/contrast checklist, resize/localization review and traceability check to UF-01/02/04/05/06.
 
 **Out of scope:** Production UI, database calls, credentials, assets, pixel-perfect measurements and competitor comparison.
 
-**Definition of done:** Review record and artifact status are current; M1-002 can reference the decision without relying on an untracked design assumption.
+**Definition of done:** Review record and artifact status are current; owning
+M1/M2 items can reference the decision without relying on an untracked design
+assumption.
+
+**M0 engineering disposition (2026-08-01):** The revised
+[wireframe artifact](UX_WIREFRAMES.md),
+[DF-M0-009 review](reports/DF-M0-009-wireframe-accessibility-review.md),
+machine-readable matrix and
+[ADR-0016](adr/0016-m0-wireframe-accessibility-disposition.md) conditionally
+retain all five flows. Ten low-fidelity contract revisions clarify current SSH
+unsupported state, terminology, focus lifecycle, cancellation/result limits,
+appearance/localization and dangerous confirmation behavior. Twelve tracked
+actions remain (`0 Critical / 5 High / 6 Medium / 1 Low`), each with owner and
+revisit trigger. No executable UI/AX/VoiceOver/contrast/resize/localization
+evidence or independent Product/Design/Accessibility/Database-Safety/Security
+sign-off exists, so `df_m0_009_definition_of_done_met=false`; neither M1 nor M2 UI
+implementation is authorized by this record.
 
 ## Milestone 1 — Application shell
 
@@ -407,7 +428,8 @@ review and no dependency was added.
 
 **Complexity:** L
 
-**Dependencies:** DF-M1-001, ADR-0001, approved wireframes
+**Dependencies:** DF-M1-001, ADR-0001, reviewed shared/WF-01/non-live WF-02
+contract from DF-M0-009
 
 **User story:** As a Mac user, I need keyboard-first windows/tabs/panes and standard commands.
 
@@ -619,8 +641,9 @@ review and no dependency was added.
 
 **Complexity:** L
 
-**Dependencies:** M1, DF-M0-002 and adopted PostgreSQL/TLS dossiers; DF-M0-005
-and an adopted SSH dossier only if this item enables an SSH capability
+**Dependencies:** M1, DF-M0-002, reviewed live WF-02 contract and adopted
+PostgreSQL/TLS dossiers; DF-M0-005 and an adopted SSH dossier only if this item
+enables an SSH capability
 
 **User story:** As a PostgreSQL user, I need a validated connection whose safety capabilities are truthful.
 
@@ -686,7 +709,7 @@ that capability is enabled.
 
 **Complexity:** L
 
-**Dependencies:** M1 Workspace, DF-M0-003
+**Dependencies:** M1 Workspace, DF-M0-003 and reviewed WF-03 editor contract
 
 **User story:** As a developer, I need native SQL editing with exact selections and recovery.
 
@@ -716,7 +739,8 @@ that capability is enabled.
 
 **Complexity:** XL
 
-**Dependencies:** DF-M2-003, dialect parser decision, DATABASE_SAFETY
+**Dependencies:** DF-M2-003, dialect parser decision, DATABASE_SAFETY and
+reviewed WF-04 destructive-confirmation contract
 
 **User story:** As a production user, I need destructive and unknown SQL blocked or confirmed based on exact effects.
 
@@ -776,7 +800,7 @@ that capability is enabled.
 
 **Complexity:** L
 
-**Dependencies:** DF-M2-005
+**Dependencies:** DF-M2-005 and reviewed WF-05 transaction-close contract
 
 **User story:** As a developer, I need explicit begin/commit/rollback and close warnings with authoritative state.
 
@@ -806,7 +830,8 @@ that capability is enabled.
 
 **Complexity:** XL
 
-**Dependencies:** DF-M2-005, DF-M0-004, ADR-0011, normalized type/theme contract
+**Dependencies:** DF-M2-005, DF-M0-004, ADR-0011, reviewed WF-03 grid contract
+and normalized type/theme contract
 
 **User story:** As a user, I need smooth typed browsing at million-row scale.
 

@@ -431,6 +431,7 @@ flowchart LR
 | Credential/trust | Keychain/TLS/secret-leak gates pass before direct connection; every shipped SSH capability must separately pass ADR-0012 re-entry gates |
 | Adapter capability | Truthful supported/conditional/unknown snapshot and conformance matrix |
 | Streaming/performance | Named fixture shows bounded memory/queue/cache/cancel and UI responsiveness |
+| UX/accessibility | Reviewed wireframe hierarchy and milestone-owned focus, keyboard/menu, AX/VoiceOver, appearance, resize/localization and safety-copy gates before each M1/M2 UI flow |
 | Distribution | Signed/notarized/update-tamper evidence before external beta |
 | Documentation | User consequence, limits, untested/risk and runbook are current |
 
@@ -509,6 +510,14 @@ identities for several future candidates and a production build/release SBOM
 do not exist. These external reviews remain an M0 exit gate, while the
 independent wireframe/accessibility review can proceed.
 
+The M0 wireframe/accessibility gate now has a revised low-fidelity artifact,
+engineering review matrix and ADR-0016. All five wireframes are conditionally
+retained after ten planning-contract revisions; 12 owned actions remain. No
+executable keyboard/AX/VoiceOver/contrast/resize/localization evidence or
+independent Product/Design/Accessibility/Database-Safety/Security sign-off
+exists. M1 owns shared shell/WF-01/non-live WF-02 evidence; M2 owns live WF-02
+and WF-03/04/05. Both production UI gates remain closed by this record.
+
 ### Canonical M0 traceability
 
 The IDs below prevent the spike list, backlog and architecture section from
@@ -530,10 +539,10 @@ spikes.
 
 ## 12. Recommended next planning task
 
-**Only one next planning task:** execute `DF-M0-009 — review original shell
-wireframes and accessibility annotations`. Validate the low-fidelity artifact
-against UF-01/02/04/05/06, keyboard/focus order, VoiceOver semantics,
-Light/Dark/contrast/differentiate-without-color/reduce-motion, resizing and
-localized consequence text. This remains a design review, not permission to
-implement SwiftUI/AppKit production UI. DF-M0-008's independent legal/security/
-engineering approvals remain a parallel external M0 exit gate.
+**Only one next planning task:** obtain independent Product/Design/
+Accessibility/Database-Safety/Security disposition of the 12 DF-M0-009 actions
+and update the artifact status without checking boxes on reviewers' behalf.
+DF-M0-008's independent engineering/security/legal review remains a parallel
+external M0 exit gate. Only after both gates close may a maintainer separately
+authorize the first production M1 scaffold; this roadmap does not authorize
+SwiftUI/AppKit implementation.

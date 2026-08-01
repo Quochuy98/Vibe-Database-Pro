@@ -131,6 +131,14 @@ column/view and unified-accessibility contract; ADR-0011 selects the bounded
 custom native renderer as the replacement planning candidate. Production code
 remains gated on fresh renderer evidence rather than inheriting the spike.
 
+DF-M0-009 and ADR-0016 conditionally retain the original low-fidelity shell
+hierarchy after clarifying capability truth, cancellation/result-limit terms,
+focus lifecycle, destructive preview identity and unknown-outcome close. This
+is a design contract, not an accessibility or implementation pass: 12 actions
+still require independent Product/Design/Accessibility/Database-Safety/
+Security review and milestone-owned executable keyboard/AX/VoiceOver/
+appearance/resize/localization matrices across M1 and M2.
+
 ### 4.2 State ownership
 
 - UI-observable state and AppKit adapters are `@MainActor`.

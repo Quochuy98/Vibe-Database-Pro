@@ -21,6 +21,7 @@ ADRs preserve why a material decision was made. They are immutable once supersed
 | [0013](0013-m0-distribution-disposition.md) | Retain direct distribution planning after the M0 release-chain spike | Developer ID/updater implementation gated |
 | [0014](0014-m0-persistence-keychain-disposition.md) | Retain SQLite/Keychain separation after the M0 persistence spike | GRDB conditional; production persistence/Keychain gated |
 | [0015](0015-m0-dependency-disposition.md) | Keep dependency adoption closed; reject exact russh 0.62.4 after fresh advisory | Proposed for independent review; 0 approved, production adoption disabled |
+| [0016](0016-m0-wireframe-accessibility-disposition.md) | Conditionally retain five M0 wireframes with a focus/accessibility/safety contract | Proposed for external review; production UI gated |
 
 ## ADR lifecycle
 

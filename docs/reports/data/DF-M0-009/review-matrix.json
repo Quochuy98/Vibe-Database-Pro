@@ -1,0 +1,355 @@
+{
+  "schema_version": 1,
+  "task": "DF-M0-009",
+  "review_date": "2026-08-01",
+  "artifact": "docs/UX_WIREFRAMES.md",
+  "artifact_scope": "five low-fidelity planning wireframes and shared shell annotations; no production UI",
+  "engineering_review_status": "complete",
+  "external_review_status": {
+    "product": "pending",
+    "macos_interaction_design": "pending",
+    "accessibility_voiceover": "pending",
+    "database_safety": "pending",
+    "security": "pending"
+  },
+  "required_external_review_complete": false,
+  "df_m0_009_definition_of_done_met": false,
+  "m1_ui_implementation_allowed_by_this_review": false,
+  "m2_ui_implementation_allowed_by_this_review": false,
+  "summary": {
+    "wireframes_reviewed": 5,
+    "accepted_controls": 20,
+    "open_actions": 12,
+    "planning_artifact_revisions_applied": 10,
+    "executable_or_external_gates_remaining": 12,
+    "critical_findings": 0,
+    "high_findings": 5,
+    "medium_findings": 6,
+    "low_findings": 1
+  },
+  "required_external_reviewer_roles": [
+    "Product",
+    "macOS interaction design",
+    "Accessibility/VoiceOver",
+    "Database safety",
+    "Security"
+  ],
+  "shared_contract_review": [
+    {
+      "id": "SH-01",
+      "area": "connection and environment context",
+      "status": "accepted_for_planning",
+      "evidence": "Window, toolbar and status regions repeat connection/environment in text; color and icon are supplementary.",
+      "milestone_verification": "M1 shared shell, then each owning M2 flow: accessibility tree and screenshot/semantic tests in Light/Dark and Differentiate Without Color."
+    },
+    {
+      "id": "SH-02",
+      "area": "resizable regions",
+      "status": "conditional",
+      "evidence": "Sidebar, document, inspector and bottom panel are independently resizable; safety text reflows and pane collapse preserves logical focus.",
+      "gap": "No executable minimum-size, collapse-priority, localized expansion or focus-preservation evidence exists.",
+      "milestone_verification": "M1 shared shell and owning M2 flows: minimum/current window matrix, pseudo-localization and focus-preservation UI tests."
+    },
+    {
+      "id": "SH-03",
+      "area": "focus order",
+      "status": "conditional",
+      "evidence": "Primary and reverse region order plus initial, modal return, error, async and collapsed-region transitions are specified; a visible focus ring is required.",
+      "gap": "No actual responder chain, keyboard event or per-control focus-restoration evidence exists.",
+      "milestone_verification": "M1 shared shell and owning M2 flows: deterministic forward/reverse keyboard walkthrough and focus-restoration assertions."
+    },
+    {
+      "id": "SH-04",
+      "area": "VoiceOver regions and live state",
+      "status": "conditional",
+      "evidence": "Named regions and coalesced busy/empty/error/cancelling/partial/unknown announcements are required without stealing focus.",
+      "gap": "Detailed roles/values/actions, logical grid/editor semantics, error navigation and manual VoiceOver behavior are not executable evidence.",
+      "milestone_verification": "M1 shell/profile views and owning M2 editor/grid/safety flows: AX role/name/value/action assertions plus manual VoiceOver navigation."
+    },
+    {
+      "id": "SH-05",
+      "area": "command parity",
+      "status": "accepted_for_planning",
+      "evidence": "Command palette, menu command and accessible label parity are declared for toolbar actions.",
+      "milestone_verification": "At each owning milestone, menu, toolbar, palette and shortcut invoke one application intent and the same safeguard path."
+    },
+    {
+      "id": "SH-06",
+      "area": "appearance and motion",
+      "status": "conditional",
+      "evidence": "Light/Dark, Increase Contrast, Differentiate Without Color and Reduce Motion are named gates; text/icon/shape and motion-independent state are required.",
+      "gap": "No palette-token, contrast, native rendering or system-setting runtime evidence exists.",
+      "milestone_verification": "M1 shared components and each owning M2 flow: appearance matrix, contrast calculations, non-color traits and reduced-motion semantic-state tests."
+    }
+  ],
+  "wireframes": [
+    {
+      "id": "WF-01",
+      "title": "Empty workspace and restoration",
+      "traceability": ["UF-01"],
+      "status": "conditional",
+      "accepted": [
+        "First focus on New connection.",
+        "Empty message is a heading and actions have keyboard equivalents.",
+        "Restored drafts remain disconnected and nothing auto-runs.",
+        "Missing non-secret reference has a repair action; no credential or transaction restoration."
+      ],
+      "open_actions": ["UX-005", "UX-006", "UX-008", "UX-012"],
+      "verification_milestone": "M1",
+      "milestone_verification": [
+        "Fresh launch forward/reverse focus order.",
+        "Restored/missing-reference focus and VoiceOver announcement.",
+        "Warm restore remains interactive within the performance budget.",
+        "Pseudo-localized buttons/headings fit or reflow at minimum window size."
+      ]
+    },
+    {
+      "id": "WF-02",
+      "title": "Connection and trust form",
+      "traceability": ["UF-02", "UF-03"],
+      "status": "conditional",
+      "accepted": [
+        "Fields are capability-driven.",
+        "Authentication method and Keychain storage choice are distinct; unstored secrets receive a short in-memory lease and do not enter drafts.",
+        "Current direct mode reports TLS/hostname failures; SSH/host-key phases remain absent until an exact capability is adopted and configured.",
+        "Production selection uses persistent text and the keyboard path cannot bypass confirmation."
+      ],
+      "open_actions": ["UX-001", "UX-002", "UX-005", "UX-006", "UX-008"],
+      "verification_milestone": "M1 non-live profile UI; M2 live connection and trust",
+      "milestone_verification": [
+        "Unsupported SSH controls absent or disabled with an explicit explanation.",
+        "Authentication method and credential-storage controls have separate programmatic labels, help and error associations.",
+        "Direct test connection omits SSH/host-key phases; any future adopted and configured SSH mode adds only its truthful phases.",
+        "Test connection phases and cancellation announce without exposing or persisting an unstored credential.",
+        "Production selection reaches the same confirmation by mouse and keyboard."
+      ]
+    },
+    {
+      "id": "WF-03",
+      "title": "Query editor, result stream and grid",
+      "traceability": ["UF-04", "UF-09", "UF-12"],
+      "status": "conditional",
+      "accepted": [
+        "Connection/schema/transaction/read-only context remains visible.",
+        "Cancel Query immediately becomes Cancelling; cancellation and execution outcomes remain separate and report driver truth.",
+        "Grid differentiates NULL, empty and not-loaded with non-color fallbacks.",
+        "Theme changes preserve selection, scroll and pending edits."
+      ],
+      "open_actions": ["UX-003", "UX-004", "UX-005", "UX-006", "UX-007", "UX-011", "UX-012"],
+      "verification_milestone": "M2",
+      "milestone_verification": [
+        "Cancel Query menu/toolbar/Command-Period parity, <=100 ms visible cancelling state and requested/confirmed/connectionClosed/unsupported mapping.",
+        "Cancelled execution appears only after confirmation; connectionClosed remains outcome unknown without stronger evidence.",
+        "Initial fetch limit and loaded/available counts are unambiguous.",
+        "Editor and logical grid AX roles, headers, selection, loading, sort and deferred-value semantics.",
+        "Light/Dark/contrast/non-color/theme invalidation on BF-02/BF-03 fixtures.",
+        "Keyboard traversal skips virtualized offscreen cells without materializing the dataset."
+      ]
+    },
+    {
+      "id": "WF-04",
+      "title": "Production destructive confirmation",
+      "traceability": ["UF-05"],
+      "status": "conditional",
+      "accepted": [
+        "Production target, risk, consequence, transaction behavior and immutable SQL preview are textual.",
+        "Typed target confirmation and preview revalidation are mandatory.",
+        "VoiceOver announces the risk and disabled reason.",
+        "Keyboard shortcuts enter the same safeguard and color is supplementary."
+      ],
+      "open_actions": ["UX-005", "UX-006", "UX-008", "UX-010"],
+      "verification_milestone": "M2",
+      "milestone_verification": [
+        "Initial focus is the consequence heading or safest review control, never Apply.",
+        "Exact full preview identity/digest and stale reason are programmatically available.",
+        "Typed token cannot be pasted/replayed across a changed target or preview.",
+        "Long engine/object/localized consequence text reflows without hiding target or Apply state."
+      ]
+    },
+    {
+      "id": "WF-05",
+      "title": "Transaction and pending-edit close protection",
+      "traceability": ["UF-06"],
+      "status": "conditional",
+      "accepted": [
+        "Keep tab open is the first/safest action and Escape keeps work open.",
+        "Close never commits and rollback is offered only when supported.",
+        "Unknown outcomes lead to read-only reconciliation, not retry.",
+        "Transaction ID, target and pending count are textual and VoiceOver-visible."
+      ],
+      "open_actions": ["UX-005", "UX-006", "UX-008", "UX-009"],
+      "verification_milestone": "M2",
+      "milestone_verification": [
+        "Default, Escape and Return cannot trigger discard, commit or unknown close.",
+        "Unknown-outcome close requires a separate explicit acknowledgement bound to transaction/target.",
+        "Lost connection and unsupported rollback update available actions without moving focus to a dangerous action.",
+        "Multiple-tab app termination preserves per-target consequence and keyboard navigation."
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "id": "UX-001",
+      "severity": "high",
+      "area": "capability truth",
+      "finding": "The initial WF-02 visually showed SSH and known-host controls although ADR-0012/0015 keep SSH unavailable.",
+      "required_change": "Make the default artifact omit the row or show a non-interactive Unsupported — no SSH implementation adopted state; omit SSH phases and host-key errors until an exact capability is both adopted and configured.",
+      "artifact_resolution_status": "applied; WF-02 shows an explicit non-interactive unsupported state and current direct test/connect paths omit SSH and host-key phases",
+      "owner_role": "Connections + Security",
+      "revisit_trigger": "A future SSH ADR adopts an exact implementation after all re-entry gates."
+    },
+    {
+      "id": "UX-002",
+      "severity": "medium",
+      "area": "terminology and labels",
+      "finding": "Abbreviations such as TLS/CA lacked expanded labels, and the initial Authentication [Keychain] control confused database authentication method with credential storage.",
+      "required_change": "Use expanded transport labels; separate authentication method from Keychain storage; state that an unstored secret is leased only for the current action and never persisted; bind field errors and consequence/help text.",
+      "artifact_resolution_status": "applied at wireframe-contract level; executable label/error/storage behavior remains owning M1/M2 evidence",
+      "owner_role": "Content design + Accessibility",
+      "revisit_trigger": "Before M1-002/M1-004 UI copy is frozen."
+    },
+    {
+      "id": "UX-003",
+      "severity": "medium",
+      "area": "query cancellation terminology",
+      "finding": "The initial Stop label was visually paired with Command-Period but did not freeze menu/accessibility wording or terminal truth states.",
+      "required_change": "Name the action Cancel Query in menu/AX help, keep visible Cancelling, report requested/confirmed/connectionClosed/unsupported cancellation outcome, and report execution outcome separately; only confirmed may produce Cancelled.",
+      "artifact_resolution_status": "applied; executable state mapping remains M2 evidence",
+      "owner_role": "Query UX + Database Core",
+      "revisit_trigger": "When the M2 cancellation state model is reviewed."
+    },
+    {
+      "id": "UX-004",
+      "severity": "high",
+      "area": "result limits",
+      "finding": "The initial rows [200] label could mean page size, initial fetch limit or hard row limit, creating an unsafe/incorrect expectation about large results.",
+      "required_change": "Label the exact policy (for example Initial fetch limit: 200) and separately expose loaded count, limit reached and explicit Load more/stream export choices.",
+      "artifact_resolution_status": "applied; server/result implementation evidence remains M2",
+      "owner_role": "Query UX + Performance",
+      "revisit_trigger": "Before M2 result streaming and grid UI implementation."
+    },
+    {
+      "id": "UX-005",
+      "severity": "high",
+      "area": "focus lifecycle",
+      "finding": "Region order is present, but modal entry/return, async completion, error focus, collapsed panes, reverse traversal and restored-tab focus are not fully specified.",
+      "required_change": "Add a focus-transition table for each flow, including safest default, Escape/Return, error summary, initiating-control return and hidden-region behavior.",
+      "artifact_resolution_status": "shared focus lifecycle added; executable per-control proof remains M1",
+      "owner_role": "macOS UI + Accessibility",
+      "revisit_trigger": "Before M1-002 shell state/API design is accepted."
+    },
+    {
+      "id": "UX-006",
+      "severity": "high",
+      "area": "VoiceOver semantics",
+      "finding": "Annotations name regions and announcements but do not freeze roles, values, actions, coalescing or manual navigation evidence.",
+      "required_change": "Add AX contract rows per control/state and require automated AX assertions plus manual VoiceOver walkthrough; metadata-only tests cannot claim VoiceOver pass.",
+      "artifact_resolution_status": "announcement/coalescing contract clarified; detailed AX rows and manual evidence remain open",
+      "owner_role": "Accessibility + QA",
+      "revisit_trigger": "When executable M1 shell/profile and M2 editor/grid/safety views and test identifiers exist."
+    },
+    {
+      "id": "UX-007",
+      "severity": "medium",
+      "area": "contrast and non-color traits",
+      "finding": "The artifact names appearance modes but supplies no tokens, contrast ratios or system-setting screenshots/semantic snapshots.",
+      "required_change": "Define semantic system colors/tokens later, verify 4.5:1 ordinary text, and preserve text/icon/tooltips under Increase Contrast and Differentiate Without Color.",
+      "artifact_resolution_status": "semantic/non-color rule clarified; palette evidence remains open",
+      "owner_role": "Visual design + Accessibility",
+      "revisit_trigger": "When M1 theme tokens are proposed; never infer a pass from monochrome ASCII."
+    },
+    {
+      "id": "UX-008",
+      "severity": "medium",
+      "area": "localization",
+      "finding": "Long localized production, transaction, error and action text has no expansion/reflow decision.",
+      "required_change": "Define wrapping/truncation priority; never truncate target/consequence/transaction/disabled reason; run pseudo-localization and right-to-left layout review where supported.",
+      "artifact_resolution_status": "wrapping/truncation priority added; pseudo-localized executable evidence remains open",
+      "owner_role": "Content design + Localization QA",
+      "revisit_trigger": "Before localized M1 UI snapshots and minimum-size acceptance."
+    },
+    {
+      "id": "UX-009",
+      "severity": "high",
+      "area": "unknown transaction outcome",
+      "finding": "The initial Close and acknowledge unknown outcome action was too easy to reach and did not define a transaction/target-bound acknowledgement.",
+      "required_change": "Move it behind a separate consequence step with explicit target/transaction acknowledgement; it is never default, Return, Escape or adjacent to the safest action without spacing/grouping.",
+      "artifact_resolution_status": "applied as a separate ellipsis action and explicit second-step contract; executable proof remains open",
+      "owner_role": "Database Safety + Product design",
+      "revisit_trigger": "Before transaction-close flow can be approved for M1/M2 implementation."
+    },
+    {
+      "id": "UX-010",
+      "severity": "medium",
+      "area": "preview identity",
+      "finding": "The initial abbreviated visual digest 8F… did not define what identity is announced, copied or compared.",
+      "required_change": "Expose a short human label plus programmatically available full digest/target/SQL identity and an explicit stale reason; never ask users to validate cryptography manually.",
+      "artifact_resolution_status": "applied at wireframe-contract level; domain/AX implementation remains open",
+      "owner_role": "Database Safety + Accessibility",
+      "revisit_trigger": "When the destructive-preview domain contract is defined."
+    },
+    {
+      "id": "UX-011",
+      "severity": "low",
+      "area": "Reduce Motion",
+      "finding": "Only pane animation is mentioned; loading/cancelling/progress and focus transitions could still rely on motion.",
+      "required_change": "Disable decorative transitions and retain text/progress semantics; motion must never be the sole busy/cancel indicator.",
+      "artifact_resolution_status": "applied at shared-contract level; executable appearance test remains open",
+      "owner_role": "macOS UI + Accessibility",
+      "revisit_trigger": "When M1 animation/progress components are selected."
+    },
+    {
+      "id": "UX-012",
+      "severity": "medium",
+      "area": "text scaling and minimum size",
+      "finding": "The artifact references Dynamic Type but does not define macOS text-size behavior, clipping policy or zoom/text settings interaction.",
+      "required_change": "Use system text styles where appropriate, support accessibility display/text settings, and test long/larger text without hiding safety actions or fixed-size breakage.",
+      "artifact_resolution_status": "minimum text/reflow safety contract added; executable typography evidence remains open",
+      "owner_role": "macOS UI + Accessibility",
+      "revisit_trigger": "Before M1 minimum-window and typography tokens are accepted."
+    }
+  ],
+  "accepted_safety_invariants": [
+    "No wireframe calls a database, driver or Keychain API.",
+    "Restoration never auto-runs a query, reconnects a session or restores a transaction.",
+    "Production, read-only, transaction, target and cancellation context use text; color is supplementary.",
+    "Keyboard commands enter the same safety/application intent as pointer controls.",
+    "Destructive apply revalidates target/SQL/capability/read-only state and the canonical preview digest.",
+    "Close never silently commits and connection loss never becomes an automatic retry.",
+    "Unsupported capabilities are absent or explicitly explained, never presented as working.",
+    "NULL, empty and not-loaded remain semantically distinct."
+  ],
+  "review_checklist": [
+    {
+      "id": "CHK-01",
+      "requirement": "Product, macOS interaction design, Accessibility/VoiceOver, Database Safety and Security disposition the hierarchy, terminology and safeguards",
+      "status": "pending_external_review",
+      "evidence": "Engineering review identifies concrete terminology revisions and no competitor copying."
+    },
+    {
+      "id": "CHK-02",
+      "requirement": "Owning M1/M2 tests cover focus/menu/shortcut/VoiceOver/appearance/motion for their executable flows",
+      "status": "specified_not_executable",
+      "evidence": "Test intents are enumerated; repository has no production UI/test target."
+    },
+    {
+      "id": "CHK-03",
+      "requirement": "Resize/localized text preserves safety/consequence content",
+      "status": "open",
+      "evidence": "UX-005/008/012 define owners and required owning M1/M2 evidence."
+    },
+    {
+      "id": "CHK-04",
+      "requirement": "Artifact remains planning-only",
+      "status": "pass",
+      "evidence": "Only documentation and machine-readable review evidence are produced."
+    }
+  ],
+  "not_tested": [
+    "No AppKit/SwiftUI view, accessibility tree, keyboard event, VoiceOver session, palette, localized bundle or window resizing exists to execute.",
+    "No xcodebuild, UI test, snapshot or Instruments run is possible without a separately authorized production scaffold and full Xcode.",
+    "ASCII wireframes cannot prove contrast, visual hierarchy, clipping, frame rate or native control semantics.",
+    "No Product, macOS interaction design, Accessibility/VoiceOver, Database Safety or Security reviewer has signed the artifact."
+  ],
+  "safe_next_step": "Obtain explicit dispositions from Product, macOS interaction design, Accessibility/VoiceOver, Database Safety and Security; keep M1 and M2 production UI unauthorized until separate implementation requests and owning milestone gates exist."
+}

@@ -337,6 +337,7 @@ Prohibited fields are credentials, connection strings, usernames by default, raw
 | Architecture | Boundary review; capability and FFI contracts; data-flow update | Principal Architect |
 | Pull request | Threat-linked tests, secret scan, dependency/license diff, no unsafe logging | Feature owner + Security reviewer |
 | Dependency adoption | Exact identity/graph, multi-source advisories, license/notices, supported platform/product size, SPDX/reproducibility, replacement and independent sign-off | Dependency owner + Security + Legal |
+| UX safety/accessibility | Capability-truthful controls; same pointer/keyboard safeguard; textual production/read-only/transaction/consequence; safe focus/default; AX/manual VoiceOver | Product Design + Accessibility + Database Safety + Security |
 | Nightly | Parser/driver fuzz corpus, disposable TLS/SSH/database integration, leak scan | Security Engineering + QA |
 | Release candidate | Entitlement diff, declared architecture slice check (`arm64` for MVP), Hardened Runtime, signatures, notarization, SBOM, update tamper suite | Release Engineering |
 | Privacy release gate | Exact event/crash/diagnostics payload inspection and consent UI tests | Privacy owner |
@@ -376,4 +377,9 @@ The platform and dependency facts cited here were checked against primary projec
   engineering/security/legal review, select identities for deferred future
   candidates and generate a reproducible product/release SBOM before any
   manifest change; the M0 SPDX file is an evaluation inventory only.
+- ADR-0016 conditionally retains five wireframes but authorizes no UI. Obtain
+  independent Product/Design/Accessibility/Database-Safety/Security
+  disposition and executable focus/keyboard/AX/manual VoiceOver/appearance/
+  resize/localization evidence in each owning M1/M2 flow before that flow can
+  call the artifact executable evidence.
 - Define the privacy jurisdiction, controller/contact and retention policy before collecting any opt-in crash or telemetry data.
