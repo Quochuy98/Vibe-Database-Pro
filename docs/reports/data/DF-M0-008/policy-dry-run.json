@@ -123,7 +123,12 @@
     {
       "id": "exact-identity-all-candidates",
       "status": "block",
-      "evidence": "mysql_async, rusqlite, tree-sitter grammars/runtime, SQLx, and Sentry Cocoa do not have selected exact versions/graphs; they remain deferred."
+      "evidence": "Five candidate groups—mysql_async, rusqlite, tree-sitter grammars/runtime, SQLx, and Sentry Cocoa—do not have selected exact identities; they remain deferred."
+    },
+    {
+      "id": "full-package-graph-coverage",
+      "status": "block",
+      "evidence": "Seven candidate groups lack full package graphs: mysql_async, rusqlite, the exact rejected system OpenSSH build, the exact rejected ssh2/vendored libssh2 source, tree-sitter grammars/runtime, SQLx, and Sentry Cocoa. The two exact rejected sources retain provenance without inventing resolution graphs."
     },
     {
       "id": "product-arm64-and-size",
@@ -148,7 +153,7 @@
   ],
   "blocking_reasons": [
     "Exact russh 0.62.4 is affected by a fresh official upstream advisory.",
-    "Five candidate groups lack exact version/source/checksum/graph evidence.",
+    "Five candidate groups lack exact version/source/checksum identity evidence; seven candidate groups lack full package graphs.",
     "Several technically measured candidates still fail runtime/integration re-entry gates.",
     "No independent legal, security, or engineering approval exists.",
     "No production manifest or artifact exists for release SBOM and true product-size checks."

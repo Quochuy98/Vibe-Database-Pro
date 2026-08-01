@@ -277,6 +277,7 @@
     {"spdxElementId": "SPDXRef-DOCUMENT", "relationshipType": "DESCRIBES", "relatedSpdxElement": "SPDXRef-Package-CandidateInventory"},
     {"spdxElementId": "SPDXRef-Package-CandidateInventory", "relationshipType": "OTHER", "relatedSpdxElement": "SPDXRef-Package-Tokio-1.53.1", "comment": "EVALUATES; not adopted"},
     {"spdxElementId": "SPDXRef-Package-CandidateInventory", "relationshipType": "OTHER", "relatedSpdxElement": "SPDXRef-Package-TokioPostgres-0.7.18", "comment": "EVALUATES tokio-postgres stack; not adopted"},
+    {"spdxElementId": "SPDXRef-Package-CandidateInventory", "relationshipType": "OTHER", "relatedSpdxElement": "SPDXRef-Package-TokioPostgresRustls-0.14.0", "comment": "EVALUATES connector component of the tokio-postgres stack; not adopted"},
     {"spdxElementId": "SPDXRef-Package-CandidateInventory", "relationshipType": "OTHER", "relatedSpdxElement": "SPDXRef-Package-MySQLAsync-Unselected", "comment": "EVALUATES; no exact source selected"},
     {"spdxElementId": "SPDXRef-Package-CandidateInventory", "relationshipType": "OTHER", "relatedSpdxElement": "SPDXRef-Package-Rusqlite-Unselected", "comment": "EVALUATES; no exact source selected"},
     {"spdxElementId": "SPDXRef-Package-CandidateInventory", "relationshipType": "OTHER", "relatedSpdxElement": "SPDXRef-Package-Rustls-0.23.43", "comment": "EVALUATES; not adopted"},

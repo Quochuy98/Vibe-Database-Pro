@@ -3,12 +3,20 @@
 Status: Evidence and disposal complete; no SSH implementation or dependency
 adopted; `russh 0.62.4` retained only as a conditional planning candidate
 
+> Historical disposition notice: the conditional `russh 0.62.4` conclusion in
+> this evidence record is superseded by
+> [ADR-0015](../adr/0015-m0-dependency-disposition.md), which rejects that exact
+> source after official advisory `GHSA-m65r-rprj-r5rg`. The measurements below
+> remain historical spike evidence; they are not current adoption authority.
+
 Evidence date: 2026-07-30
 
 Disposable source revision:
 `875dd468221ad1c6c3c35b34a83c0af48ae3f9ad`
 
-Related decision: [ADR-0012](../adr/0012-m0-ssh-disposition.md)
+Related decisions: [ADR-0012](../adr/0012-m0-ssh-disposition.md) and its
+dependency-disposition update,
+[ADR-0015](../adr/0015-m0-dependency-disposition.md)
 
 ## 1. Decision question and scope
 

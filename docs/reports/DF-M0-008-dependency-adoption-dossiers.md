@@ -200,7 +200,9 @@ The planned policy dry run is `block`, even though the historical Cargo policy
 commands pass. It blocks because:
 
 - an official current advisory affects exact `russh 0.62.4`;
-- five candidate groups have no exact identity/graph;
+- five candidate groups have no exact identity, while seven have no full
+  package graph (the latter also includes two exact rejected system/vendored
+  sources whose provenance is recorded without a resolved package graph);
 - technically measured candidates still have runtime/integration gates;
 - final license/notices and independent reviews are missing; and
 - no product artifact exists for true size/SBOM reconciliation.
@@ -243,11 +245,11 @@ safe outcome; it does not block the independent DF-M0-009 wireframe review.
 
 | Artifact | Purpose | SHA-256 |
 | --- | --- | --- |
-| [`candidate-dispositions.json`](data/DF-M0-008/candidate-dispositions.json) | 13 exact dispositions, owners, blockers and re-entry paths | `81e4a725b53f9954ac5346e0df19d512e87c536553e97238ce1f543d2ec23f38` |
+| [`candidate-dispositions.json`](data/DF-M0-008/candidate-dispositions.json) | 13 candidate dispositions, owners, blockers and re-entry paths | `81e4a725b53f9954ac5346e0df19d512e87c536553e97238ce1f543d2ec23f38` |
 | [`transitive-graphs.json`](data/DF-M0-008/transitive-graphs.json) | Immutable lock/resolution identities and graph gaps | `ec84c5f930fca3aa68a7eb7f106571190820a964f6eb6df325a9a175dc75cec3` |
 | [`upstream-refresh.json`](data/DF-M0-008/upstream-refresh.json) | Official registry/release/advisory refresh and scanner blind spot | `d10ab61dd7f3e137f1ddface1d39f7aff8b52918b6e0f408e34addea4aaf71f7` |
-| [`sbom.spdx.json`](data/DF-M0-008/sbom.spdx.json) | SPDX 2.3 non-adoption candidate inventory | `58d4afbf491d2f489e0463658558a2f15d3acb2cb80d797dc8db47b910e30f41` |
-| [`policy-dry-run.json`](data/DF-M0-008/policy-dry-run.json) | Planned gate rules, commands, results and blocking reasons | `2079768187d6a41ca924ad4e0142131329a5127a53d9e94232c84aa27705db5b` |
+| [`sbom.spdx.json`](data/DF-M0-008/sbom.spdx.json) | SPDX 2.3 non-adoption candidate inventory | `5e9815673052cbcedb997a8c910fbb7a6276166b844a4960ce0a42c5407d9a1c` |
+| [`policy-dry-run.json`](data/DF-M0-008/policy-dry-run.json) | Planned gate rules, commands, results and blocking reasons | `fcddc8cc068d6a808225e99dff617ee63945482c138af8f5e215da306e59993d` |
 
 ## 10. Primary references
 

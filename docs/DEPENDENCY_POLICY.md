@@ -51,6 +51,12 @@ Every exact candidate records:
 Unknown facts produce `defer`, not optimistic defaults. A newer semver is a
 new exact candidate; it does not inherit approval or runtime evidence.
 
+For the current inventory, five candidate groups lack an exact selected
+identity (`mysql_async`, `rusqlite`, tree-sitter, SQLx and Sentry Cocoa), while
+seven lack a full package graph. The larger graph count also includes the exact
+rejected system OpenSSH build and `ssh2`/vendored libssh2 source; recorded
+provenance for a rejected source is not a resolved dependency graph.
+
 ## 4. Source and license rules
 
 - Allowlist canonical registries and immutable upstream revisions. Reject

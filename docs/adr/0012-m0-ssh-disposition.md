@@ -6,6 +6,13 @@
 - **Supersedes:** None; refines the SSH candidate in the architecture plan
 - **Related:** DF-M0-005, R-07, R-15, R-29
 
+> **Superseded in part by
+> [ADR-0015](0015-m0-dependency-disposition.md):** the later dependency review
+> rejects exact `russh 0.62.4` after official advisory
+> `GHSA-m65r-rprj-r5rg`. This ADR remains the historical SSH safety contract and
+> re-entry checklist; its conditional retention of that exact version is no
+> longer current.
+
 ## Context
 
 DataForge needs SSH tunnels that authenticate every hop, do not expose
