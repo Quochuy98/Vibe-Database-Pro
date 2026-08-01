@@ -1,7 +1,9 @@
 # Technical Backlog
 
-Status: Production backlog remains planning-only; DF-M0-001 through DF-M0-006
-have durable disposed spike records; no production item is implemented
+Status: Production backlog remains planning-only; DF-M0-001 through DF-M0-007
+have durable disposed spike records; DF-M0-008 has durable engineering
+assurance evidence with independent reviews still open; no production item is
+implemented
 
 Last updated: 2026-08-01
 
