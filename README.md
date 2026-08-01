@@ -42,6 +42,7 @@ The baseline assumptions above remain subject to the Architecture Decision Recor
 - [DF-M0-007 SQLite/Keychain separation evidence](docs/reports/DF-M0-007-persistence-keychain-evidence.md)
 - [DF-M0-008 dependency adoption dossiers](docs/reports/DF-M0-008-dependency-adoption-dossiers.md)
 - [DF-M0-009 wireframe/accessibility review](docs/reports/DF-M0-009-wireframe-accessibility-review.md)
+- [M0 external review packet](docs/reports/M0-external-review-packet.md)
 - [Dependency and supply-chain policy](docs/DEPENDENCY_POLICY.md)
 
 ### Assurance and release

@@ -1,0 +1,257 @@
+{
+  "schema_version": 1,
+  "record": "M0-external-review",
+  "record_date": "2026-08-01",
+  "purpose": "Fail-closed status and evidence checklist for independent review of DF-M0-008 and DF-M0-009; this record grants no production authority.",
+  "source_evidence": {
+    "df_m0_008_branch": "codex/m0-dependency-dossiers",
+    "df_m0_008_commit": "a5948a7bf9a46fbe1e01d93dc2f21a862a865a63",
+    "df_m0_008_report": "docs/reports/DF-M0-008-dependency-adoption-dossiers.md",
+    "df_m0_009_branch": "codex/m0-wireframe-review",
+    "df_m0_009_commit": "42bbdf54384895d862594daef3324de22689cce9",
+    "df_m0_009_report": "docs/reports/DF-M0-009-wireframe-accessibility-review.md"
+  },
+  "planning_preflight": {
+    "scope_commit": "42bbdf54384895d862594daef3324de22689cce9",
+    "required_files": {
+      "expected": 24,
+      "present": 24,
+      "missing": 0,
+      "passed": true
+    },
+    "roadmap": {
+      "expected_milestones": 8,
+      "present_milestones": 8,
+      "required_sections_per_milestone": 10,
+      "missing_sections": 0,
+      "passed": true
+    },
+    "backlog": {
+      "items": 47,
+      "required_fields_per_item": 14,
+      "missing_fields": 0,
+      "duplicate_ids": 0,
+      "passed": true
+    },
+    "decision_register": {
+      "expected": 20,
+      "present": 20,
+      "missing_or_duplicate": 0,
+      "passed": true
+    },
+    "risk_register": {
+      "total_rows": 34,
+      "required_topics": 21,
+      "missing_required_topics": 0,
+      "required_columns": 8,
+      "malformed_rows": 0,
+      "passed": true
+    },
+    "feature_cards": {
+      "expected": 17,
+      "present": 17,
+      "missing_or_duplicate": 0,
+      "passed": true
+    },
+    "claim_limit": "Structural and traceability preflight only; no external acceptance or executable behavior is proven."
+  },
+  "review_invariants": [
+    "The evidence author, an agent, a scanner, or a risk owner cannot fill an independent reviewer slot on its own behalf.",
+    "Concur means the reviewer agrees with the current fail-closed or conditional record; it does not approve a production dependency, capability, implementation, release, license, or safety exception.",
+    "Every changes_required or defer result keeps the affected definition of done false and records an owner plus revisit trigger before closure.",
+    "Legal advice, private contact data, signatures, credentials, database data, and privileged analysis are not committed; only a non-privileged disposition summary and counsel-held reference may be recorded.",
+    "No review result can override a current advisory, missing exact identity, missing executable evidence, unsupported capability, database-safety invariant, or separate implementation-authorization gate."
+  ],
+  "tasks": [
+    {
+      "task": "DF-M0-008",
+      "scope": "Dependency adoption dossiers, candidate inventory, prototype SPDX, policy dry run, and current reject/defer outcomes.",
+      "definition_of_done_met": false,
+      "production_dependency_adoption_allowed": false,
+      "required_reviews": [
+        {
+          "review_id": "M0R-DEP-ENG",
+          "role": "Independent engineering",
+          "status": "pending",
+          "allowed_results": [
+            "concur",
+            "changes_required",
+            "defer"
+          ],
+          "result": null,
+          "reviewer_reference": null,
+          "review_date": null,
+          "required_evidence": [
+            "Confirm 13 unique candidate dispositions and the 0 approve / 10 defer / 3 reject summary.",
+            "Confirm five candidates lack exact identity while seven lack a full package graph; do not collapse those facts.",
+            "Reconstruct named historical locks/resolution and verify raw hashes, package counts, source policy, product-size gaps, and re-entry ownership.",
+            "Confirm the reviewed record does not add a manifest, inherit spike code, or claim product/runtime evidence."
+          ],
+          "scope_limit": "Concurrence accepts the engineering record only; every future exact source still needs its own adoption and integration change."
+        },
+        {
+          "review_id": "M0R-DEP-SEC",
+          "role": "Independent security",
+          "status": "pending",
+          "allowed_results": [
+            "concur",
+            "changes_required",
+            "defer"
+          ],
+          "result": null,
+          "reviewer_reference": null,
+          "review_date": null,
+          "required_evidence": [
+            "Verify multi-source advisory policy and the RustSec/repository blind spot for GHSA-m65r-rprj-r5rg.",
+            "Confirm exact russh 0.62.4, the tested system OpenSSH/native -J path, and exact ssh2/libssh2 source remain rejected.",
+            "Review provenance, source allowlist, SBOM relationship reachability, advisory response ownership, disable path, and secret/logging gates.",
+            "Confirm a clean scanner or task-level review cannot override an authoritative affected range or missing runtime evidence."
+          ],
+          "scope_limit": "Concurrence is not a security approval for any deferred candidate, SSH capability, updater, telemetry SDK, or release artifact."
+        },
+        {
+          "review_id": "M0R-DEP-LEGAL",
+          "role": "Qualified legal",
+          "status": "pending",
+          "allowed_results": [
+            "concur",
+            "changes_required",
+            "defer"
+          ],
+          "result": null,
+          "reviewer_reference": null,
+          "review_date": null,
+          "required_evidence": [
+            "Review exact license files, copyright and bundled/transitive notices for selected identities; record unresolved identities as defer.",
+            "Review commercial redistribution and attribution posture for native, cryptographic, framework, updater, SDK/service, and OS-provided components.",
+            "Keep final DataForge license, Community/Pro terms, privacy/DPA terms, and legal advice outside any fabricated engineering conclusion.",
+            "Record only a non-privileged result summary and a counsel-controlled reference when appropriate."
+          ],
+          "scope_limit": "Concurrence with dossier structure is not final product-license text or blanket approval of unselected/future versions."
+        }
+      ],
+      "closure_rules": [
+        "All three required review slots have a non-pending result from an independent qualified reviewer.",
+        "Every changes_required or defer result has been resolved or remains an explicit blocker with owner and revisit trigger.",
+        "Candidate-level identities, notices, advisories, runtime evidence, and dispositions are updated without converting unknown facts to approve.",
+        "The task definition of done remains false until its ADR/report are updated from reviewer evidence; external review alone does not enable production adoption."
+      ]
+    },
+    {
+      "task": "DF-M0-009",
+      "scope": "Five low-fidelity wireframes, shared focus/accessibility/safety contract, 12 tracked actions, and M1/M2 verification ownership.",
+      "definition_of_done_met": false,
+      "m1_ui_implementation_allowed_by_this_review": false,
+      "m2_ui_implementation_allowed_by_this_review": false,
+      "required_reviews": [
+        {
+          "review_id": "M0R-UX-PRODUCT",
+          "role": "Product",
+          "status": "pending",
+          "allowed_results": [
+            "concur",
+            "changes_required",
+            "defer"
+          ],
+          "result": null,
+          "reviewer_reference": null,
+          "review_date": null,
+          "required_evidence": [
+            "Disposition hierarchy, terminology, consequences, unavailable capability language, and all 12 actions.",
+            "Confirm current direct connection, production/read-only context, result-limit language, and unknown-outcome behavior match product intent.",
+            "Confirm static review and owning M1/M2 executable gates remain separate."
+          ]
+        },
+        {
+          "review_id": "M0R-UX-DESIGN",
+          "role": "macOS interaction design",
+          "status": "pending",
+          "allowed_results": [
+            "concur",
+            "changes_required",
+            "defer"
+          ],
+          "result": null,
+          "reviewer_reference": null,
+          "review_date": null,
+          "required_evidence": [
+            "Review information hierarchy, native control intent, focus/default behavior, pane collapse, resizing, and localization reflow.",
+            "Confirm the artifact remains low fidelity, original, and not a pixel copy of another product.",
+            "Assign any unresolved visual/interaction decision an owner and executable revisit trigger."
+          ]
+        },
+        {
+          "review_id": "M0R-UX-ACCESSIBILITY",
+          "role": "Accessibility/VoiceOver",
+          "status": "pending",
+          "allowed_results": [
+            "concur",
+            "changes_required",
+            "defer"
+          ],
+          "result": null,
+          "reviewer_reference": null,
+          "review_date": null,
+          "required_evidence": [
+            "Review forward/reverse focus, modal entry/return, errors, announcements, keyboard parity, logical grid/editor semantics, and manual VoiceOver plan.",
+            "Review Light/Dark, Increase Contrast, Differentiate Without Color, Reduce Motion, larger text, and non-color safety traits.",
+            "Confirm metadata/static review is not represented as executable Accessibility Inspector or VoiceOver evidence."
+          ]
+        },
+        {
+          "review_id": "M0R-UX-DB-SAFETY",
+          "role": "Database Safety",
+          "status": "pending",
+          "allowed_results": [
+            "concur",
+            "changes_required",
+            "defer"
+          ],
+          "result": null,
+          "reviewer_reference": null,
+          "review_date": null,
+          "required_evidence": [
+            "Review production/read-only target truth, destructive consequence, canonical preview digest binding, typed confirmation, and stale revalidation.",
+            "Review transaction/pending-edit close, unknown outcome, no auto-commit/retry, and non-dangerous defaults.",
+            "Confirm cancellation outcome is separate from execution outcome and connectionClosed never implies server stop or rollback."
+          ]
+        },
+        {
+          "review_id": "M0R-UX-SECURITY",
+          "role": "Security",
+          "status": "pending",
+          "allowed_results": [
+            "concur",
+            "changes_required",
+            "defer"
+          ],
+          "result": null,
+          "reviewer_reference": null,
+          "review_date": null,
+          "required_evidence": [
+            "Confirm SSH remains unavailable and direct test/connect paths omit SSH phases and host-key results.",
+            "Confirm database authentication method is separate from Keychain storage and an unstored secret has only a bounded in-memory lease.",
+            "Review same-path keyboard/pointer safeguards, no color-only warning, no insecure bypass, and no secret exposure in help/error/announcement text."
+          ]
+        }
+      ],
+      "closure_rules": [
+        "All five required review slots have a non-pending result from an independent qualified reviewer.",
+        "All 12 action dispositions, owners, and revisit triggers are updated from reviewer evidence.",
+        "Any requested artifact change is applied and re-reviewed without claiming runtime proof.",
+        "Static closure does not authorize production UI; M1 and M2 require separate implementation requests and executable owning-milestone evidence."
+      ]
+    }
+  ],
+  "summary": {
+    "required_review_slots": 8,
+    "completed_review_slots": 0,
+    "pending_review_slots": 8,
+    "external_review_complete": false,
+    "df_m0_008_definition_of_done_met": false,
+    "df_m0_009_definition_of_done_met": false,
+    "m0_exit_authorized_by_this_record": false,
+    "production_implementation_authorized_by_this_record": false
+  },
+  "safe_next_step": "Provide this packet and the pinned source evidence to independent reviewers; record only their attributable non-privileged dispositions, then update the source ADRs/reports without weakening any unresolved gate."
+}

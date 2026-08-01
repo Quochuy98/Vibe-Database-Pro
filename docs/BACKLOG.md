@@ -334,6 +334,10 @@ independent engineering/security/legal approvals are absent. Consequently the
 task Definition of Done is **not met**; the artifact is ready for external
 review and no dependency was added.
 
+The [M0 external review packet](reports/M0-external-review-packet.md) pins the
+DF-M0-008 evidence and keeps independent engineering/security/legal slots
+pending without treating packet-level concurrence as dependency adoption.
+
 ### DF-M0-009
 
 **ID:** DF-M0-009
@@ -383,6 +387,10 @@ revisit trigger. No executable UI/AX/VoiceOver/contrast/resize/localization
 evidence or independent Product/Design/Accessibility/Database-Safety/Security
 sign-off exists, so `df_m0_009_definition_of_done_met=false`; neither M1 nor M2 UI
 implementation is authorized by this record.
+
+The [M0 external review packet](reports/M0-external-review-packet.md) pins the
+DF-M0-009 evidence and tracks the five required independent reviewer roles; all
+remain pending and no runtime or implementation authority is inferred.
 
 ## Milestone 1 — Application shell
 

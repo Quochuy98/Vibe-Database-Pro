@@ -32,6 +32,22 @@ standard library or existing dependencies when adequate. GPL/AGPL, unclear
 binaries or hosted-service terms require explicit legal review; no dependency
 is approved merely because it appears in a planning table, spike or SBOM.
 
+## M0 external review records
+
+Use the [M0 external review packet](docs/reports/M0-external-review-packet.md)
+for the remaining dependency and wireframe gates. Review the pinned commits,
+not a mutable branch tip. A reviewer result must be attributable, scoped and
+dated; an agent, evidence author, scanner or risk owner cannot fill an
+independent slot on its own behalf.
+
+Record only a non-privileged disposition summary. Do not commit legal advice,
+private contact details, signatures, credentials or customer/database data.
+`concur` accepts the current fail-closed/conditional record only: it cannot
+approve a production dependency, capability, implementation, accessibility
+runtime result, license or exception. Any `changes_required` or `defer` result
+keeps the affected Definition of Done false until its owned closure evidence is
+reviewed.
+
 ## Testing and database safety
 
 Every production change needs relevant happy path, failure, edge, cancellation and security regression coverage. Database writes also need rollback/partial-outcome evidence. Integration tests use disposable containers, ephemeral databases or isolated schemas with a destructive guard; never production or shared staging. Test credentials are fake/CI-managed and are never printed.

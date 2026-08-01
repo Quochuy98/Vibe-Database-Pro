@@ -541,7 +541,8 @@ spikes.
 
 **Only one next planning task:** obtain independent Product/Design/
 Accessibility/Database-Safety/Security disposition of the 12 DF-M0-009 actions
-and update the artifact status without checking boxes on reviewers' behalf.
+using the [M0 external review packet](reports/M0-external-review-packet.md), and
+update the artifact status without checking boxes on reviewers' behalf.
 DF-M0-008's independent engineering/security/legal review remains a parallel
 external M0 exit gate. Only after both gates close may a maintainer separately
 authorize the first production M1 scaffold; this roadmap does not authorize
