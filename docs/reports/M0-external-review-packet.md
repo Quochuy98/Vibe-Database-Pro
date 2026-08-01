@@ -29,9 +29,11 @@ reference.
 | --- | --- | --- | --- |
 | DF-M0-008 dependency dossiers | `codex/m0-dependency-dossiers` at `a5948a7bf9a46fbe1e01d93dc2f21a862a865a63` | [Dossier](DF-M0-008-dependency-adoption-dossiers.md), [policy](../DEPENDENCY_POLICY.md), [ADR-0015](../adr/0015-m0-dependency-disposition.md) | `0 approve / 10 defer / 3 reject`; adoption false; DoD false |
 | DF-M0-009 wireframe review | `codex/m0-wireframe-review` at `42bbdf54384895d862594daef3324de22689cce9` | [Review](DF-M0-009-wireframe-accessibility-review.md), [wireframes](../UX_WIREFRAMES.md), [ADR-0016](../adr/0016-m0-wireframe-accessibility-disposition.md) | Five conditional wireframes; 12 actions; M1/M2 authority false; DoD false |
+| Review corrections overlay | `codex/m0-external-review-packet` at `f77a8c9772af45ea903999378e41925ee2974150` | Corrected reports, ADRs and machine-readable evidence/provenance referenced by this packet | Clarifications/corrections applied; all eight independent review slots remain pending |
 
-Review the named commits, not a mutable branch tip. If evidence changes, the
-review result must name the new commit and re-evaluate affected questions.
+Review the three named commits, including the correction overlay, not a mutable
+branch tip. If evidence changes, the review result must name the new commit and
+re-evaluate affected questions.
 
 ## 3. Planning-completeness preflight
 
@@ -50,8 +52,8 @@ against `MASTER_PROMPT.md` sections 15–21:
 This preflight proves document structure and traceability, not external
 acceptance or executable behavior.
 
-The machine-readable preflight is scoped to composite packet commit
-`329e9dd2e3f98c00d8f71d56f1288331da179553`. The pinned DF-M0-008 commit
+The machine-readable preflight is scoped to correction commit
+`f77a8c9772af45ea903999378e41925ee2974150`. The pinned DF-M0-008 commit
 `a5948a7…a63` and DF-M0-009 commit `42bbdf5…5e9` are sibling commits over common
 base `d628753…f3bb`; the former is not an ancestor of the latter. The packet
 commit contains the pinned DF-M0-008 report/data content, but does not portray
@@ -149,4 +151,4 @@ M1/M2 production UI and overall M0 exit remain blocked by their existing gates.
 
 | Artifact | Purpose | SHA-256 |
 | --- | --- | --- |
-| [`review-status.json`](data/M0-external-review/review-status.json) | Eight pending independent review slots, evidence questions, authority limits and closure rules | `846083965b9596396be3d262464bbbd86c5d5cada70206f88d130454ac3de6ae` |
+| [`review-status.json`](data/M0-external-review/review-status.json) | Eight pending independent review slots, evidence questions, authority limits and closure rules | `50d4fa1f1e8167d9e59e34d96bf2e56eb1ef256fba9247621e1156a1e44e4002` |
