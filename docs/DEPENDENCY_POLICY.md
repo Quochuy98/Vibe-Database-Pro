@@ -152,18 +152,29 @@ and credential writes need their own approved operational task.
 ## 9. Planned dry-run commands
 
 The checked-in production commands become authoritative when manifests exist.
-The M0 evidence lane currently uses equivalents of:
+The current M0 reconstruction is instead defined by the exact sequential
+commands in
+[`policy-dry-run.json`](reports/data/DF-M0-008/policy-dry-run.json). Each
+historical scan materializes the named lock/worktree, checks out and
+`rev-parse`-verifies RustSec advisory-database commit
+`685d32fd681b540aa64019820639613c5a4fd922`, then binds the scanner to that
+checkout. The following is only a summary; the JSON record contains required
+setup, isolated paths and cleanup:
 
 ```sh
-cargo audit --file <Cargo.lock> --deny warnings
-cargo deny --manifest-path <Cargo.toml> check advisories licenses bans sources
+cargo audit --db <verified-advisory-db> --no-fetch \
+  --file <historical-Cargo.lock> --deny warnings
+cargo deny --config <explicit-db-path-and-db-urls-config> --offline \
+  --manifest-path <historical-Cargo.toml> \
+  check advisories licenses bans sources
 jq empty docs/reports/data/DF-M0-008/*.json
 ```
 
 It also queries official crates.io and repository advisory APIs, verifies
 immutable historical Git blobs and validates SPDX document/package/relationship
-structure. Release CI must use checked-in scripts and pinned tooling rather
-than copying these illustrative shell lines.
+structure. Release CI must use checked-in scripts, exact advisory/source pins
+and pinned tooling rather than copying these illustrative shell lines or using
+a mutable default advisory database.
 
 ## 10. Current fail-closed outcome
 

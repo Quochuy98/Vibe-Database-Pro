@@ -539,11 +539,12 @@ spikes.
 
 ## 12. Recommended next planning task
 
-**Only one next planning task:** obtain independent Product/Design/
-Accessibility/Database-Safety/Security disposition of the 12 DF-M0-009 actions
-using the [M0 external review packet](reports/M0-external-review-packet.md), and
-update the artifact status without checking boxes on reviewers' behalf.
-DF-M0-008's independent engineering/security/legal review remains a parallel
-external M0 exit gate. Only after both gates close may a maintainer separately
-authorize the first production M1 scaffold; this roadmap does not authorize
+**Only one next planning task:** submit the
+[M0 external review packet](reports/M0-external-review-packet.md) to all eight
+independent roles: Engineering/Security/qualified Legal for DF-M0-008 and
+Product/macOS Interaction Design/Accessibility-VoiceOver/Database Safety/
+Security for the 12 DF-M0-009 actions. Record only attributable dispositions
+and update the artifacts without checking boxes on reviewers' behalf. Only
+after both gates close may a maintainer separately authorize the first
+production M1 scaffold; this roadmap does not authorize
 SwiftUI/AppKit implementation.
