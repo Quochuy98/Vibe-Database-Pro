@@ -29,7 +29,7 @@ reference.
 | --- | --- | --- | --- |
 | DF-M0-008 dependency dossiers | `codex/m0-dependency-dossiers` at `a5948a7bf9a46fbe1e01d93dc2f21a862a865a63` | [Dossier](DF-M0-008-dependency-adoption-dossiers.md), [policy](../DEPENDENCY_POLICY.md), [ADR-0015](../adr/0015-m0-dependency-disposition.md) | `0 approve / 10 defer / 3 reject`; adoption false; DoD false |
 | DF-M0-009 wireframe review | `codex/m0-wireframe-review` at `42bbdf54384895d862594daef3324de22689cce9` | [Review](DF-M0-009-wireframe-accessibility-review.md), [wireframes](../UX_WIREFRAMES.md), [ADR-0016](../adr/0016-m0-wireframe-accessibility-disposition.md) | Five conditional wireframes; 12 actions; M1/M2 authority false; DoD false |
-| Review corrections overlay | `codex/m0-external-review-packet` at `f77a8c9772af45ea903999378e41925ee2974150` | Corrected reports, ADRs and machine-readable evidence/provenance referenced by this packet | Clarifications/corrections applied; all eight independent review slots remain pending |
+| Review corrections overlay | `codex/m0-external-review-packet` at `731403c15bd47f74b3fa9393d4c6a5af16474c45` | Corrected reports, ADRs and machine-readable evidence/provenance referenced by this packet | Clarifications/corrections applied; all eight independent review slots remain pending |
 
 Review the three named commits, including the correction overlay, not a mutable
 branch tip. If evidence changes, the review result must name the new commit and
@@ -53,7 +53,7 @@ This preflight proves document structure and traceability, not external
 acceptance or executable behavior.
 
 The machine-readable preflight is scoped to correction commit
-`f77a8c9772af45ea903999378e41925ee2974150`. The pinned DF-M0-008 commit
+`731403c15bd47f74b3fa9393d4c6a5af16474c45`. The pinned DF-M0-008 commit
 `a5948a7…a63` and DF-M0-009 commit `42bbdf5…5e9` are sibling commits over common
 base `d628753…f3bb`; the former is not an ancestor of the latter. The packet
 commit contains corrected descendants of the pinned DF-M0-008 report/data
@@ -154,4 +154,4 @@ M1/M2 production UI and overall M0 exit remain blocked by their existing gates.
 
 | Artifact | Purpose | SHA-256 |
 | --- | --- | --- |
-| [`review-status.json`](data/M0-external-review/review-status.json) | Eight pending independent review slots, evidence questions, authority limits and closure rules | `1165f81b0d6002127ddc3e437f86fcb9f25cf740719f8f59e4c175eb15f832bf` |
+| [`review-status.json`](data/M0-external-review/review-status.json) | Eight pending independent review slots, evidence questions, authority limits and closure rules | `afb8e3698c77787111fe07151faee261e5cff92bf629ea24ec3bcbe9d2b3e04c` |
