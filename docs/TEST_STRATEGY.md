@@ -100,7 +100,14 @@ Fuzz targets include statement parser/classifier, result decoders, identifier/li
 - transaction and pending-edit close warnings;
 - workspace draft/restoration without silently restoring live sessions;
 - Keychain reference CRUD/error mapping and non-`Codable` secret model checks;
-- SQLite migrations, rollback/corruption/retention/deletion;
+- serialized `ConnectionAttempt` fake-clock permutations for revoke-before-
+  announcement/driver-forward, auth success before/after cancel, explicit
+  confirmation, connection close, typed error, unsupported cancellation,
+  teardown deadline, repeated cancel, stale attempt ID, forced late-session
+  close and denied lease access after revocation;
+- SQLite migrations, rollback/corruption/retention/deletion, owner-only parent/
+  main/sidecar/backup/staging permissions, symlink/non-regular/path-escape and
+  descriptor-identity rejection;
 - command enablement driven by capabilities and revalidation failure;
 - theme cascade, contrast warnings, non-color indicators and visible-cell-only invalidation;
 - error messages contain consequence/action but no raw driver stack/secret;
@@ -117,6 +124,12 @@ The C ABI suite is independently release-blocking. It covers:
   after terminal, stale-generation and leak detection;
 - panic containment for every exported entry point;
 - pull/ack streaming with row and byte limits under a slow/failed consumer;
+- exact `next` status/output matrix: full-copy-only `OK`, zero-copy terminal/
+  cancelled/needs-ack/error paths, no cursor advance on buffer-too-small,
+  required-capacity bounds, partial-copy prohibition and matching ACK only
+  after complete metadata/payload validation;
+- validation/decoding rejection after `OK` takes the explicit abort/cancel path
+  without a false success ACK, demand advance, leaked handle or retained bytes;
 - callback ordering, documented executor, reentrancy and no UI mutation off MainActor;
 - cancel before start, during driver wait, during chunk, after terminal and concurrent with release;
 - typed error fidelity and seeded-secret redaction;
@@ -225,7 +238,12 @@ The threat IDs in [SECURITY_THREAT_MODEL.md](SECURITY_THREAT_MODEL.md) map to te
 
 - Keychain storage/ACL/locked/denied behavior and no plaintext fallback;
 - SQLite migration success/rollback/future-version refusal, crash/corruption,
-  bounded concurrency/retention, checkpointed backup and owner-only files;
+  bounded concurrency/retention, owner-only main/sidecar/backup/staging files,
+  no-follow/exclusive temporary creation and path-escape/TOCTOU defenses;
+- SQLite online backup during WAL concurrency and DELETE-mode recovery,
+  explicit refusal to copy a live WAL main file alone, verified staged restore,
+  same-volume atomic replacement, previous-file/marker recovery and injected
+  disk-full/permission/crash/cancellation at every durable transition;
 - signed-app Data Protection Keychain CRUD/attributes, exact duplicate/missing,
   lock/ACL/access-group/Team migration and independent deletion; injected
   errors may test mapping but cannot pass these system boundaries;

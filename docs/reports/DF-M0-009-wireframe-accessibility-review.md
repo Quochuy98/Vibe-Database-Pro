@@ -68,6 +68,17 @@ pixel specification:
    mutable buffers where practical, while Swift and driver/runtime copies remain
    a best-effort lifetime boundary rather than a zeroization claim. Security
    review and fake-clock/trigger/race/use-after-revoke/canary tests remain open.
+   One serialized `ConnectionAttempt` and attempt ID orders every race. Accepted
+   cancel records `requested`, revokes/denies secret access, publishes
+   `Cancelling`, then forwards driver cancel/close; revocation itself never
+   confirms server stop. Success linearized first stays successful. Cancel
+   linearized first makes later success stale, suppresses Connected and closes
+   any late session. Only explicit driver acknowledgement yields `confirmed`
+   and permits `Cancelled`; close first yields `connectionClosed` plus unknown
+   outcome, a typed terminal error remains Failed, `unsupported` fails/closes
+   without reusing the lease, and teardown deadline remains unconfirmed/timeout.
+   Repeated cancel is idempotent, wrong/late-attempt callbacks are ignored and
+   the first terminal attempt outcome is monotonic.
 3. `Stop` is renamed `Cancel Query`; `requested`/`confirmed`/
    `connectionClosed`/`unsupported` cancellation outcomes are separate from
    execution outcomes, and only confirmation permits `Cancelled`.
@@ -227,8 +238,9 @@ Accessibility/VoiceOver, Database Safety or Security reviewers.
   native control rendering exists.
 - No frame/launch/cancel timing is claimed from ASCII.
 - No executable credential-lease owner, 60-second/action deadline, revocation,
-  cleanup or seeded-canary behavior exists; those remain provisional Security
-  and owning-milestone gates aligned with DF-M0-007's best-effort memory result.
+  ordered cancellation race, late-session close, cleanup or seeded-canary
+  behavior exists; those remain provisional Security and owning-milestone gates
+  aligned with DF-M0-007's best-effort memory result.
 - No Product, macOS interaction design, Accessibility/VoiceOver, Database
   Safety or Security sign-off exists.
 
@@ -236,7 +248,7 @@ Accessibility/VoiceOver, Database Safety or Security reviewers.
 
 | Artifact | Purpose | SHA-256 |
 | --- | --- | --- |
-| [`review-matrix.json`](data/DF-M0-009/review-matrix.json) | Five wireframes, shared contract, 12 findings, owners, triggers and tests | `35d316bc2faf21270f52789426b9ee45c92b4ed9c7898bbe39b034a2b1dafbc4` |
+| [`review-matrix.json`](data/DF-M0-009/review-matrix.json) | Five wireframes, shared contract, 12 findings, owners, triggers and tests | `c6c1570c51ff7efec787ee6ac92b88741f9df2161ddce3e0ba8e5230725a6cb9` |
 
 ## 13. Primary references
 

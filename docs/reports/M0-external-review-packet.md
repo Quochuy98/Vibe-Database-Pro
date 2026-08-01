@@ -56,8 +56,9 @@ The machine-readable preflight is scoped to correction commit
 `f77a8c9772af45ea903999378e41925ee2974150`. The pinned DF-M0-008 commit
 `a5948a7…a63` and DF-M0-009 commit `42bbdf5…5e9` are sibling commits over common
 base `d628753…f3bb`; the former is not an ancestor of the latter. The packet
-commit contains the pinned DF-M0-008 report/data content, but does not portray
-that content relationship as Git ancestry. Counts above deliberately exclude
+commit contains corrected descendants of the pinned DF-M0-008 report/data
+lineage; it is not byte-identical to that pinned content and does not portray
+the relationship as Git ancestry or a merge. Counts above deliberately exclude
 DF-M0-008/009 completion, external review closure and executable behavior.
 
 ## 4. DF-M0-008 review lanes
@@ -76,9 +77,11 @@ integration evidence and normal review.
 ### Independent security — `M0R-DEP-SEC`
 
 Verify multi-source advisory behavior and the RustSec/repository blind spot;
-the three exact SSH-related rejections; provenance/SBOM reachability; advisory
-ownership/disable paths; and the rule that a clean scanner cannot override an
-authoritative affected range or missing runtime evidence.
+the exact `685d32f…922` advisory-database checkout and offline/no-fetch binding
+for both historical scanners; the three exact SSH-related rejections;
+provenance/SBOM reachability; advisory ownership/disable paths; and the rule
+that a clean scanner cannot override an authoritative affected range or missing
+runtime evidence.
 
 Concurrence is not approval for a deferred dependency, SSH, updater, telemetry
 SDK or release artifact.
@@ -102,7 +105,7 @@ versions or transitive artifacts.
 | `M0R-UX-DESIGN` | macOS interaction design | Native interaction intent, focus/default behavior, pane/resize/localization and independent visual identity |
 | `M0R-UX-ACCESSIBILITY` | Accessibility/VoiceOver | Forward/reverse focus, announcements, keyboard parity, editor/grid semantics, VoiceOver plan, contrast/non-color/motion/larger text |
 | `M0R-UX-DB-SAFETY` | Database Safety | Production/read-only context, canonical preview digest, typed confirmation, stale revalidation, transactions/pending edits, cancellation-vs-execution truth |
-| `M0R-UX-SECURITY` | Security | SSH unavailable/direct-phase truth, authentication-vs-Keychain storage, bounded unstored-secret lease, same-path safeguards and no secret/insecure bypass |
+| `M0R-UX-SECURITY` | Security | SSH unavailable/direct-phase truth, authentication-vs-Keychain storage, bounded unstored-secret lease, serialized cancel/auth/close/error ordering, same-path safeguards and no secret/insecure bypass |
 
 Static review closure does not constitute `xcodebuild`, UI/AX, manual
 VoiceOver, contrast, localization, database or runtime evidence. M1 owns the
@@ -151,4 +154,4 @@ M1/M2 production UI and overall M0 exit remain blocked by their existing gates.
 
 | Artifact | Purpose | SHA-256 |
 | --- | --- | --- |
-| [`review-status.json`](data/M0-external-review/review-status.json) | Eight pending independent review slots, evidence questions, authority limits and closure rules | `50d4fa1f1e8167d9e59e34d96bf2e56eb1ef256fba9247621e1156a1e44e4002` |
+| [`review-status.json`](data/M0-external-review/review-status.json) | Eight pending independent review slots, evidence questions, authority limits and closure rules | `1165f81b0d6002127ddc3e437f86fcb9f25cf740719f8f59e4c175eb15f832bf` |

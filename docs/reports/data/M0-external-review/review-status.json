@@ -12,7 +12,7 @@
     "df_m0_009_report": "docs/reports/DF-M0-009-wireframe-accessibility-review.md",
     "review_corrections_branch": "codex/m0-external-review-packet",
     "review_corrections_commit": "f77a8c9772af45ea903999378e41925ee2974150",
-    "review_corrections_scope": "Post-review clarification/corrections to FFI, performance, grid metadata, SSH/dependency provenance, distribution counts, GRDB provenance, SPDX PURLs, scanner reconstruction, credential-lease contract and packet preflight; no production authority."
+    "review_corrections_scope": "Post-review clarification/corrections to FFI, performance, grid metadata, SSH/dependency provenance, distribution counts, GRDB provenance, SPDX PURLs, exact RustSec scanner binding, credential-lease cancellation ordering, SQLite file/backup/restore controls and packet preflight; no production authority."
   },
   "planning_preflight": {
     "scope_commit": "f77a8c9772af45ea903999378e41925ee2974150",
@@ -23,8 +23,9 @@
       "df_m0_009_pinned_commit": "42bbdf54384895d862594daef3324de22689cce9",
       "pinned_commits_are_siblings": true,
       "scope_commit_contains_df_m0_008_pinned_commit_by_ancestry": false,
-      "scope_commit_contains_pinned_df_m0_008_report_and_data_content": true,
-      "composition_note": "The correction commit descends from the DF-M0-009 sibling through the packet baseline, incorporates the pinned DF-M0-008 report/data content, and records review corrections; it is not represented as a merge of the DF-M0-008 commit."
+      "scope_commit_contains_df_m0_008_corrected_lineage": true,
+      "scope_commit_is_byte_identical_to_pinned_df_m0_008_report_and_data": false,
+      "composition_note": "The correction commit descends from the DF-M0-009 sibling through the packet baseline and contains corrected descendants of the pinned DF-M0-008 report/data lineage. It is neither byte-identical to nor represented as a Git merge of the pinned DF-M0-008 commit."
     },
     "required_files": {
       "expected": 24,
@@ -122,6 +123,7 @@
           "review_date": null,
           "required_evidence": [
             "Verify multi-source advisory policy and the RustSec/repository blind spot for GHSA-m65r-rprj-r5rg.",
+            "Reconstruct cargo-audit 0.22.2 and cargo-deny 0.20.2 with the recorded RustSec repository checked out at 685d32fd681b540aa64019820639613c5a4fd922, verified by rev-parse and consumed through explicit database paths with fetch disabled/offline during each scan.",
             "Confirm exact russh 0.62.4, the tested system OpenSSH/native -J path, and exact ssh2/libssh2 source remain rejected.",
             "Review provenance, source allowlist, SBOM relationship reachability, advisory response ownership, disable path, and secret/logging gates.",
             "Confirm a clean scanner or task-level review cannot override an authoritative affected range or missing runtime evidence."
@@ -250,6 +252,7 @@
           "required_evidence": [
             "Confirm SSH remains unavailable and direct test/connect paths omit SSH phases and host-key results.",
             "Confirm database authentication method is separate from Keychain storage and review the provisional unstored-secret contract: sole ConnectionAttempt owner, non-renewable deadline at the earlier of action timeout or 60 seconds, all terminal/cancel/close revocation triggers, denied post-revocation access, and explicitly best-effort cleanup rather than guaranteed zeroization.",
+            "Review serialized cancellation ordering and race outcomes: requested/revoke/visible Cancelling/driver-forward order, success-before-cancel, stale late success and forced close, confirmed-only Cancelled, connectionClosed/typed-error/unsupported/deadline outcomes, idempotent repeated cancel and stale attempt-ID rejection.",
             "Review same-path keyboard/pointer safeguards, no color-only warning, no insecure bypass, and no secret exposure in help/error/announcement text."
           ]
         }

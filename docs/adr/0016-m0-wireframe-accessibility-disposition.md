@@ -78,6 +78,16 @@ control behavior. The matrix has 0 Critical, 5 High, 6 Medium and 1 Low item.
    and driver/runtime copies as best-effort rather than guaranteed zeroization.
    The secret never enters a profile, draft, history or log, and production
    implementation remains gated on Security review and lifecycle/canary tests.
+   A single serialized `ConnectionAttempt`/attempt ID defines race ordering:
+   accepted cancel records `requested`, revokes/denies secret access, publishes
+   `Cancelling`, then forwards driver cancellation. Success linearized first
+   remains success; cancel linearized first makes later success stale, prevents
+   Connected and closes any late session. Explicit driver acknowledgement alone
+   yields `confirmed`/`Cancelled`; close first yields `connectionClosed` plus
+   unknown execution outcome; a typed terminal error remains Failed;
+   `unsupported` fails/closes without reusing the lease; teardown deadline
+   remains unconfirmed/timeout. Repeated cancel is idempotent, stale callbacks
+   are ignored and the first terminal attempt result is monotonic.
 5. **Freeze cancellation and result-limit terminology at intent level.** Use
    `Cancel Query`; report `requested`/`confirmed`/`connectionClosed`/
    `unsupported` cancellation separately from execution outcome, and allow

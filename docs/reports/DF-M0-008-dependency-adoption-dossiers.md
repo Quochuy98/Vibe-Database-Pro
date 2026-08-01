@@ -137,13 +137,16 @@ commands.
 cargo audit 0.22.2 / cargo deny 0.20.2
 RustSec DB 685d32fd681b540aa64019820639613c5a4fd922 (1,177 advisories)
 
-cargo audit --file <historical PostgreSQL Cargo.lock> --deny warnings
+cargo audit --db <verified 685d32f...922 checkout> --no-fetch \
+  --file <historical PostgreSQL Cargo.lock> --deny warnings
   PASS — 124 dependency records
 
-cargo audit --file <historical SSH Cargo.lock> --deny warnings
+cargo audit --db <verified 685d32f...922 checkout> --no-fetch \
+  --file <historical SSH Cargo.lock> --deny warnings
   PASS — 179 dependency records, but official repository advisory blind spot
 
-cargo deny ... check advisories licenses bans sources
+cargo deny --config <explicit db-path/db-urls config> --offline ... \
+  check advisories licenses bans sources
   PostgreSQL: PASS with duplicate warnings for const-oid/getrandom/syn
   SSH: PASS
 
@@ -158,6 +161,15 @@ official GitHub repository advisory queries
 jq JSON and SPDX structural assertions
   PASS
 ```
+
+The post-review reconstruction cloned the official RustSec repository, checked
+out and `rev-parse`-verified exact commit
+`685d32fd681b540aa64019820639613c5a4fd922`, and bound both scanners to that
+checkout. `cargo audit` used explicit `--db` plus `--no-fetch`; `cargo deny`
+used an isolated temporary `CARGO_HOME`, explicit `[advisories] db-path`/
+`db-urls`, a verified checkout and `--offline` for the scan. The exact runnable
+sequences and cleanup are retained in `policy-dry-run.json`; no default mutable
+advisory database can satisfy those reconstruction records.
 
 The fresh `russh` result demonstrates that RustSec, `cargo audit` and
 `cargo deny` are necessary but not sufficient. The policy resolves conflicting
@@ -250,7 +262,7 @@ safe outcome; it does not block the independent DF-M0-009 wireframe review.
 | [`transitive-graphs.json`](data/DF-M0-008/transitive-graphs.json) | Immutable lock/resolution identities and graph gaps | `ec84c5f930fca3aa68a7eb7f106571190820a964f6eb6df325a9a175dc75cec3` |
 | [`upstream-refresh.json`](data/DF-M0-008/upstream-refresh.json) | Official registry/release/advisory refresh and scanner blind spot | `d10ab61dd7f3e137f1ddface1d39f7aff8b52918b6e0f408e34addea4aaf71f7` |
 | [`sbom.spdx.json`](data/DF-M0-008/sbom.spdx.json) | SPDX 2.3 non-adoption candidate inventory | `b8aa9b7513a1b607520426e1718f33c0a10b6bafdc3ec178a086ece1c480b337` |
-| [`policy-dry-run.json`](data/DF-M0-008/policy-dry-run.json) | Planned gate rules, reproducible command sequences, results and blocking reasons | `1a9af6b1c45d931ede57c2762b23af503103ab3700bf8279176b0ba438f5661a` |
+| [`policy-dry-run.json`](data/DF-M0-008/policy-dry-run.json) | Planned gate rules, reproducible command sequences, results and blocking reasons | `72e3055c924fff4ebe8feb85d1965a1cad537b7914eebd92b3e9634e09c238e4` |
 
 ## 10. Primary references
 

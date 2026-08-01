@@ -117,6 +117,24 @@ all-trigger, race, use-after-revoke and seeded-canary tests. Save profile
 persists non-secret metadata only and never puts the secret in a draft, history,
 log or ordinary profile model.
 
+Every lease, authentication/session, cancellation, close and terminal-error
+event is serialized by that `ConnectionAttempt` under one attempt ID. Accepting
+Cancel records `requested`, revokes the lease and denies further secret access,
+publishes visible `Cancelling`, then forwards driver cancel/close—in that order;
+revocation is not evidence that the server stopped. If session establishment
+linearizes first, the attempt succeeds, revokes before publishing Connected and
+a later cancel cannot rewrite it. If cancel linearizes first, a later success is
+stale: Connected is never published and any late session is closed. Explicit
+driver acknowledgement may then promote cancellation to `confirmed` and only
+that permits a `Cancelled` attempt result. A connection close before
+confirmation records `connectionClosed` plus `Outcome unknown`; a typed
+authentication/transport/execution error remains `Failed`, not relabelled as
+cancelled; `unsupported` fails/closes the attempt without reusing or
+reacquiring that lease; and teardown deadline records unconfirmed
+cancellation/timeout.
+Repeated Cancel is idempotent, late/wrong-attempt callbacks are ignored after
+cleanup, and the first serialized terminal attempt outcome is never rewritten.
+
 `Test connection` reports only configured layers and has a visible Cancel
 action. In the current direct-only contract it reports TLS, database
 authentication and selected-database phases—never an SSH phase or host-key

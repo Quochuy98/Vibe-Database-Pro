@@ -71,10 +71,25 @@ changed host key and tunnel/no-direct-fallback behavior exist only for a future
 adopted and configured SSH capability. Locked/denied Keychain never saves
 plaintext; cancel closes every configured socket/tunnel resource.
 
+One `ConnectionAttempt` actor serializes lease/authentication/session/cancel/
+close/error callbacks by attempt ID. An accepted cancel records `requested`,
+revokes the lease, publishes `Cancelling`, then forwards driver cancel/close.
+If success linearizes first, it remains success and a later cancel cannot
+rewrite it. If cancel wins, late success cannot publish Connected and its
+session is closed. Explicit driver acknowledgement alone yields `confirmed`
+and permits `Cancelled`; close-before-confirmation yields `connectionClosed` +
+unknown outcome, a typed terminal error remains Failed, `unsupported` fails/
+closes without reusing or reacquiring that lease, and teardown deadline remains
+unconfirmed/timeout. Repeated cancel is idempotent, stale callbacks are ignored,
+and no event after revocation may read the secret.
+
 **Production:** Environment selection requires confirmation and creates persistent text/icon badge; color is supplementary.
 
 **Acceptance:** TLS/Keychain adversarial suite, no exported/logged secret,
-keyboard flow and connection timeout/cancel; add the complete SSH suite only
+keyboard flow and connection timeout/cancel; fake-clock permutations cover
+revoke-before-announcement, auth/cancel ordering, late-session close,
+connectionClosed/error-before-confirmation, repeated cancel, stale callback,
+teardown deadline and denied use after revoke. Add the complete SSH suite only
 when that capability is adopted and enabled.
 
 ### UF-03 — Connect, reconnect and disconnect

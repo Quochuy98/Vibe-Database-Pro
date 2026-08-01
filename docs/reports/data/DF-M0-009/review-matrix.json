@@ -55,10 +55,35 @@
     "cleanup": "Release all lease-owned references and copies; overwrite lease-owned mutable buffers where practical.",
     "guaranteed_zeroization": false,
     "copy_limitation": "Swift String/Data plus driver/runtime copies provide only best-effort lifetime cleanup; no guaranteed zeroization is claimed.",
+    "cancellation_race_contract": {
+      "serialization": "One ConnectionAttempt actor serializes every lease, authentication/session, cancellation, connection-close and terminal-error event under one attempt ID.",
+      "accepted_cancel_order": [
+        "record cancellation outcome requested",
+        "revoke the credential lease and deny all later access",
+        "publish visible Cancelling",
+        "forward driver cancellation or close"
+      ],
+      "lease_revocation_confirms_server_stop": false,
+      "authentication_success_before_cancel": "Attempt remains succeeded; revoke the lease before publishing Connected, and a later cancel cannot rewrite the terminal attempt outcome.",
+      "cancel_before_authentication_success": "Later success is stale; never publish Connected, close any created session, and await the first valid terminal event.",
+      "explicit_driver_acknowledgement": "Cancellation outcome becomes confirmed; only this path permits a Cancelled attempt outcome.",
+      "connection_closed_before_confirmation": "Cancellation outcome becomes connectionClosed and attempt/execution outcome is unknown unless stronger adapter evidence exists.",
+      "typed_error_before_confirmation": "Attempt outcome remains Failed with its typed authentication, transport or execution error; do not relabel it as Cancelled.",
+      "unsupported_cancellation": "Fail or close the attempt without reusing or reacquiring the revoked lease; never report Cancelled.",
+      "teardown_deadline": "Cancellation remains unconfirmed and the attempt reports timeout/unconfirmed teardown without a Connected state.",
+      "repeated_cancel": "Idempotent; it cannot duplicate driver cancellation or rewrite a terminal outcome.",
+      "stale_callback": "Ignore a late callback or wrong attempt ID after cleanup, except that an attached late session must be closed.",
+      "terminal_invariant": "Exactly one monotonic terminal attempt outcome; lease access stays denied after revocation."
+    },
     "required_tests": [
       "fake-clock deadline",
       "every revocation trigger",
-      "cancellation and terminal-state races",
+      "all deterministic cancellation/authentication/close/error event-order permutations",
+      "revoke before visible cancellation announcement and driver forwarding",
+      "late successful session is never exposed and is closed",
+      "repeated cancel and stale or wrong-attempt callback handling",
+      "unsupported cancellation cannot reuse or reacquire the revoked lease",
+      "teardown deadline remains unconfirmed rather than falsely cancelled",
       "no use after revoke",
       "seeded-canary scan across logs, diagnostics and retained state"
     ]

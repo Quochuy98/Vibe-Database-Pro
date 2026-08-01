@@ -175,6 +175,11 @@ candidate passes ADR-0012; Post-MVP presets/auth expansion / XL
 - Configure connect/read timeout, keep-alive, bounded pooling, controlled reconnect, read-only mode, and development/staging/production labels.
 - Import/export non-sensitive metadata; secrets excluded by default and represented only by unresolved secret requirements.
 - Keychain-backed authentication modes declared by each adapter.
+- With Keychain storage off, one non-renewable per-attempt credential lease is
+  owned by a serialized `ConnectionAttempt`: accepted cancel revokes before
+  driver forwarding, success/cancel/close/error races have one monotonic
+  attempt outcome, late success after cancel is never exposed and only explicit
+  driver confirmation permits `Cancelled`.
 - TLS with system trust, custom CA, optional client certificate, hostname validation, and per-connection exceptional policy only when explicitly designed and warned.
 - If a future ADR enables SSH: expose only its adopted password/key/agent
   subset, bounded known-host policy, per-hop host-key handling, clean tunnel
@@ -196,9 +201,11 @@ read-only status is visible and enforced. If SSH is enabled later, changed
 host keys fail closed and a failed tunnel produces zero direct attempts.
 
 **Test strategy:** Unit configuration validation; fake-secret redaction tests;
-disposable-engine TLS integration; cancellation, timeout, reconnect, Keychain
-denial, export leakage and UI safety tests. Add the complete ADR-0012 SSH
-matrix only for an enabled SSH capability.
+disposable-engine TLS integration; fake-clock all-order credential-lease race,
+late-session close, stale callback, repeated cancel, unsupported/timeout and
+denied-use-after-revoke tests; cancellation, reconnect, Keychain denial, export
+leakage and UI safety tests. Add the complete ADR-0012 SSH matrix only for an
+enabled SSH capability.
 
 ### EP-03 — Database object explorer
 

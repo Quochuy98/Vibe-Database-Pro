@@ -198,9 +198,17 @@ sequenceDiagram
       FFI->>Core: demand token
       Core->>DB: poll bounded stream
       DB-->>Core: typed rows/status
-      Core-->>FFI: bounded bytes copied into caller buffer
-      FFI-->>App: copy/consume + ack
-      App-->>UI: visible-page update
+      Core-->>FFI: typed next status + bounded metadata/bytes
+      alt status OK
+        FFI-->>App: OK + one copied chunk + sequence
+        App->>App: validate metadata, bounds, encoding and checksum
+        App->>FFI: ack(matching sequence)
+        App-->>UI: visible-page update
+      else status BUFFER_TOO_SMALL
+        FFI-->>App: required capacity; no copy/cursor advance
+      else terminal/cancel/needs-ack/error
+        FFI-->>App: status only; no new consumable chunk
+      end
     end
     UI->>App: cancel
     App->>FFI: cancel(handle)
@@ -231,6 +239,20 @@ Boundary contract:
 - no large result set in one call; Swift supplies a bounded destination buffer,
   pulls one chunk and acknowledges the logical demand token (Rust retains no
   caller pointer after return; see ADR-0008);
+- `next` is a tagged status/result contract, never a partial-success call:
+  only `OK` may report non-zero bytes and it must copy exactly the complete
+  `byte_count` for `row_count` rows; its positive sequence, encoding, bounds
+  and checksum must validate before the matching ACK;
+  `TERMINAL` means end-of-stream with no chunk or ACK; `BUFFER_TOO_SMALL`
+  returns only a bounded `required_capacity`, copies nothing and advances no
+  cursor; `CANCELLED` returns no chunk or ACK; `NEEDS_ACK` returns no new chunk
+  while preserving the prior outstanding sequence; every other non-`OK`
+  status is a typed error with no consumable chunk and no ACK. A production
+  implementation must complete all fallible validation/state preparation
+  before copying so an error cannot leave unacknowledgeable bytes or advance
+  demand. If Swift rejects an `OK` payload during validation/decoding, it must
+  use an explicit abort/cancel path and must not send a success ACK merely to
+  release the stream;
 - every long operation has cancel and terminal-status functions;
 - `catch_unwind` at each exported entry point prevents panic crossing FFI;
 - a runtime ABI version/feature handshake rejects incompatible library and binding pairs;
@@ -248,9 +270,39 @@ Swift infrastructure owns an application SQLite database through a narrow
 persistence protocol. Exact GRDB `7.11.1` remains a conditional candidate after
 DF-M0-007/ADR-0014, not an adopted dependency. Use transactional versioned
 migrations, unknown-future-version refusal without rebuild, integrity checks,
-bounded history/diagnostic retention, checkpointed backup and owner-only files.
+bounded history/diagnostic retention and the following fail-closed file and
+recovery contract:
+
+- create the canonical application-data parent with owner-only `0700`
+  permissions; open the main database, `-journal`, `-wal`, `-shm`, backup,
+  staging and temporary artifacts as owner-only `0600` or stricter before
+  writing user data;
+- reject symlinks, non-regular files and canonical-path escape. Use
+  no-follow/exclusive creation where the platform permits, validate the opened
+  descriptor identity/type rather than trusting a pre-open path check, and
+  create randomized temporary files with exclusive-create semantics on the
+  same private filesystem as the destination;
+- take a live backup through SQLite's online backup API and verify completion.
+  Under WAL, never copy the live main file alone; any file-copy alternative
+  must coordinate an explicit checkpoint plus the required connection/locking
+  boundary. Under DELETE, treat the rollback journal and main-file transition
+  as one SQLite-managed recovery boundary rather than copying an in-flight
+  main file;
+- restore only from a private staging file after format, integrity,
+  foreign-key and supported schema-version checks. Refuse corruption and
+  unknown future schemas without deletion or silent rebuild. Quiesce and close
+  active handles, checkpoint as required, and never attach an old WAL/SHM to a
+  replacement main file; flush staged bytes and the containing directory, then
+  use same-volume atomic replacement with a recoverable previous-file/marker
+  protocol so interruption either preserves the old database or leaves an
+  explicit recovery path; and
+- test disk-full, permission, crash and cancellation points and clean every
+  incomplete private artifact without overwriting the last verified database.
+
 Select WAL versus DELETE only after repeated realistic minimum-host
-measurement; the M0 one-host sample selected neither.
+measurement and interruption tests; the M0 one-host sample selected neither
+and proves only the narrower permissions/checkpointed-backup observations in
+DF-M0-007.
 
 Permitted data includes workspace state, saved queries, snippets, UI preferences, job summaries, history subject to retention, and non-sensitive connection metadata. SQL text/history is user data and is not telemetry.
 
@@ -266,6 +318,18 @@ returns `errSecMissingEntitlement`; actual CRUD/attributes still require the
 signed app's Team/bundle/entitlement boundary.
 
 A `CredentialLease` is acquired immediately before connection/authentication and released after the driver has established the protected session. Background helpers require a separately reviewed Keychain access group/accessibility policy; there is no silent downgrade when a secret is unavailable.
+
+For an interactive unstored secret, one serialized `ConnectionAttempt` actor is
+the sole lease owner and linearization point. Accepting cancellation records
+`requested`, revokes/denies lease access, publishes `Cancelling`, then forwards
+driver cancellation. Revocation is only a local credential-lifetime event. A
+success committed first remains success; if cancel commits first, late success
+is stale, cannot publish Connected and any late session is closed. Only explicit
+driver acknowledgement yields `confirmed` and permits `Cancelled`; close first
+is `connectionClosed` plus unknown outcome, a typed error stays Failed,
+`unsupported` cannot reuse the lease, and deadline stays unconfirmed/timeout.
+Attempt IDs reject stale callbacks, repeated cancel is idempotent and a terminal
+attempt outcome is monotonic.
 
 ## 9. Database adapter model
 

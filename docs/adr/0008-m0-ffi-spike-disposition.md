@@ -70,7 +70,23 @@ For the next production design review, retain the following planning contract:
    reused slot.
 3. Let Swift provide the destination byte buffer. Rust validates capacity,
    copies only during `next`, and retains no pointer after return. This removes
-   the Rust-owned-buffer use-after-release class.
+   the Rust-owned-buffer use-after-release class. Treat the return status and
+   outputs as one tagged result, with no partial success:
+   - `OK` copies exactly `byte_count` bytes for `row_count` rows, returns a
+     positive sequence and requires its matching ACK only after Swift validates
+     metadata size/version, bounds, encoding and checksum;
+   - `TERMINAL` is end-of-stream with no chunk and no ACK;
+   - `BUFFER_TOO_SMALL` copies nothing, advances no cursor, creates no
+     outstanding demand and returns only a bounded `required_capacity` for a
+     bounded retry;
+   - `CANCELLED` has no chunk and no ACK; `NEEDS_ACK` creates no new chunk and
+     leaves the previous sequence outstanding; and
+   - every other non-`OK` status is a typed error with no consumable chunk and
+     no ACK. All fallible validation and state preparation must finish before
+     the copy so an error cannot expose bytes that the caller cannot safely
+     consume or acknowledge. If Swift rejects an `OK` payload during validation
+     or decoding, it uses an explicit abort/cancel path and never sends a
+     success ACK merely to release the stream.
 4. Allow one outstanding logical chunk per stream. A second pull returns
    `NEEDS_ACK`; only the matching sequence ACK advances the cursor. Hard caps
    are 1,000 rows and 4 MiB encoded bytes, whichever is reached first.
