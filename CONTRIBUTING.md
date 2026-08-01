@@ -32,21 +32,19 @@ standard library or existing dependencies when adequate. GPL/AGPL, unclear
 binaries or hosted-service terms require explicit legal review; no dependency
 is approved merely because it appears in a planning table, spike or SBOM.
 
-## M0 external review records
+## M0 owner waiver and future reviews
 
-Use the [M0 external review packet](docs/reports/M0-external-review-packet.md)
-for the remaining dependency and wireframe gates. Review the pinned commits,
-not a mutable branch tip. A reviewer result must be attributable, scoped and
-dated; an agent, evidence author, scanner or risk owner cannot fill an
-independent slot on its own behalf.
+[ADR-0017](docs/adr/0017-m0-owner-review-waiver.md) records the repository
+owner's decision that the eight lanes in the
+[M0 external review packet](docs/reports/M0-external-review-packet.md) are not
+required for M0 planning exit. They are waived, not completed; no agent may
+invent a reviewer, result or date.
 
-Record only a non-privileged disposition summary. Do not commit legal advice,
-private contact details, signatures, credentials or customer/database data.
-`concur` accepts the current fail-closed/conditional record only: it cannot
-approve a production dependency, capability, implementation, accessibility
-runtime result, license or exception. Any `changes_required` or `defer` result
-keeps the affected Definition of Done false until its owned closure evidence is
-reviewed.
+The waiver does not approve a dependency, production implementation,
+accessibility runtime result, license, security exception or release. Any
+future review result must still be attributable, scoped and dated. Record only
+a non-privileged disposition summary and never commit legal advice, private
+contact details, signatures, credentials or customer/database data.
 
 ## Testing and database safety
 

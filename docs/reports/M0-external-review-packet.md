@@ -1,15 +1,17 @@
-# M0 external review packet
+# M0 review disposition packet
 
-Status: ready for independent review; `0/8` reviewer slots completed; no M0
-exit, dependency adoption or production implementation authorized
+Status: `0/8` review lanes completed and `8/8` owner-waived for M0; M0
+planning exit authorized by ADR-0017; dependency adoption and production
+implementation remain unauthorized
 
 Packet date: 2026-08-01
 
 ## 1. Purpose and authority boundary
 
-This packet turns the remaining DF-M0-008 and DF-M0-009 external gates into a
-single attributable review workflow. It identifies immutable source evidence,
-the exact reviewer roles, review questions, allowed results and closure rules.
+This packet preserves the DF-M0-008 and DF-M0-009 review scopes and records the
+repository product owner's decision that they are not required for M0 planning
+exit. It identifies immutable source evidence, the eight historical lanes and
+the authority that remains closed.
 
 It does **not** provide a signature, legal opinion, dependency approval,
 accessibility pass, security exception or implementation request. The evidence
@@ -23,19 +25,34 @@ signatures, credentials, database data or customer information. Record only a
 non-privileged disposition summary and, where appropriate, a counsel-controlled
 reference.
 
-## 2. Pinned evidence under review
+## 2. Owner disposition
+
+[ADR-0017](../adr/0017-m0-owner-review-waiver.md) records the direct owner
+instruction to proceed without these reviews. The eight lanes are marked
+`not_requested_owner_waived`, not `concur`, and retain null reviewer/result/date
+fields. The waiver closes DF-M0-008/009 only at planning-artifact scope and
+authorizes M0 exit. It does not:
+
+- approve any of the `0 approve / 10 defer / 3 reject` dependency candidates;
+- provide legal, security, accessibility or database-safety approval;
+- satisfy an executable M1/M2 test;
+- enable SSH, signing, distribution or release; or
+- constitute the separate production implementation request required by
+  `MASTER_PROMPT.md`.
+
+## 3. Pinned evidence and disposition basis
 
 | Scope | Branch and commit | Primary evidence | Current outcome |
 | --- | --- | --- | --- |
-| DF-M0-008 dependency dossiers | `codex/m0-dependency-dossiers` at `a5948a7bf9a46fbe1e01d93dc2f21a862a865a63` | [Dossier](DF-M0-008-dependency-adoption-dossiers.md), [policy](../DEPENDENCY_POLICY.md), [ADR-0015](../adr/0015-m0-dependency-disposition.md) | `0 approve / 10 defer / 3 reject`; adoption false; DoD false |
-| DF-M0-009 wireframe review | `codex/m0-wireframe-review` at `42bbdf54384895d862594daef3324de22689cce9` | [Review](DF-M0-009-wireframe-accessibility-review.md), [wireframes](../UX_WIREFRAMES.md), [ADR-0016](../adr/0016-m0-wireframe-accessibility-disposition.md) | Five conditional wireframes; 12 actions; M1/M2 authority false; DoD false |
-| Review corrections overlay | `codex/m0-external-review-packet` at `2fb7d0618f2535a47d8899416cdf7e6aa42744d0` | Corrected reports, ADRs and machine-readable evidence/provenance referenced by this packet | Clarifications/corrections applied; all eight independent review slots remain pending |
+| DF-M0-008 dependency dossiers | `codex/m0-dependency-dossiers` at `a5948a7bf9a46fbe1e01d93dc2f21a862a865a63` | [Dossier](DF-M0-008-dependency-adoption-dossiers.md), [policy](../DEPENDENCY_POLICY.md), [ADR-0015](../adr/0015-m0-dependency-disposition.md) | `0 approve / 10 defer / 3 reject`; adoption false; planning DoD true by ADR-0017 waiver |
+| DF-M0-009 wireframe review | `codex/m0-wireframe-review` at `42bbdf54384895d862594daef3324de22689cce9` | [Review](DF-M0-009-wireframe-accessibility-review.md), [wireframes](../UX_WIREFRAMES.md), [ADR-0016](../adr/0016-m0-wireframe-accessibility-disposition.md) | Five conditional wireframes; 12 executable actions; planning DoD true by ADR-0017 waiver; M1/M2 authority false |
+| Review corrections overlay | `codex/m0-external-review-packet` at `2fb7d0618f2535a47d8899416cdf7e6aa42744d0` | Corrected reports, ADRs and machine-readable evidence/provenance referenced by this packet | Clarifications/corrections applied before the later owner waiver |
 
 Review the three named commits, including the correction overlay, not a mutable
 branch tip. If evidence changes, the review result must name the new commit and
 re-evaluate affected questions.
 
-## 3. Planning-completeness preflight
+## 4. Planning-completeness preflight
 
 Before preparing this packet, the repository planning baseline was checked
 against `MASTER_PROMPT.md` sections 15–21:
@@ -58,10 +75,14 @@ The machine-readable preflight is scoped to correction commit
 base `d628753…f3bb`; the former is not an ancestor of the latter. The packet
 commit contains corrected descendants of the pinned DF-M0-008 report/data
 lineage; it is not byte-identical to that pinned content and does not portray
-the relationship as Git ancestry or a merge. Counts above deliberately exclude
-DF-M0-008/009 completion, external review closure and executable behavior.
+the relationship as Git ancestry or a merge. Counts above prove structure, not
+dependency adoption or executable behavior. Planning closure comes only from
+ADR-0017's explicit owner disposition.
 
-## 4. DF-M0-008 review lanes
+## 5. Optional DF-M0-008 review lanes
+
+These lanes are retained for future voluntary use and candidate-level adoption
+work. They are not required for M0 exit and have no fabricated result.
 
 ### Independent engineering — `M0R-DEP-ENG`
 
@@ -97,7 +118,10 @@ Only a non-privileged result summary belongs in this repository. A permissive
 license label or packet-level concurrence is not blanket approval of future
 versions or transitive artifacts.
 
-## 5. DF-M0-009 review lanes
+## 6. Optional DF-M0-009 review lanes
+
+These lanes are retained for future voluntary use and executable-milestone
+feedback. They are not required for M0 exit and have no fabricated result.
 
 | Review ID | Independent role | Required disposition scope |
 | --- | --- | --- |
@@ -111,9 +135,9 @@ Static review closure does not constitute `xcodebuild`, UI/AX, manual
 VoiceOver, contrast, localization, database or runtime evidence. M1 owns the
 shared shell, WF-01 and non-live WF-02; M2 owns live WF-02 and WF-03/04/05.
 
-## 6. Allowed results and capture rules
+## 7. Future review capture rules
 
-Each review slot records exactly one result:
+If a review is voluntarily obtained later, its lane records exactly one result:
 
 - `concur`: agree with the current fail-closed/conditional record within the
   lane's stated scope;
@@ -125,33 +149,34 @@ Each review slot records exactly one result:
 For an attributable update to
 [`review-status.json`](data/M0-external-review/review-status.json):
 
-1. Change the slot `status` from `pending` only after receiving the review.
+1. Change the lane status only after receiving the review.
 2. Record `result`, an appropriate public `reviewer_reference` and ISO review
    date; never invent or infer them.
 3. Capture corrections/deferrals as owned actions with a revisit trigger in
    the source dossier/matrix, not only in this packet.
-4. Update the source report/ADR and their DoD flags only after every closure
-   rule is actually satisfied.
+4. Update candidate- or milestone-level gates only after their own closure
+   rules are actually satisfied; do not reinterpret the M0 waiver as approval.
 5. Recompute the raw status hash and rerun JSON, links, secret/personal-path
    and diff validation.
 
 A task-level `concur` never changes candidate-level `defer`/`reject`, enables
 SSH, marks accessibility runtime passed, or authorizes production code.
 
-## 7. Current fail-closed status
+## 8. Current owner-waiver and fail-closed status
 
-| Task | Required slots | Completed | Pending | Definition of Done |
+| Task | Documented lanes | Completed | Owner-waived | Planning Definition of Done |
 | --- | ---: | ---: | ---: | --- |
-| DF-M0-008 | 3 | 0 | 3 | false |
-| DF-M0-009 | 5 | 0 | 5 | false |
-| **Total** | **8** | **0** | **8** | M0 exit not authorized |
+| DF-M0-008 | 3 | 0 | 3 | true; adoption false |
+| DF-M0-009 | 5 | 0 | 5 | true; executable UI false |
+| **Total** | **8** | **0** | **8** | M0 planning exit authorized |
 
-The safe next action is to give this packet and the pinned commits to qualified
-independent reviewers. Until attributable results arrive, dependency adoption,
-M1/M2 production UI and overall M0 exit remain blocked by their existing gates.
+The safe next action is to obtain a separate explicit implementation request
+for DF-M1-001. Until then no production source or manifest may be created.
+Dependency adoption, SSH, executable M1/M2 behavior and release remain blocked
+by their own evidence and authority gates.
 
-## 8. Durable machine-readable status
+## 9. Durable machine-readable status
 
 | Artifact | Purpose | SHA-256 |
 | --- | --- | --- |
-| [`review-status.json`](data/M0-external-review/review-status.json) | Eight pending independent review slots, evidence questions, authority limits and closure rules | `de4da200bfafa78cf62e23a0d329bbd1d780783293bb1717f553a882a2dfbf47` |
+| [`review-status.json`](data/M0-external-review/review-status.json) | Owner waiver, eight preserved lanes, authority limits and current M0 status | `5c68e7b4cd91c128937595ab855a9041cb743d7a5ffa171235a909d88b568702` |

@@ -1,12 +1,16 @@
 # ADR-0015: Keep dependency adoption closed after the M0 dossiers
 
-- **Status:** Proposed for independent engineering/security/legal review;
-  fail-closed dispositions effective; no dependency adopted
+- **Status:** Accepted as a fail-closed M0 planning disposition by ADR-0017;
+  no dependency adopted
 - **Date:** 2026-08-01
 - **Supersedes:** The conditional-retention statement for exact `russh 0.62.4`
   in ADR-0012; SSH remains disabled and all other ADR-0012 gates remain
 - **Related:** ADR-0009, ADR-0012, ADR-0013, ADR-0014, DF-M0-008, R-04,
   R-21, R-25, R-29, T17
+
+> **Later decision:** ADR-0017 waives independent external review only as an
+> M0 exit prerequisite. It does not approve any dependency or alter the
+> dispositions and re-entry criteria below.
 
 ## Context
 
@@ -102,9 +106,8 @@ or obtaining a clean single scanner result cannot satisfy re-entry.
   or framework integration is authorized.
 - Unpinned MySQL/SQLite/parser/alternative-driver/crash-SDK candidates remain
   visible without creating false precision.
-- The M0 engineering dossier is ready for human review, but DF-M0-008's
-  Definition of Done remains false until engineering/security/legal reviewers
-  sign it.
+- ADR-0017 closes DF-M0-008 at planning-artifact scope by owner waiver without
+  a human-review claim. Every candidate-level adoption/release gate remains.
 - DF-M0-009 wireframe/accessibility review may proceed independently while the
   dependency adoption gate stays closed.
 

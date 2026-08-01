@@ -78,6 +78,10 @@ flowchart LR
 
 - All Critical M0 unknowns have pass/fail evidence and owner; ADRs accepted or explicitly revised; failed spikes cause redesign/defer, not lowered safety; production implementation receives a separate request.
 
+**Current disposition (2026-08-01):** ADR-0017 accepts M0 planning exit by
+owner waiver without claiming eight external reviews. The separate production
+implementation request has not been received.
+
 ## 3. Milestone 1 — Application shell
 
 **Goal:** Establish a buildable, testable native foundation with no database feature claims.
@@ -505,10 +509,10 @@ The M0 dependency gate now has a durable engineering dossier, proposed policy,
 prototype SPDX inventory and ADR-0015. It records
 `0 approve / 10 defer / 3 reject`; exact `russh 0.62.4` is newly rejected after
 an official upstream advisory published after DF-M0-005. Production adoption
-remains closed because independent engineering/security/legal review, exact
-identities for several future candidates and a production build/release SBOM
-do not exist. These external reviews remain an M0 exit gate, while the
-independent wireframe/accessibility review can proceed.
+remains closed because exact identities for several future candidates, exact
+license/notices decisions and a production build/release SBOM do not exist.
+ADR-0017 waives the three external dossier reviews only as an M0 exit gate; it
+does not convert any candidate to `approve` or satisfy adoption/release review.
 
 The M0 wireframe/accessibility gate now has a revised low-fidelity artifact,
 engineering review matrix and ADR-0016. All five wireframes are conditionally
@@ -516,7 +520,9 @@ retained after ten planning-contract revisions; 12 owned actions remain. No
 executable keyboard/AX/VoiceOver/contrast/resize/localization evidence or
 independent Product/Design/Accessibility/Database-Safety/Security sign-off
 exists. M1 owns shared shell/WF-01/non-live WF-02 evidence; M2 owns live WF-02
-and WF-03/04/05. Both production UI gates remain closed by this record.
+and WF-03/04/05. ADR-0017 accepts the static artifact for planning without
+those five reviews. Production UI remains closed until a separate request and
+the owning executable gates.
 
 ### Canonical M0 traceability
 
@@ -539,12 +545,10 @@ spikes.
 
 ## 12. Recommended next planning task
 
-**Only one next planning task:** submit the
-[M0 external review packet](reports/M0-external-review-packet.md) to all eight
-independent roles: Engineering/Security/qualified Legal for DF-M0-008 and
-Product/macOS Interaction Design/Accessibility-VoiceOver/Database Safety/
-Security for the 12 DF-M0-009 actions. Record only attributable dispositions
-and update the artifacts without checking boxes on reviewers' behalf. Only
-after both gates close may a maintainer separately authorize the first
-production M1 scaffold; this roadmap does not authorize
-SwiftUI/AppKit implementation.
+**Only one next planning task:** obtain the separate, explicit production
+implementation request required by `MASTER_PROMPT.md` for DF-M1-001. ADR-0017
+closes M0 planning by owner waiver without claiming any of the eight external
+reviews. Until that request arrives, do not create the Xcode/Cargo production
+scaffold. After authorization, DF-M1-001 remains limited to the buildable
+module/fitness-test foundation and cannot add a live database feature or an
+unapproved dependency.

@@ -131,14 +131,22 @@ DF-M0-008 narrows R-04/R-21/R-25/R-29 but closes none of them. The
 demonstrate a scanner blind spot: the frozen SSH lock passed RustSec/Cargo
 policy while an official repository advisory affected its root. Exact legal
 reviews, several candidate identities, production product-size/release-SBOM
-evidence and independent reviewers remain external blockers.
+evidence remains an external blocker; independent review was also an M0
+blocker before the later ADR-0017 owner waiver.
+
+ADR-0017 later waives the three independent dossier reviews only as an M0 exit
+gate. Exact legal/notices decisions, candidate identity/integration evidence,
+production product size and release SBOM remain adoption/release blockers; the
+waiver approves none of them.
 
 DF-M0-009 narrows the design side of R-18/R-20 but closes neither. The
 [wireframe review](reports/DF-M0-009-wireframe-accessibility-review.md) and
 [ADR-0016](adr/0016-m0-wireframe-accessibility-disposition.md) apply ten
 low-fidelity contract revisions and retain five flows conditionally. Twelve
 actions remain; no UI, AX tree, keyboard event, VoiceOver session, palette,
-localized bundle or independent human approval exists.
+localized bundle or independent human approval exists. ADR-0017 accepts that
+residual static-review risk for M0 planning only; every executable M1/M2 gate
+remains open.
 
 ## 5. Risk acceptance format
 

@@ -1,11 +1,15 @@
 # ADR-0016: Conditionally retain the M0 shell wireframes
 
-- **Status:** Proposed for independent Product/Design/Accessibility/
-  Database-Safety/Security review; production UI gated
+- **Status:** Accepted for M0 planning by ADR-0017 owner waiver; production UI
+  and executable accessibility/security evidence gated
 - **Date:** 2026-08-01
 - **Supersedes:** None; refines the M1/M2 UI evidence required by ADR-0001 and
   the milestone backlog
 - **Related:** ADR-0001, DF-M0-009, UF-01/02/04/05/06, R-18, R-20
+
+> **Later decision:** ADR-0017 waives the five independent static-review lanes
+> as an M0 exit prerequisite. It does not supply accessibility/security
+> approval or alter the executable M1/M2 evidence required below.
 
 ## Context
 
@@ -50,9 +54,10 @@ inputs, but the initial text had preventable ambiguity:
 - the shortened destructive preview digest did not define its user/AX role.
 
 Ten low-fidelity contract revisions address the textual ambiguity. Twelve
-tracked actions remain because only an executable UI and independent reviewers
-can prove keyboard, VoiceOver, contrast, resizing, localization and native
-control behavior. The matrix has 0 Critical, 5 High, 6 Medium and 1 Low item.
+tracked actions remain because only an executable UI can prove keyboard,
+VoiceOver, contrast, resizing, localization and native control behavior;
+independent review could add assurance but is owner-waived for M0 by ADR-0017.
+The matrix has 0 Critical, 5 High, 6 Medium and 1 Low item.
 
 ## Decision
 
@@ -105,13 +110,15 @@ control behavior. The matrix has 0 Critical, 5 High, 6 Medium and 1 Low item.
    manual VoiceOver, keyboard events, palette contrast, pseudo-localization,
    resize and performance evidence remain owning M1/M2 gates.
 9. **Do not authorize production UI.** A separately requested implementation
-   for either milestone may begin only after the project gate and reviewer
-   decisions it depends on are explicit.
+   for either milestone may begin only after the project gate is explicit;
+   owning executable evidence remains required even though ADR-0017 waives the
+   static external-review lanes.
 
-## Required external review and milestone evidence
+## Historical external-review plan and required milestone evidence
 
-Before DF-M0-009 can close, all five independent roles must explicitly
-disposition the static artifact:
+ADR-0017 later waived the five independent roles below as an M0 exit
+prerequisite. They remain the historical review plan and may still be used
+voluntarily; none is represented as completed:
 
 - Product/Design accepts or explicitly dispositions terminology, hierarchy,
   button grouping and the 12 actions;
@@ -142,7 +149,7 @@ on their behalf.
   polish or a color choice.
 - The custom grid/editor require both semantic AX tests and manual VoiceOver;
   metadata assertions alone cannot pass.
-- `df_m0_009_definition_of_done_met` remains false until external reviewers
-  disposition every action and the artifact status is updated.
+- ADR-0017 sets `df_m0_009_definition_of_done_met=true` only at
+  planning-artifact scope; every executable action remains owned by M1/M2.
 - No database, credential, source-code, asset or production entitlement change
   results from this ADR.

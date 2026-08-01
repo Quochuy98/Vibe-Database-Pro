@@ -2,7 +2,10 @@
 
 DataForge is the working codename for an independent, native macOS database client. The product is being designed for developers, DBAs, and data engineers who need safe connection management, query execution, data editing, schema tools, transfer workflows, and database observability without sacrificing credential security or data integrity.
 
-> Status: architecture and product planning only. This repository does not yet contain production implementation. A separate, reviewed implementation request is required before production code is started.
+> Status: M0 architecture and product planning exit is accepted by the owner
+> waiver in ADR-0017. This repository does not yet contain production
+> implementation. A separate explicit implementation request is still required
+> before production code is started.
 
 ## Product direction
 
@@ -43,6 +46,7 @@ The baseline assumptions above remain subject to the Architecture Decision Recor
 - [DF-M0-008 dependency adoption dossiers](docs/reports/DF-M0-008-dependency-adoption-dossiers.md)
 - [DF-M0-009 wireframe/accessibility review](docs/reports/DF-M0-009-wireframe-accessibility-review.md)
 - [M0 external review packet](docs/reports/M0-external-review-packet.md)
+- [M0 owner review-waiver decision](docs/adr/0017-m0-owner-review-waiver.md)
 - [Dependency and supply-chain policy](docs/DEPENDENCY_POLICY.md)
 
 ### Assurance and release

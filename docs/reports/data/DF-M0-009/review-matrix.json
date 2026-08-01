@@ -1,19 +1,21 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "task": "DF-M0-009",
   "review_date": "2026-08-01",
   "artifact": "docs/UX_WIREFRAMES.md",
   "artifact_scope": "five low-fidelity planning wireframes and shared shell annotations; no production UI",
   "engineering_review_status": "complete",
   "external_review_status": {
-    "product": "pending",
-    "macos_interaction_design": "pending",
-    "accessibility_voiceover": "pending",
-    "database_safety": "pending",
-    "security": "pending"
+    "product": "not_requested_owner_waived",
+    "macos_interaction_design": "not_requested_owner_waived",
+    "accessibility_voiceover": "not_requested_owner_waived",
+    "database_safety": "not_requested_owner_waived",
+    "security": "not_requested_owner_waived"
   },
-  "required_external_review_complete": false,
-  "df_m0_009_definition_of_done_met": false,
+  "external_review_complete": false,
+  "external_review_required_for_m0_exit": false,
+  "df_m0_009_definition_of_done_met": true,
+  "definition_of_done_scope": "M0 planning artifact only under ADR-0017 owner waiver",
   "m1_ui_implementation_allowed_by_this_review": false,
   "m2_ui_implementation_allowed_by_this_review": false,
   "summary": {
@@ -21,13 +23,13 @@
     "accepted_controls": 20,
     "open_actions": 12,
     "planning_artifact_revisions_applied": 10,
-    "executable_or_external_gates_remaining": 12,
+    "executable_gates_remaining": 12,
     "critical_findings": 0,
     "high_findings": 5,
     "medium_findings": 6,
     "low_findings": 1
   },
-  "required_external_reviewer_roles": [
+  "documented_external_reviewer_roles": [
     "Product",
     "macOS interaction design",
     "Accessibility/VoiceOver",
@@ -35,7 +37,7 @@
     "Security"
   ],
   "unstored_secret_lease_contract": {
-    "status": "provisional_pending_security_review_and_executable_evidence",
+    "status": "provisional_pending_executable_security_evidence",
     "scope": "interactive Test/Connect attempt only",
     "sole_owner": "ConnectionAttempt application service",
     "ui_secret_state_cleared_on_handoff": true,
@@ -376,9 +378,9 @@
   "review_checklist": [
     {
       "id": "CHK-01",
-      "requirement": "Product, macOS interaction design, Accessibility/VoiceOver, Database Safety and Security disposition the hierarchy, terminology and safeguards",
-      "status": "pending_external_review",
-      "evidence": "Engineering review identifies concrete terminology revisions and no competitor copying."
+      "requirement": "Owner disposition of the external static-review lanes is explicit without fabricating sign-off",
+      "status": "owner_waived_for_m0",
+      "evidence": "ADR-0017 records the owner waiver; engineering review identifies concrete terminology revisions and no competitor copying."
     },
     {
       "id": "CHK-02",
@@ -405,5 +407,5 @@
     "ASCII wireframes cannot prove contrast, visual hierarchy, clipping, frame rate or native control semantics.",
     "No Product, macOS interaction design, Accessibility/VoiceOver, Database Safety or Security reviewer has signed the artifact."
   ],
-  "safe_next_step": "Obtain explicit dispositions from Product, macOS interaction design, Accessibility/VoiceOver, Database Safety and Security; keep M1 and M2 production UI unauthorized until separate implementation requests and owning milestone gates exist."
+  "safe_next_step": "Obtain the separate production implementation request for DF-M1-001; keep M1 and M2 production UI unauthorized until their implementation requests and executable owning-milestone gates exist."
 }

@@ -1,11 +1,13 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "task": "DF-M0-008",
   "evidence_date": "2026-08-01",
   "scope": "planning candidate inventory; no production manifest or dependency adoption",
-  "review_status": "engineering evidence recorded; independent engineering, security, and legal reviews pending",
+  "review_status": "engineering evidence recorded; external review owner-waived for M0 by ADR-0017; candidate-level adoption authority remains absent",
+  "external_review_gate_required_for_m0_exit": false,
   "production_dependency_adoption_allowed": false,
-  "df_m0_008_definition_of_done_met": false,
+  "df_m0_008_definition_of_done_met": true,
+  "definition_of_done_scope": "M0 planning artifact only under ADR-0017 owner waiver",
   "summary": {
     "candidate_count": 13,
     "approve": 0,
@@ -538,7 +540,7 @@
   ],
   "external_blockers": [
     "A qualified legal reviewer must approve exact license files, notices, redistribution obligations, service terms, and the product licensing model.",
-    "Independent engineering and security reviewers must sign the exact candidate records; an author cannot self-approve the gate.",
+    "Candidate-level engineering and security adoption authority remains required before an exact source enters a production manifest; ADR-0017's M0 waiver is not that authority.",
     "A separately authorized production scaffold must exist before release SBOM reproducibility or true product binary-size deltas can be measured."
   ]
 }

@@ -1,7 +1,7 @@
 # DF-M0-009 — Shell wireframe and accessibility review
 
 Status: engineering review complete; five wireframes conditionally retained;
-independent Product/Design/Accessibility/Database-Safety/Security review pending
+external M0 review waived by ADR-0017; executable UI evidence remains open
 
 Review date: 2026-08-01
 
@@ -34,15 +34,17 @@ No executable accessibility or visual claim is made. In particular:
 - ASCII cannot prove contrast, clipping, native control roles, VoiceOver
   navigation, keyboard events or frame performance;
 - the repository has no production UI or UI test target; and
-- the required independent human reviewers have not signed the artifact.
+- no independent human reviewer has signed the artifact; ADR-0017 waives those
+  reviews only as an M0 planning gate.
 
 Therefore:
 
 ```text
 engineering_review_status = complete
-external_review_status = Product/Design/Accessibility/Database-Safety/Security pending
-required_external_review_complete = false
-df_m0_009_definition_of_done_met = false
+external_review_status = owner-waived for M0; no sign-off claimed
+external_review_complete = false
+external_review_required_for_m0_exit = false
+df_m0_009_definition_of_done_met = true at planning-artifact scope
 m1_ui_implementation_allowed_by_this_review = false
 m2_ui_implementation_allowed_by_this_review = false
 ```
@@ -222,12 +224,13 @@ the artifact non-executable and making the future safeguards explicit.
 | Light/Dark/contrast/non-color/motion | Partial | Semantic rules specified; no palette/runtime measurement |
 | Resize/localization | Partial | Priority/reflow contract and test matrix exist; no executable layout/bundle |
 | UF-01/02/04/05/06 traceability | Pass | Every required user flow maps to one or more reviewed wireframes |
-| Product/Design/Accessibility/Database-Safety/Security disposition | **Not met** | All five independent reviewer roles remain pending; 12 actions have owner/revisit trigger |
+| Product/Design/Accessibility/Database-Safety/Security disposition | Waived for M0 only | ADR-0017 records no sign-off; all 12 actions retain owner/revisit trigger and executable gates |
 | Milestone ownership current | Prepared | M1 owns shared shell/WF-01/non-live WF-02; M2 owns live WF-02 and WF-03/04/05 |
 
-`df_m0_009_definition_of_done_met=false`. The engineering review is ready for
-external sign-off, but it cannot impersonate Product, macOS interaction design,
-Accessibility/VoiceOver, Database Safety or Security reviewers.
+`df_m0_009_definition_of_done_met=true` at planning-artifact scope under
+ADR-0017. No Product, macOS interaction design, Accessibility/VoiceOver,
+Database Safety or Security sign-off is claimed, and implementation authority
+remains false.
 
 ## 11. Not tested
 
@@ -248,7 +251,7 @@ Accessibility/VoiceOver, Database Safety or Security reviewers.
 
 | Artifact | Purpose | SHA-256 |
 | --- | --- | --- |
-| [`review-matrix.json`](data/DF-M0-009/review-matrix.json) | Five wireframes, shared contract, 12 findings, owners, triggers and tests | `c6c1570c51ff7efec787ee6ac92b88741f9df2161ddce3e0ba8e5230725a6cb9` |
+| [`review-matrix.json`](data/DF-M0-009/review-matrix.json) | Five wireframes, shared contract, owner-waiver scope, 12 findings, owners, triggers and tests | `41a8642cd51845e20a3aa59fceaa577d570c570badc80ada30fa59c6cc75d756` |
 
 ## 13. Primary references
 

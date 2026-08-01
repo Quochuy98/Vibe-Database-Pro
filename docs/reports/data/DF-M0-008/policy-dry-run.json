@@ -1,12 +1,14 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "task": "DF-M0-008",
   "evidence_date": "2026-08-01",
   "policy_version": "planned-dependency-policy-v1",
   "mode": "dry-run against disposed spike graphs and candidate inventory; no production manifest",
   "overall_result": "block",
   "production_dependency_adoption_allowed": false,
-  "df_m0_008_definition_of_done_met": false,
+  "df_m0_008_definition_of_done_met": true,
+  "definition_of_done_scope": "M0 planning artifact only under ADR-0017 owner waiver",
+  "external_review_gate_required_for_m0_exit": false,
   "disposition_summary": {
     "approve": 0,
     "defer": 10,
@@ -219,15 +221,15 @@
     },
     {
       "id": "independent-review",
-      "status": "block",
-      "evidence": "Engineering evidence is prepared, but independent engineering, security, and legal approvals have not been supplied."
+      "status": "waived_for_m0_only",
+      "evidence": "ADR-0017 waives independent review as an M0 exit prerequisite without supplying candidate-level engineering, security, legal or adoption approval."
     }
   ],
   "blocking_reasons": [
     "Exact russh 0.62.4 is affected by a fresh official upstream advisory.",
     "Five candidate groups lack exact version/source/checksum identity evidence; seven candidate groups lack full package graphs.",
     "Several technically measured candidates still fail runtime/integration re-entry gates.",
-    "No independent legal, security, or engineering approval exists.",
+    "No qualified legal approval or candidate-level engineering/security adoption authority exists; ADR-0017's M0 waiver supplies neither.",
     "No production manifest or artifact exists for release SBOM and true product-size checks."
   ],
   "safe_outcome": "Keep every production dependency and affected capability disabled. Reject exact unsafe sources, preserve deferred alternatives behind ports/capability gates, and rerun the full policy for any new exact version."

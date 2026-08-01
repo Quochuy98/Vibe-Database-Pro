@@ -1,8 +1,8 @@
 # Technical Backlog
 
-Status: Production backlog remains planning-only; DF-M0-001 through DF-M0-009
-have durable spike/assurance/design evidence; DF-M0-008/009 external reviews
-remain open and no production item is implemented
+Status: M0 planning is closed by ADR-0017's owner waiver; DF-M0-001 through
+DF-M0-009 have durable spike/assurance/design evidence; no production item is
+implemented or authorized by this backlog
 
 Last updated: 2026-08-01
 
@@ -317,7 +317,8 @@ source is auditable at `6388860` and was removed in separate disposal commit
 
 **Out of scope:** General dependency upgrades and product licensing decision.
 
-**Definition of done:** Dossiers reviewed by engineering/security/legal; ADR/backlog updated with exact decisions.
+**Definition of done:** Dossier, policy dry run and exact dispositions are
+current; any absent external review remains explicit and grants no adoption.
 
 **M0 engineering disposition (2026-08-01):** The
 [DF-M0-008 dossier](reports/DF-M0-008-dependency-adoption-dossiers.md),
@@ -330,13 +331,14 @@ tested system OpenSSH/native `-J` and `ssh2`/libssh2 source. The candidate
 coverage, immutable lock/checksum reconstruction and planned policy dry run
 are recorded, but the dry run correctly blocks: exact legal/notices reviews,
 several unselected identities, product manifests/size/release SBOM and
-independent engineering/security/legal approvals are absent. Consequently the
-task Definition of Done is **not met**; the artifact is ready for external
-review and no dependency was added.
+independent engineering/security/legal approvals are absent. ADR-0017 waives
+those three reviews only for M0 planning closure. The task planning Definition
+of Done is met, but no dependency was added or approved and every candidate
+keeps its recorded `defer`/`reject` re-entry gate.
 
-The [M0 external review packet](reports/M0-external-review-packet.md) pins the
-DF-M0-008 evidence and keeps independent engineering/security/legal slots
-pending without treating packet-level concurrence as dependency adoption.
+The [M0 review disposition packet](reports/M0-external-review-packet.md) pins
+the DF-M0-008 evidence and records three review lanes as owner-waived rather
+than completed.
 
 ### DF-M0-009
 
@@ -360,11 +362,10 @@ pending without treating packet-level concurrence as dependency adoption.
 
 **Security considerations:** Production and destructive warnings must remain text/icon/VoiceOver-visible; no color-only or shortcut-only bypass may be approved.
 
-**Acceptance criteria:** Product, macOS interaction design,
-Accessibility/VoiceOver, Database Safety and Security reviewers approve or
-explicitly disposition every wireframe; unresolved focus, warning, resize or
-VoiceOver issue has an owner and revisit trigger; owning M1/M2 items link the
-reviewed artifact without treating static review as executable evidence.
+**Acceptance criteria:** Every wireframe and unresolved focus, warning, resize
+or VoiceOver issue has a disposition, owner and revisit trigger; owning M1/M2
+items link the artifact without treating static review or an owner waiver as
+executable evidence.
 
 **Tests required:** Keyboard/focus walkthrough, accessibility-label review, appearance/contrast checklist, resize/localization review and traceability check to UF-01/02/04/05/06.
 
@@ -385,12 +386,14 @@ appearance/localization and dangerous confirmation behavior. Twelve tracked
 actions remain (`0 Critical / 5 High / 6 Medium / 1 Low`), each with owner and
 revisit trigger. No executable UI/AX/VoiceOver/contrast/resize/localization
 evidence or independent Product/Design/Accessibility/Database-Safety/Security
-sign-off exists, so `df_m0_009_definition_of_done_met=false`; neither M1 nor M2 UI
-implementation is authorized by this record.
+sign-off exists. ADR-0017 waives those five reviews only for M0 planning
+closure, so `df_m0_009_definition_of_done_met=true` at static-artifact scope;
+neither M1 nor M2 UI implementation or runtime behavior is authorized by this
+record.
 
-The [M0 external review packet](reports/M0-external-review-packet.md) pins the
-DF-M0-009 evidence and tracks the five required independent reviewer roles; all
-remain pending and no runtime or implementation authority is inferred.
+The [M0 review disposition packet](reports/M0-external-review-packet.md) pins
+the DF-M0-009 evidence and records the five review lanes as owner-waived rather
+than completed.
 
 ## Milestone 1 — Application shell
 
@@ -406,7 +409,8 @@ remain pending and no runtime or implementation authority is inferred.
 
 **Complexity:** M
 
-**Dependencies:** M0 exit, explicit production implementation authorization
+**Dependencies:** M0 exit (satisfied by ADR-0017), explicit production
+implementation authorization (not yet received)
 
 **User story:** As a contributor, I need buildable module boundaries so dependencies cannot silently collapse.
 

@@ -1,7 +1,7 @@
 # DF-M0-008 — Dependency and license adoption dossiers
 
 Status: engineering evidence recorded; **production adoption blocked**;
-independent engineering, security and legal reviews pending
+external M0 review waived by ADR-0017 without dependency approval
 
 Evidence date: 2026-08-01
 
@@ -45,8 +45,8 @@ components; they are not counted as third-party package approvals.
 | Defer | 10 | Candidate or alternative remains an evaluation input with a closed gate |
 | Reject | 3 | Exact source/build must not be adopted |
 
-`production_dependency_adoption_allowed=false` and
-`df_m0_008_definition_of_done_met=false`.
+`production_dependency_adoption_allowed=false` and, under ADR-0017's owner
+waiver, `df_m0_008_definition_of_done_met=true` at planning-artifact scope.
 
 Machine-readable summary: `0 approve / 10 defer / 3 reject`.
 
@@ -234,12 +234,13 @@ unknown or unsafe exact input from silently becoming a shipped dependency.
 | Release SBOM reproducibility | Unsupported | No production manifest/build/artifact |
 | Checksum/source verification | Pass for the exact queried/historical inputs | Git blob and registry checksums reproduce; point-in-time API response hashes retained |
 | Advisory/license policy dry run | Block as intended | Multi-source advisory gate catches russh blind spot; legal gate remains closed |
-| Engineering/security/legal review | **Not met** | This report prepares evidence but cannot impersonate independent human reviewers or counsel |
+| Engineering/security/legal review | Waived for M0 only | ADR-0017 records the owner waiver; no reviewer, legal conclusion or candidate approval is inferred |
 | ADR/backlog exact decision update | Prepared | ADR-0015 and planning documents record no-adoption/defer/reject posture |
 
-The engineering work package is ready for external review, but the backlog
-Definition of Done is not satisfied. Keeping the gate false is the correct
-safe outcome; it does not block the independent DF-M0-009 wireframe review.
+The engineering work package and explicit fail-closed dispositions satisfy the
+revised M0 planning Definition of Done under ADR-0017. Production adoption is
+still blocked by every candidate-level identity, legal, advisory, runtime,
+product-size and release-SBOM gate recorded above.
 
 ## 8. Not established
 
@@ -258,11 +259,11 @@ safe outcome; it does not block the independent DF-M0-009 wireframe review.
 
 | Artifact | Purpose | SHA-256 |
 | --- | --- | --- |
-| [`candidate-dispositions.json`](data/DF-M0-008/candidate-dispositions.json) | 13 candidate dispositions, owners, blockers and re-entry paths | `c53ddaa76eb07a9aa89c612d34a749a04e847d59f65ab59c826ec6ee1ae403bc` |
+| [`candidate-dispositions.json`](data/DF-M0-008/candidate-dispositions.json) | 13 candidate dispositions, owners, blockers, owner-waiver scope and re-entry paths | `56baf88c05bd7301443be945899c28572517254b0ad5285ffddaae08e1f482be` |
 | [`transitive-graphs.json`](data/DF-M0-008/transitive-graphs.json) | Immutable lock/resolution identities and graph gaps | `ec84c5f930fca3aa68a7eb7f106571190820a964f6eb6df325a9a175dc75cec3` |
 | [`upstream-refresh.json`](data/DF-M0-008/upstream-refresh.json) | Official registry/release/advisory refresh and scanner blind spot | `d10ab61dd7f3e137f1ddface1d39f7aff8b52918b6e0f408e34addea4aaf71f7` |
 | [`sbom.spdx.json`](data/DF-M0-008/sbom.spdx.json) | SPDX 2.3 non-adoption candidate inventory | `b8aa9b7513a1b607520426e1718f33c0a10b6bafdc3ec178a086ece1c480b337` |
-| [`policy-dry-run.json`](data/DF-M0-008/policy-dry-run.json) | Planned gate rules, reproducible command sequences, results and blocking reasons | `72e3055c924fff4ebe8feb85d1965a1cad537b7914eebd92b3e9634e09c238e4` |
+| [`policy-dry-run.json`](data/DF-M0-008/policy-dry-run.json) | Planned gate rules, reproducible command sequences, owner-waiver scope, results and blocking reasons | `d817fddf3e21a4e6ea7da566602b26de750f4477def967627c4b4e23e4486235` |
 
 ## 10. Primary references
 

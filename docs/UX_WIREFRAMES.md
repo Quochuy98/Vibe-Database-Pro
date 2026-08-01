@@ -241,9 +241,8 @@ and requires explicit acknowledgement before closing.
 - [x] Engineering review records terminology, focus, VoiceOver, appearance,
       resize/localization and safety actions in
       [DF-M0-009 evidence](reports/DF-M0-009-wireframe-accessibility-review.md).
-- [ ] Product, macOS interaction design, Accessibility/VoiceOver, Database
-      Safety and Security reviewers accept or explicitly disposition the
-      hierarchy, terminology and open actions.
+- [x] ADR-0017 records the product owner's waiver of the five external static
+      review lanes as an M0 gate; no human sign-off or runtime pass is claimed.
 - [ ] M1 tests cover the shared shell, WF-01 and the non-live profile portion
       of WF-02; owning M2 tasks cover live WF-02 plus WF-03/04/05.
 - [ ] Each owning milestone covers focus order, menu/shortcut parity,

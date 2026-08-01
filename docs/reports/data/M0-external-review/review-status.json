@@ -1,8 +1,23 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "record": "M0-external-review",
   "record_date": "2026-08-01",
-  "purpose": "Fail-closed status and evidence checklist for independent review of DF-M0-008 and DF-M0-009; this record grants no production authority.",
+  "purpose": "Owner waiver and preserved review-lane record for DF-M0-008 and DF-M0-009; this record closes M0 planning but grants no production, dependency, legal, accessibility or release authority.",
+  "owner_decision": {
+    "decision": "waive_independent_external_review_as_m0_exit_gate",
+    "decision_date": "2026-08-01",
+    "authority": "direct repository product-owner instruction",
+    "adr": "docs/adr/0017-m0-owner-review-waiver.md",
+    "scope": "The eight documented review lanes are not required to close M0 planning.",
+    "review_results_fabricated": false,
+    "does_not_authorize": [
+      "production implementation",
+      "dependency adoption",
+      "legal or license approval",
+      "accessibility or security approval",
+      "database capability or release"
+    ]
+  },
   "source_evidence": {
     "df_m0_008_branch": "codex/m0-dependency-dossiers",
     "df_m0_008_commit": "a5948a7bf9a46fbe1e01d93dc2f21a862a865a63",
@@ -12,6 +27,8 @@
     "df_m0_009_report": "docs/reports/DF-M0-009-wireframe-accessibility-review.md",
     "review_corrections_branch": "codex/m0-external-review-packet",
     "review_corrections_commit": "2fb7d0618f2535a47d8899416cdf7e6aa42744d0",
+    "owner_waiver_commit": null,
+    "owner_waiver_commit_state": "pending follow-up pin commit",
     "review_corrections_scope": "Post-review clarification/corrections to FFI, performance, grid metadata, SSH/dependency provenance, distribution counts, GRDB provenance, SPDX PURLs, exact RustSec scanner binding, credential-lease cancellation ordering, SQLite file/backup/restore controls, dependency-policy commands, eight-role roadmap alignment and packet preflight; no production authority."
   },
   "planning_preflight": {
@@ -68,17 +85,17 @@
       "passed": true
     },
     "explicit_exclusions": [
-      "DF-M0-008 definition-of-done or external-review closure",
-      "DF-M0-009 definition-of-done or external-review closure",
+      "production dependency adoption or release approval",
+      "executable UI, accessibility, database or security behavior",
       "production dependency, UI, database or release authority",
       "executable behavior"
     ],
-    "claim_limit": "Structural and traceability preflight only; sibling-source task completion is deliberately excluded and no external acceptance or executable behavior is proven."
+    "claim_limit": "Structural and traceability preflight only; ADR-0017 separately closes M0 planning by owner waiver, while no external acceptance or executable behavior is proven."
   },
   "review_invariants": [
-    "The evidence author, an agent, a scanner, or a risk owner cannot fill an independent reviewer slot on its own behalf.",
+    "The eight lanes are waived for M0 rather than completed; the evidence author, an agent, a scanner, or a risk owner cannot fabricate a reviewer result.",
     "Concur means the reviewer agrees with the current fail-closed or conditional record; it does not approve a production dependency, capability, implementation, release, license, or safety exception.",
-    "Every changes_required or defer result keeps the affected definition of done false and records an owner plus revisit trigger before closure.",
+    "Any future changes_required or defer result records an owner and revisit trigger and cannot be converted into approval by the owner waiver.",
     "Legal advice, private contact data, signatures, credentials, database data, and privileged analysis are not committed; only a non-privileged disposition summary and counsel-held reference may be recorded.",
     "No review result can override a current advisory, missing exact identity, missing executable evidence, unsupported capability, database-safety invariant, or separate implementation-authorization gate."
   ],
@@ -86,13 +103,15 @@
     {
       "task": "DF-M0-008",
       "scope": "Dependency adoption dossiers, candidate inventory, prototype SPDX, policy dry run, and current reject/defer outcomes.",
-      "definition_of_done_met": false,
+      "definition_of_done_met": true,
+      "definition_of_done_scope": "M0 planning artifact only under ADR-0017 owner waiver",
+      "external_review_gate_required": false,
       "production_dependency_adoption_allowed": false,
-      "required_reviews": [
+      "documented_review_lanes": [
         {
           "review_id": "M0R-DEP-ENG",
           "role": "Independent engineering",
-          "status": "pending",
+          "status": "not_requested_owner_waived",
           "allowed_results": [
             "concur",
             "changes_required",
@@ -112,7 +131,7 @@
         {
           "review_id": "M0R-DEP-SEC",
           "role": "Independent security",
-          "status": "pending",
+          "status": "not_requested_owner_waived",
           "allowed_results": [
             "concur",
             "changes_required",
@@ -133,7 +152,7 @@
         {
           "review_id": "M0R-DEP-LEGAL",
           "role": "Qualified legal",
-          "status": "pending",
+          "status": "not_requested_owner_waived",
           "allowed_results": [
             "concur",
             "changes_required",
@@ -152,23 +171,25 @@
         }
       ],
       "closure_rules": [
-        "All three required review slots have a non-pending result from an independent qualified reviewer.",
-        "Every changes_required or defer result has been resolved or remains an explicit blocker with owner and revisit trigger.",
+        "ADR-0017 waives all three review lanes as an M0 exit prerequisite without supplying a result.",
+        "Every candidate remains governed by its explicit blocker, owner and revisit trigger.",
         "Candidate-level identities, notices, advisories, runtime evidence, and dispositions are updated without converting unknown facts to approve.",
-        "The task definition of done remains false until its ADR/report are updated from reviewer evidence; external review alone does not enable production adoption."
+        "The task planning definition of done is true under the owner waiver; production adoption remains false until candidate-level evidence and normal adoption authority pass."
       ]
     },
     {
       "task": "DF-M0-009",
       "scope": "Five low-fidelity wireframes, shared focus/accessibility/safety contract, 12 tracked actions, and M1/M2 verification ownership.",
-      "definition_of_done_met": false,
+      "definition_of_done_met": true,
+      "definition_of_done_scope": "M0 planning artifact only under ADR-0017 owner waiver",
+      "external_review_gate_required": false,
       "m1_ui_implementation_allowed_by_this_review": false,
       "m2_ui_implementation_allowed_by_this_review": false,
-      "required_reviews": [
+      "documented_review_lanes": [
         {
           "review_id": "M0R-UX-PRODUCT",
           "role": "Product",
-          "status": "pending",
+          "status": "not_requested_owner_waived",
           "allowed_results": [
             "concur",
             "changes_required",
@@ -186,7 +207,7 @@
         {
           "review_id": "M0R-UX-DESIGN",
           "role": "macOS interaction design",
-          "status": "pending",
+          "status": "not_requested_owner_waived",
           "allowed_results": [
             "concur",
             "changes_required",
@@ -204,7 +225,7 @@
         {
           "review_id": "M0R-UX-ACCESSIBILITY",
           "role": "Accessibility/VoiceOver",
-          "status": "pending",
+          "status": "not_requested_owner_waived",
           "allowed_results": [
             "concur",
             "changes_required",
@@ -222,7 +243,7 @@
         {
           "review_id": "M0R-UX-DB-SAFETY",
           "role": "Database Safety",
-          "status": "pending",
+          "status": "not_requested_owner_waived",
           "allowed_results": [
             "concur",
             "changes_required",
@@ -240,7 +261,7 @@
         {
           "review_id": "M0R-UX-SECURITY",
           "role": "Security",
-          "status": "pending",
+          "status": "not_requested_owner_waived",
           "allowed_results": [
             "concur",
             "changes_required",
@@ -258,22 +279,26 @@
         }
       ],
       "closure_rules": [
-        "All five required review slots have a non-pending result from an independent qualified reviewer.",
-        "All 12 action dispositions, owners, and revisit triggers are updated from reviewer evidence.",
-        "Any requested artifact change is applied and re-reviewed without claiming runtime proof.",
-        "Static closure does not authorize production UI; M1 and M2 require separate implementation requests and executable owning-milestone evidence."
+        "ADR-0017 waives all five review lanes as an M0 exit prerequisite without supplying a result.",
+        "All 12 actions retain their dispositions, owners and executable revisit triggers.",
+        "The owner waiver makes no runtime claim and cannot close an executable action.",
+        "Static planning closure does not authorize production UI; M1 and M2 require separate implementation requests and executable owning-milestone evidence."
       ]
     }
   ],
   "summary": {
-    "required_review_slots": 8,
+    "documented_review_lanes": 8,
+    "required_review_slots": 0,
     "completed_review_slots": 0,
-    "pending_review_slots": 8,
+    "pending_review_slots": 0,
+    "waived_review_slots": 8,
     "external_review_complete": false,
-    "df_m0_008_definition_of_done_met": false,
-    "df_m0_009_definition_of_done_met": false,
-    "m0_exit_authorized_by_this_record": false,
+    "external_review_required_for_m0_exit": false,
+    "owner_waiver_recorded": true,
+    "df_m0_008_definition_of_done_met": true,
+    "df_m0_009_definition_of_done_met": true,
+    "m0_exit_authorized_by_this_record": true,
     "production_implementation_authorized_by_this_record": false
   },
-  "safe_next_step": "Provide this packet and the pinned source evidence to independent reviewers; record only their attributable non-privileged dispositions, then update the source ADRs/reports without weakening any unresolved gate."
+  "safe_next_step": "Obtain a separate explicit production implementation request for DF-M1-001. Until then do not create production source or manifests; continue to block dependency adoption, SSH and release on their candidate-level evidence."
 }
