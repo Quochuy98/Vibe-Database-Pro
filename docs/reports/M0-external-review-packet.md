@@ -47,10 +47,11 @@ authorizes M0 exit. It does not:
 | DF-M0-008 dependency dossiers | `codex/m0-dependency-dossiers` at `a5948a7bf9a46fbe1e01d93dc2f21a862a865a63` | [Dossier](DF-M0-008-dependency-adoption-dossiers.md), [policy](../DEPENDENCY_POLICY.md), [ADR-0015](../adr/0015-m0-dependency-disposition.md) | `0 approve / 10 defer / 3 reject`; adoption false; planning DoD true by ADR-0017 waiver |
 | DF-M0-009 wireframe review | `codex/m0-wireframe-review` at `42bbdf54384895d862594daef3324de22689cce9` | [Review](DF-M0-009-wireframe-accessibility-review.md), [wireframes](../UX_WIREFRAMES.md), [ADR-0016](../adr/0016-m0-wireframe-accessibility-disposition.md) | Five conditional wireframes; 12 executable actions; planning DoD true by ADR-0017 waiver; M1/M2 authority false |
 | Review corrections overlay | `codex/m0-external-review-packet` at `2fb7d0618f2535a47d8899416cdf7e6aa42744d0` | Corrected reports, ADRs and machine-readable evidence/provenance referenced by this packet | Clarifications/corrections applied before the later owner waiver |
+| Owner-waiver overlay | `codex/m0-external-review-packet` at `d02b3e2b8fc1bdcef2d2b5a331acdc4aa8393d50` | [ADR-0017](../adr/0017-m0-owner-review-waiver.md), synchronized reports and machine-readable status | Eight lanes waived for M0, zero completed; M0 planning exit true; production/adoption/release authority false |
 
-Review the three named commits, including the correction overlay, not a mutable
-branch tip. If evidence changes, the review result must name the new commit and
-re-evaluate affected questions.
+The four named commits preserve the original sibling evidence, correction
+overlay and owner decision without relying on a mutable branch tip. A future
+voluntary review must name the exact commit it evaluates.
 
 ## 4. Planning-completeness preflight
 
@@ -179,4 +180,4 @@ by their own evidence and authority gates.
 
 | Artifact | Purpose | SHA-256 |
 | --- | --- | --- |
-| [`review-status.json`](data/M0-external-review/review-status.json) | Owner waiver, eight preserved lanes, authority limits and current M0 status | `5c68e7b4cd91c128937595ab855a9041cb743d7a5ffa171235a909d88b568702` |
+| [`review-status.json`](data/M0-external-review/review-status.json) | Owner waiver, eight preserved lanes, authority limits and current M0 status | `2a755c37fecfb86784ffab25c73edfff178f322b5a660ea4336274bf703ef15b` |

@@ -27,8 +27,9 @@
     "df_m0_009_report": "docs/reports/DF-M0-009-wireframe-accessibility-review.md",
     "review_corrections_branch": "codex/m0-external-review-packet",
     "review_corrections_commit": "2fb7d0618f2535a47d8899416cdf7e6aa42744d0",
-    "owner_waiver_commit": null,
-    "owner_waiver_commit_state": "pending follow-up pin commit",
+    "owner_waiver_commit": "d02b3e2b8fc1bdcef2d2b5a331acdc4aa8393d50",
+    "owner_waiver_commit_state": "pinned",
+    "owner_waiver_scope": "ADR-0017 plus synchronized roadmap, backlog, risk, source dossier/matrix overlays and fail-closed M0 status; no production source, dependency adoption or release authority.",
     "review_corrections_scope": "Post-review clarification/corrections to FFI, performance, grid metadata, SSH/dependency provenance, distribution counts, GRDB provenance, SPDX PURLs, exact RustSec scanner binding, credential-lease cancellation ordering, SQLite file/backup/restore controls, dependency-policy commands, eight-role roadmap alignment and packet preflight; no production authority."
   },
   "planning_preflight": {
